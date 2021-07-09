@@ -12,9 +12,10 @@ namespace Sick_test
 {
     class Program
     {
+        const int Step = 286; //Количество шагов
         static double[] ConnectionResultDistanceData(LMDScandataResult res){
             double[] result;
-            result = new double[286];
+            result = new double[Step];
             //var i = 0;
             if (res.DistancesData != null){
                 /*foreach(var d in res.DistancesData) {
@@ -36,7 +37,7 @@ namespace Sick_test
 
             var lms = new LMS1XX("192.168.5.242", 2111, 5000, 5000);
 
-            var Conv = new SpetialConvertor(40, -40, 286);
+            var Conv = new SpetialConvertor(40, -40, Step);
             lms.Connect();
 
             Thread.Sleep(100);
@@ -51,7 +52,6 @@ namespace Sick_test
             foreach(var d in Xpos) {
                 Console.Write($"{d}  ");
             }
-            Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
             foreach(var d in Ypos) {
