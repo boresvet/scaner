@@ -42,8 +42,7 @@ namespace Sick_test
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
             var t=Task.Run(()=>NewMethod("192.168.5.242"));
-            var y=Task.Run(()=>NewMethod("192.168.5.241"));
-            Task.WaitAll(t, y);
+            Task.WaitAll(t);
         }
 
         public static void NewMethod(string addr)
@@ -59,10 +58,19 @@ namespace Sick_test
 
             double[] PolarScanResult = ConnectionResultDistanceData(res);
             PointXY[] pos = Conv.MakePoint(PolarScanResult);
-
-            for (int i = 0; i < pos.Count(); i++)
+            /*for (int i = 0; i < pos.Count(); i++)
             {
                 Console.WriteLine($"{addr},  {i + 1}, {pos[i].X},  {pos[i].Y} ");
+            }
+            Console.WriteLine();*/
+            CircularBuffer<PointXY[]> MyCircularBuffer = new CircularBuffer<PointXY[]>(10000);
+            Console.WriteLine(MyCircularBuffer.IsEmpty);
+            MyCircularBuffer.Enqueue(pos);
+            var QWE = MyCircularBuffer.Dequeve();
+            for (int i = 0; i < pos.Count(); i++)
+            {   
+
+                Console.WriteLine($"{addr},  {i + 1}, {QWE[i].X},  {QWE[i].Y} ");
             }
             Console.WriteLine();
 
