@@ -24,7 +24,7 @@ namespace Sick_test
             get { return _length == _buffersize;}
         }
 
-        public T Dequeve(){
+        public T Dequeve1(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
                 T dequeved = _buffer[_tail];
@@ -38,7 +38,7 @@ namespace Sick_test
             return (position + 1) % _buffersize;
         }
 
-        public void Enqueue(T toadd){
+        public void Enqueue1(T toadd){
             lock(_lock){
                 _head = NextPosition(_head);
                 _buffer[_head] = toadd;
