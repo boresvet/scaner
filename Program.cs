@@ -13,6 +13,7 @@ namespace Sick_test
 {
     public class PointXY{
         public double X,Y;
+
     }
     public class Scan{
         public PointXY[] pointsArray; 
@@ -29,7 +30,26 @@ namespace Sick_test
             }
             return result;
         }
+        static double[] XConv(PointXY[] mass){
+            double[] ret = new double[286]; 
+            for(int i = 0; i<mass.Length; i++){
+                ret[i] = (double)mass[i].X;
+            }
+            return ret;
+        }
 
+        static double[] YConv(PointXY[] mass){
+            double[] ret = new double[286]; 
+            for(int i = 0; i<mass.Length; i++){
+                ret[i] = (double)mass[i].Y;
+            }
+            return ret;
+        }
+        static string PointsToString(PointXY[] mass){
+            //var massStr = Array.ConvertAll<double, string>(XConv(mass), x => x.ToString());
+            //var massStr1 = Array.ConvertAll<double, string>(YConv(mass), x => x.ToString());
+            return String.Join(" ", XConv(mass).Select(n => n.ToString())) + " &&& " + String.Join(" ", YConv(mass).Select(n => n.ToString()));
+        }
         static void Main(string[] args)
         {
             ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
@@ -38,7 +58,7 @@ namespace Sick_test
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            var InputT = Task.Run(() => InputTask("192.168.5.242", MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT = Task.Run(() => InputTask("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent));
             var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
@@ -54,15 +74,27 @@ namespace Sick_test
         }
 
         private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
-        {
+        {   
+            string writepath = @"/home/dan/Рабочий стол/12345/Sick-test/test.txt";
+            StreamWriter Myfyle = new StreamWriter(writepath, true);
             Scan qwer;
+            CircularBuffer<Scan> MyCircularBuffer = new CircularBuffer<Scan>(10000);
             while (true)
-            {
+            {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
                 if(Number == 1) break;
                 InputEvent.Reset();
                 while(MyConcurrentQueue.TryDequeue(out qwer)){
-                Console.WriteLine(qwer.time);
+                    //Console.WriteLine(qwer.time);
+                    //Console.WriteLine(MyCircularBuffer.IsEmpty);
+                    MyCircularBuffer.Enqueue1(qwer);
+                }
+                if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
+                if(MyCircularBuffer.MyLeanth >= 10000){
+                    while(MyCircularBuffer.IsEmpty == false){
+                        Myfyle.WriteLine($"{MyCircularBuffer.ReadPosition().time}   {PointsToString(MyCircularBuffer.Dequeve1().pointsArray)}");
+                    }
+                    Console.WriteLine("Файл записан");
                 }
             }
         }
@@ -71,21 +103,44 @@ namespace Sick_test
         {
             var lms = new LMS1XX(addr, 2111, 5000, 5000);
             var Conv = new SpetialConvertor(40, -40, Step);
-            lms.Connect();
-            var ContResult = lms.StartContinuous();            //var res = lms.LMDScandata2();
             //Thread.Sleep(100);
+            lms.Connect();
+            //Console.WriteLine(lms.QueryStatus());
+            var accessResult = lms.SetAccessMode();
+            //Console.WriteLine(lms.QueryStatus());
+            var sss = lms.Stop();
+            //Console.WriteLine(lms.QueryStatus());
+
+            var startResult = lms.Start();
+            //Console.WriteLine(lms.QueryStatus());
+            var runResult = lms.Run();
+            //Console.WriteLine(lms.QueryStatus());
+            var contResult = lms.StartContinuous();
             var res = lms.ScanContinious();
+            var Scan = new Scan{
+                pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res)),
+                time = DateTime.Now
+            };
+            var oldscan=0;
             while(true){
                 //Thread.Sleep(10000);
-                if (ExitEvent.WaitOne(0)) return;
+                if (ExitEvent.WaitOne(0)) {
+                    lms.Disconnect();
+                    return;
+                }
                 res = lms.ScanContinious();
-                /*CircularBuffer<PointXY[]> MyCircularBuffer = new CircularBuffer<PointXY[]>(10000);
-                Console.WriteLine(MyCircularBuffer.IsEmpty);
-                MyCircularBuffer.Enqueue1(pos);*/
-                var Scan = new Scan{
-                    pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res)), time = DateTime.Now
-                };
+                if (oldscan!=res.ScanCounter){ 
+                    Console.WriteLine($"{oldscan} {res.ScanCounter} {res.ScanFrequency}");
+                }
+                if (res.ScanCounter == null){
+                    oldscan++;
+                }else{
+                    oldscan = (int)res.ScanCounter+1;
+                }
+                Scan.time = DateTime.Now;
+                Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res));
                 MyConcurrentQueue.Enqueue(Scan);
+
                 //Console.WriteLine("Скан записан");
                 InputEvent.Set();
                 /*for (int i = 0; i < pos.Count(); i++)
@@ -94,7 +149,6 @@ namespace Sick_test
                     Console.WriteLine($"{addr},  {i + 1}, {MyCircularBuffer.ReadPosition()[i].X},  {MyCircularBuffer.ReadPosition()[i].Y} ");
                 }*/
             }
-            lms.Disconnect();
         }
     }
 }

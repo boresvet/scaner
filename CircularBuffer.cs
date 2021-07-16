@@ -23,7 +23,9 @@ namespace Sick_test
         public bool IsFull{
             get { return _length == _buffersize;}
         }
-
+        public int MyLeanth{
+            get { return _length;}
+        }
         public T Dequeve1(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
