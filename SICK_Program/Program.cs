@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Drawing;
 namespace Sick_test
 {
     public class PointXY{
@@ -21,6 +21,15 @@ namespace Sick_test
     }
     class Program
     {
+        public static int PointsHigth(double pointY){
+            var result = new Int32();
+            if(pointY>10.0){
+                return 1;
+            }else{
+                result = 127+((int)(12.8*pointY));
+                return result;
+            }
+        }
         const int Step = 286; //Количество шагов
         static double[] ConnectionResultDistanceData(LMDScandataResult res){
             double[] result;
@@ -72,13 +81,37 @@ namespace Sick_test
 
             Console.WriteLine();
         }
+        public static void CreateImage(CircularBuffer<Scan> MyCircularBuffer, string Filename){
+            var img = new Bitmap(MyCircularBuffer.MyLeanth, 1000, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var color = new Color();
+            var Scans = MyCircularBuffer.ReadPosition();
+            var cnt = 0;
+            var n = 0;
+            while(MyCircularBuffer.IsEmpty == false){
+                Scans = MyCircularBuffer.Dequeve1();
+                foreach(PointXY i in Scans.pointsArray){
+                    n = PointsHigth(i.Y);
+                    color = System.Drawing.Color.FromArgb(n,n,127);
+                    if(Abs(i.X)<10){
+                        var MyPoint = (((i.X/10.0)*500.0)+500)%1000;
+                        img.SetPixel(MyCircularBuffer.MyLeanth,(int)MyPoint,color);
+                        //img.SetPixel(0,0,color);
+                     }
+                    cnt++;
+                }
+            }
+            img.Save(Filename, System.Drawing.Imaging.ImageFormat.Png); 
+            img.Dispose();
+            Console.WriteLine(PointsHigth(7.7));
+        }
 
         private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {   
-            string writepath = @"/home/dan/Рабочий стол/12345/Sick-test/test.txt";
-            StreamWriter Myfyle = new StreamWriter(writepath, true);
+            //string writepath = @"/home/dan/Рабочий стол/12345/Sick-test/test.txt";
+            //StreamWriter Myfyle = new StreamWriter(writepath, true);
             Scan qwer;
             CircularBuffer<Scan> MyCircularBuffer = new CircularBuffer<Scan>(10000);
+            var trigger = true;
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
@@ -89,12 +122,17 @@ namespace Sick_test
                     //Console.WriteLine(MyCircularBuffer.IsEmpty);
                     MyCircularBuffer.Enqueue1(qwer);
                 }
-                if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
-                if(MyCircularBuffer.MyLeanth >= 10000){
-                    while(MyCircularBuffer.IsEmpty == false){
-                        Myfyle.WriteLine($"{MyCircularBuffer.ReadPosition().time}   {PointsToString(MyCircularBuffer.Dequeve1().pointsArray)}");
-                    }
-                    Console.WriteLine("Файл записан");
+                //if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
+                /*while(MyCircularBuffer.IsEmpty == false){
+                    Myfyle.WriteLine($"{MyCircularBuffer.ReadPosition().time}   {PointsToString(MyCircularBuffer.Dequeve1().pointsArray)}");
+                }*/
+                //Console.WriteLine("Файл записан");
+                if(MyCircularBuffer.MyLeanth%1000 == 0){
+                    Console.WriteLine(MyCircularBuffer.MyLeanth);
+                }
+                if((MyCircularBuffer.MyLeanth >=10000)&(trigger)){
+                    CreateImage(MyCircularBuffer, "test.png");
+                    trigger = false;
                 }
             }
         }
@@ -102,7 +140,7 @@ namespace Sick_test
         public static void InputTask(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {
             var lms = new LMS1XX(addr, 2111, 5000, 5000);
-            var Conv = new SpetialConvertor(40, -40, Step);
+            var Conv = new SpetialConvertor(-5, 185, Step);
             //Thread.Sleep(100);
             lms.Connect();
             //Console.WriteLine(lms.QueryStatus());
@@ -137,15 +175,17 @@ namespace Sick_test
                 }else{
                     oldscan = (int)res.ScanCounter+1;
                 }
+                /*if(oldscan%1000 == 0){
+                    Console.WriteLine("Тысячный скан");
+                }*/
                 Scan.time = DateTime.Now;
                 Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res));
                 MyConcurrentQueue.Enqueue(Scan);
-
+                
                 //Console.WriteLine("Скан записан");
                 InputEvent.Set();
                 /*for (int i = 0; i < pos.Count(); i++)
                 {   
-
                     Console.WriteLine($"{addr},  {i + 1}, {MyCircularBuffer.ReadPosition()[i].X},  {MyCircularBuffer.ReadPosition()[i].Y} ");
                 }*/
             }
