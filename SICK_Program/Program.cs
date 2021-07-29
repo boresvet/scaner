@@ -46,14 +46,22 @@ namespace Sick_test
         }
         public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
             var scan = MyCircularBuffer.ReadPosition();
+            var ArrayPointsIndex = new double[scan.pointsArray.Length];
             var leanth = MyCircularBuffer.MyLeanth;
             for(int j = 0; j<leanth; j++){
             var myscan = MyCircularBuffer.ReadPosition();
                 for (int i = 0; i < Step; i++){
-                    scan.pointsArray[i].X += (myscan.pointsArray[i].X)%leanth;
-                    scan.pointsArray[i].Y += (myscan.pointsArray[i].Y)%leanth;
+                    if(((myscan.pointsArray[i].X == 0)&(myscan.pointsArray[i].Y == 0))==false){
+                        scan.pointsArray[i].X += (myscan.pointsArray[i].X);
+                        scan.pointsArray[i].Y += (myscan.pointsArray[i].Y);
+                        ArrayPointsIndex[i] += 1;
+                    }
                 }
                 MyCircularBuffer.NextPosition();
+            }
+            for (int i = 0; i < Step; i++){
+                scan.pointsArray[i].X = scan.pointsArray[i].X/ArrayPointsIndex[i];
+                scan.pointsArray[i].Y = scan.pointsArray[i].Y/ArrayPointsIndex[i];
             }
             return scan;
         }
