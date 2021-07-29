@@ -60,5 +60,12 @@ namespace Sick_test
                 }
             }
         }
+        public void NextPosition(){
+            lock(_lock){
+                _head = NextPosition(_head);
+                _tail = NextPosition(_tail);
+            }
+        }
+
     }
 }
