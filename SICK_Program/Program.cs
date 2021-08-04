@@ -11,13 +11,20 @@ using System.Threading.Tasks;
 using System.Drawing;
 namespace Sick_test
 {
-    public class PointXY{
+    public struct PointXY{
         public double X,Y;
 
     }
     public class Scan{
         public PointXY[] pointsArray; 
         public DateTime time;
+
+        public Scan(int count){
+            pointsArray = new PointXY[count];
+        }
+        public Scan(){
+
+        }
     }
     class Program
     {
@@ -45,13 +52,14 @@ namespace Sick_test
             }
         }
         public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
-            var scan = MyCircularBuffer.ReadPosition();
-            var ArrayPointsIndex = new double[scan.pointsArray.Length];
+            var scan = new Scan(Step);
+            //= MyCircularBuffer.ReadPosition();
+            var ArrayPointsIndex = new int[Step];
             var leanth = MyCircularBuffer.MyLeanth;
-            for(int j = 0; j<leanth; j++){
+            for(int j = 1; j<leanth; j++){
             var myscan = MyCircularBuffer.ReadPosition();
                 for (int i = 0; i < Step; i++){
-                    if(((myscan.pointsArray[i].X == 0)&(myscan.pointsArray[i].Y == 0))==false){
+                    if((((int)myscan.pointsArray[i].X == 0)&((int)myscan.pointsArray[i].Y == 0))==false){
                         scan.pointsArray[i].X += (myscan.pointsArray[i].X);
                         scan.pointsArray[i].Y += (myscan.pointsArray[i].Y);
                         ArrayPointsIndex[i] += 1;
@@ -59,12 +67,18 @@ namespace Sick_test
                 }
                 MyCircularBuffer.NextPosition();
             }
+            //Console.WriteLine(Step);
             for (int i = 0; i < Step; i++){
-                scan.pointsArray[i].X = scan.pointsArray[i].X/ArrayPointsIndex[i];
-                scan.pointsArray[i].Y = scan.pointsArray[i].Y/ArrayPointsIndex[i];
+                if(ArrayPointsIndex[i]!=0){
+                    scan.pointsArray[i].X = scan.pointsArray[i].X/(ArrayPointsIndex[i]+1);
+                    scan.pointsArray[i].Y = scan.pointsArray[i].Y/(ArrayPointsIndex[i]+1);
+                    Console.WriteLine(ArrayPointsIndex[i]);
+                }
             }
+            Console.WriteLine(ArrayPointsIndex[100]);
             return scan;
         }
+
         public static int PointsHigth(double pointY){
             var result = new Int32();
             if(pointY>10.0){
@@ -77,10 +91,10 @@ namespace Sick_test
         const int Step = 286; //Количество шагов
         static double[] ConnectionResultDistanceData(LMDScandataResult res){
             double[] result;
-            result = new double[Step];
             if (res.DistancesData != null){
                 result = res.DistancesData.ToArray();
-            }
+            }else{
+                result = new double[Step];}
             return result;
         }
         static double[] XConv(PointXY[] mass){
@@ -107,13 +121,14 @@ namespace Sick_test
         static void Main(string[] args)
         {
             ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
+            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             var InputEvent = new ManualResetEvent(false);
             var ExitEvent = new ManualResetEvent(false);
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            var InputT = Task.Run(() => InputTask("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent));
-            var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT = Task.Run(() => InputTask("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent, MyGround));
+            var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent, MyGround));
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll(InputT, MainT);
@@ -127,13 +142,14 @@ namespace Sick_test
             Console.WriteLine();
         }
 
-        private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
+        private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent, CircularBuffer<PointXY[]> MyGround)
         {   
             //string writepath = @"/home/dan/Рабочий стол/12345/Sick-test/test.txt";
             //StreamWriter Myfyle = new StreamWriter(writepath, true);
+            var GroundScan = new Scan();
             Scan qwer;
             CircularBuffer<Scan> MyCircularBuffer = new CircularBuffer<Scan>(10000);
-            var trigger = true;
+            //var trigger = true;
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
@@ -143,6 +159,9 @@ namespace Sick_test
                     //Console.WriteLine(qwer.time);
                     //Console.WriteLine(MyCircularBuffer.IsEmpty);
                     MyCircularBuffer.Enqueue1(qwer);
+                }
+                if(MyGround.IsFull){
+                    GroundScan.pointsArray = MyGround.ReadPosition();
                 }
                 //if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
                 /*while(MyCircularBuffer.IsEmpty == false){
@@ -157,38 +176,36 @@ namespace Sick_test
                     trigger = false;
                 }*/  //Создание картинок
                 //var i = 0;
-                if((MyCircularBuffer.MyLeanth >=10000)&(trigger)){
+                /*if((MyCircularBuffer.MyLeanth >=10000)&(trigger)){
+                    Console.WriteLine("------");
                     var Averrage = AverrageCircularBuffer(MyCircularBuffer);
                     trigger = false;
+                    Console.WriteLine(Averrage.pointsArray[34].X);
                     Console.WriteLine(MyCircularBuffer.MyLeanth);
-                }
+                }*/
+
+
             }
         }
-        private static void InputTask(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
+        private static void InputTask(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent, CircularBuffer<PointXY[]> MyGround)
         {
             var lms = new LMS1XX(addr, 2111, 5000, 5000);
             var Conv = new SpetialConvertor(-5, 185, Step);
-            //Thread.Sleep(100);
             lms.Connect();
-            //Console.WriteLine(lms.QueryStatus());
             var accessResult = lms.SetAccessMode();
-            //Console.WriteLine(lms.QueryStatus());
             var sss = lms.Stop();
-            //Console.WriteLine(lms.QueryStatus());
-
             var startResult = lms.Start();
-            //Console.WriteLine(lms.QueryStatus());
             var runResult = lms.Run();
-            //Console.WriteLine(lms.QueryStatus());
             var contResult = lms.StartContinuous();
             var res = lms.ScanContinious();
+            var NewGround = new Ground((int)res.EncoderPosition, (int)res.StartAngle, (int)res.SizeOfSingleAngularStep);
+            NewGround.InitGround(ConnectionResultDistanceData(res));
             var Scan = new Scan{
                 pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res)),
                 time = DateTime.Now
             };
             var oldscan=0;
             while(true){
-                //Thread.Sleep(10000);
                 if (ExitEvent.WaitOne(0)) {
                     lms.Disconnect();
                     return;
@@ -207,14 +224,9 @@ namespace Sick_test
                 }*/
                 Scan.time = DateTime.Now;
                 Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res));
+                MyGround.Enqueue1(Conv.MakePoint(NewGround.MyGround(ConnectionResultDistanceData(res))));
                 MyConcurrentQueue.Enqueue(Scan);
-                
-                //Console.WriteLine("Скан записан");
                 InputEvent.Set();
-                /*for (int i = 0; i < pos.Count(); i++)
-                {   
-                    Console.WriteLine($"{addr},  {i + 1}, {MyCircularBuffer.ReadPosition()[i].X},  {MyCircularBuffer.ReadPosition()[i].Y} ");
-                }*/
             }
         }
     }

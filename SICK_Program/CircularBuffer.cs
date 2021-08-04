@@ -2,7 +2,7 @@ using System;
 
 namespace Sick_test
 {
-    class CircularBuffer<T>{
+    public class CircularBuffer<T>{
         T[] _buffer;
         int _head;
         int _tail;
