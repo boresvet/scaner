@@ -1,5 +1,5 @@
-using BSICK.Sensors.LMS1xx;
-
+//using BSICK.Sensors.LMS1xx;
+using System;
 namespace Sick_test
 {
     public class Ground{
@@ -7,10 +7,18 @@ namespace Sick_test
         public int Step;
         private SpetialConvertor convertor;
         public double[] RawGroundData;
+
         public Ground(int size, int begingrade, int endgrade){
             GroundScan = new Scan(size);
             Step = size;
             convertor = new SpetialConvertor(begingrade, endgrade, Step);
+        }
+        public double[] RawScanConvertor(PointXY[] ScanData){
+            var RawData = new double[Step];
+            for(int i = 0; i<Step; i++){
+                RawData[i] = Math.Sqrt((ScanData[i].X*ScanData[i].X)+(ScanData[i].Y*ScanData[i].Y));
+            }
+            return RawData;
         }
         /*public void addScan(Scan newScan){
             foreach(i in newScan){
@@ -49,23 +57,46 @@ namespace Sick_test
             }
             return scan;
         }*/
-        public void UpdateGround(double[] newRawData){
+        public void UpdateGround(PointXY[] newData, PointXY[] carData){
             //var ret = new double[Step];
             for (int i = 0; i < Step; i++){
-                if(RawGroundData[i] < newRawData[i]){
-                    RawGroundData[i] = newRawData[i];
+                if((Math.Sqrt((newData[i].X*newData[i].X)+(newData[i].Y*newData[i].Y)) >= 0.01)&((carData[i].X*carData[i].X+carData[i].Y*carData[i].Y)<0.5)){
+                    GroundScan.pointsArray[i].X = GroundScan.pointsArray[i].X*0.999+newData[i].X*0.001;
+                    GroundScan.pointsArray
+                    [i].Y = GroundScan.pointsArray[i].Y*0.999+newData[i].Y*0.001;
                 }
             }
             GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
             //return ret;
         }
+        public void UpdateGround(double[] newRawData){
+            //var ret = new double[Step];
+            for (int i = 0; i < Step; i++){
+                if((int)newRawData[i] >= 0.01){
+                    RawGroundData[i] = RawGroundData[i]*0.999+newRawData[i]*0.001;
+                }
+            }
+            GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
+            //return ret;
+        }
+        /*public void UpdateGround(PointXY[] groundscan, PointXY[] datascan){
+
+        }*/
         public double[] MyGround(double[] newRawData){
             UpdateGround(newRawData);
             return RawGroundData;
         }
+        public PointXY[] MyGround(){
+            return GroundScan.pointsArray;
+        }
         public void InitGround(double[] rawData){
             GroundScan.pointsArray = convertor.MakePoint(rawData);
             RawGroundData = rawData;
+            //return rawData;
+        }
+        public void InitGround(PointXY[] ScanData){
+            GroundScan.pointsArray = ScanData;
+            RawGroundData = RawScanConvertor(ScanData);
             //return rawData;
         }
         /*public PointXY[] MyGround(Scan MyNewScan, PointXY[] MyPointsArray){
