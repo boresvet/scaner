@@ -25,7 +25,7 @@ namespace Sick_test
                 
             }
         }*/
-        /*public Scan MyGround(CircularBuffer<Scan> MyCircularBuffer){
+        /*public Scan MyGround(CiRawScanConvertorrcularBuffer<Scan> MyCircularBuffer){
             var scan = new Scan(Step);
             //= MyCircularBuffer.ReadPosition();
             var ArrayPointsIndex = new int[Step];
@@ -61,12 +61,12 @@ namespace Sick_test
             //var ret = new double[Step];
             for (int i = 0; i < Step; i++){
                 if((Math.Sqrt((newData[i].X*newData[i].X)+(newData[i].Y*newData[i].Y)) >= 0.01)&((carData[i].X*carData[i].X+carData[i].Y*carData[i].Y)<0.5)){
-                    GroundScan.pointsArray[i].X = GroundScan.pointsArray[i].X*0.999+newData[i].X*0.001;
-                    GroundScan.pointsArray
-                    [i].Y = GroundScan.pointsArray[i].Y*0.999+newData[i].Y*0.001;
+                    GroundScan.pointsArray[i].X = (GroundScan.pointsArray[i].X*0.999)+(newData[i].X*0.001);
+                    GroundScan.pointsArray[i].Y = (GroundScan.pointsArray[i].Y*0.999)+(newData[i].Y*0.001);
                 }
             }
-            GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
+            RawGroundData = RawScanConvertor(GroundScan.pointsArray);
+            //GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
             //return ret;
         }
         public void UpdateGround(double[] newRawData){

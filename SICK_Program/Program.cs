@@ -103,8 +103,7 @@ namespace Sick_test
             return String.Join(" ", XConv(mass).Select(n => n.ToString())) + " &&& " + String.Join(" ", YConv(mass).Select(n => n.ToString()));
         }
 
-        static void Main(string[] args)
-        {
+        static void Main(){
             ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             var InputEvent = new ManualResetEvent(false);
@@ -126,14 +125,62 @@ namespace Sick_test
 
             Console.WriteLine();
         }
-
+        static void Main1()
+        {
+            var yutu = new Scan(546);
+            var TestGen = new TestGenerator(286, 5, -5, 10, -5, 185);
+            var RawScan = TestGen.RawScanGen();
+            int Step = 286;
+            var Conv = new SpetialConvertor(-5, 185, Step);
+            var car = new MyCar(286);
+            var ground = new Ground(Step, -5, 185);
+            var Scan = new Scan{
+                pointsArray = Conv.MakePoint(RawScan),
+                time = DateTime.Now
+            };
+            ground.InitGround(RawScan);
+            var reterror = false;
+            for(int i = 0; i<10000000; i++){
+                RawScan = TestGen.RawScanGen();
+                /*if (oldscannumber!RawScanGene($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                }
+                if (res.ScanCounter == null){
+                    oldscannumber++;
+                }else{
+                    oldscannumber = (int)res.ScanCounter+1;
+                }*/
+                /*if(oldscannumber%1000 == 0){
+                    Console.WriteLine("Тысячный скан");
+                }*/
+                Scan.time = DateTime.Now;
+                Scan.pointsArray = Conv.MakePoint(RawScan);
+                var MyCar = car.CreatCarScan(Scan.pointsArray, ground.MyGround());
+                ground.UpdateGround(Scan.pointsArray, MyCar);
+                var mycar = car.SeeCar(MyCar);
+                var testcar = (Scan.pointsArray[159].Y <= 8.5);
+                if(mycar != testcar){
+                    reterror = true;
+                    Console.WriteLine($"Номер скана:{i}, полученное значение:{mycar}, значение 159й точки:{ground.MyGround()[159].Y}");
+                }
+                if(mycar){
+                    //reterror = true;
+                    Console.WriteLine($"Номер скана:{i}, полученное значение:{mycar}, значение 159й точки:{ground.MyGround()[159].Y}");
+                }
+            }
+            /*if(reterror){
+                Assert.Fail("Усёплохо");
+            }else{
+                Assert.Pass("Усёхорошо");
+            }*/
+        }
         private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {   
-            //string writepath = @"/home/dan/Рабочий стол/12345/Sick-test/test.txt";
+            //string writepath = @"/home/dan/Рабочиqwerй стол/12345/Sick-test/test.txt";
             //StreamWriter Myfyle = new StreamWriter(writepath, true);
             var GroundScan = new Scan();
             Scan qwer;
             var car = new MyCar(Step);
+            var MyCar = new Scan(286);
             var ground = new Ground(Step, -5, 185);
             CircularBuffer<Scan> MyCircularBuffer = new CircularBuffer<Scan>(10000);
             CircularBuffer<Scan> CarCircularBuffer = new CircularBuffer<Scan>(10000);
@@ -150,14 +197,18 @@ namespace Sick_test
                     if(MyCircularBuffer.IsEmpty){
                         ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
                     }
-                    var MyCar = car.CreatCarScan(qwer.pointsArray, ground.MyGround());
-                    ground.UpdateGround(qwer.pointsArray, MyCar);
+                    MyCar.pointsArray = car.CreatCarScan(qwer.pointsArray, ground.MyGround());
+                    ground.UpdateGround(qwer.pointsArray, MyCar.pointsArray);
+                    CarCircularBuffer.Enqueue1(MyCar);
                 }
                 //if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
                 /*while(MyCircularBuffer.IsEmpty == false){
                     Myfyle.WriteLine($"{MyCircularBuffer.ReadPosition().time}   {PointsToString(MyCircularBuffer.Dequeve1().pointsArray)}");
                 }*/
                 //Console.WriteLine("Файл записан");
+                if(car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray) != (CarCircularBuffer.ReadPosition().pointsArray[159].Y <= 8.5)){
+                    Console.WriteLine($" Настоящее значение:{CarCircularBuffer.ReadPosition().pointsArray[159].Y <= 8.5}, полученное значение:{car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray)}, значение 159й точки:{ground.MyGround()[159].Y}");
+                }
                 if(MyCircularBuffer.MyLeanth%1000 == 0){
                     Console.WriteLine(MyCircularBuffer.MyLeanth);
                 }
@@ -230,6 +281,7 @@ namespace Sick_test
             var contResult = lms.StartContinuous();*/
             var TestGen = new TestGenerator(Step, 5, -5, 10, begingrade, endgrade);
             var RawScan = TestGen.RawScanGen();
+            Thread.Sleep(10);
             var Conv = new SpetialConvertor(begingrade, endgrade, Step);
             //NewGround.InitGround(ConnectionResultDistanceData(res));
             var Scan = new Scan{
@@ -254,6 +306,7 @@ namespace Sick_test
                     Console.WriteLine("Тысячный скан");
                 }*/
                 Scan.time = DateTime.Now;
+                Thread.Sleep(10);
                 Scan.pointsArray = Conv.MakePoint(RawScan);
                 MyConcurrentQueue.Enqueue(Scan);
                 InputEvent.Set();

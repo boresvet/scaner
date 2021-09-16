@@ -2,7 +2,7 @@ using System;
 
 namespace Sick_test
 {
-    public class SpetialConvertor {
+    public class SpetialConvertor{
         public int BeginGrade;//    Углы относительно оси У
         public int EndGrade;
         public int Step; // Кол-во шагов. 
