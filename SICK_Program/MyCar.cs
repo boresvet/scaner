@@ -13,12 +13,14 @@ namespace Sick_test
             sampleScan = new Scan(size);
         }
         public PointXY[] CreatCarScan(PointXY[] newScan, PointXY[] myGround){
+            var MyGround = new PointXY[Step];
+            MyGround = myGround;
             var retArray = new PointXY[Step];
             for(int i = 0; i <Step; i++){
-                if((myGround[i].X-newScan[i].X)*(myGround[i].X-newScan[i].X)
-                +(myGround[i].Y-newScan[i].Y)*(myGround[i].Y-newScan[i].Y)>=0.25){
-                    retArray[i].X = myGround[i].X-newScan[i].X;
-                    retArray[i].Y = myGround[i].Y-newScan[i].Y;
+                if((MyGround[i].X-newScan[i].X)*(MyGround[i].X-newScan[i].X)
+                +(MyGround[i].Y-newScan[i].Y)*(MyGround[i].Y-newScan[i].Y)>=0.25){
+                    retArray[i].X = MyGround[i].X-newScan[i].X;
+                    retArray[i].Y = MyGround[i].Y-newScan[i].Y;
                 }else{
                     retArray[i].X = 0;
                     retArray[i].Y = 0;

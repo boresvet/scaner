@@ -4,6 +4,7 @@ namespace Sick_test
 {
     public class Ground{
         public Scan GroundScan;
+        public bool InitedGround = false;
         public int Step;
         private SpetialConvertor convertor;
         public double[] RawGroundData;
@@ -59,13 +60,19 @@ namespace Sick_test
         }*/
         public void UpdateGround(PointXY[] newData, PointXY[] carData){
             //var ret = new double[Step];
+            if((GroundScan.pointsArray[159].Y>8.5)&(newData[159].Y<8.5)){
+                Console.WriteLine("Необновляем");
+            }
             for (int i = 0; i < Step; i++){
-                if((Math.Sqrt((newData[i].X*newData[i].X)+(newData[i].Y*newData[i].Y)) >= 0.01)&((carData[i].X*carData[i].X+carData[i].Y*carData[i].Y)<0.5)){
-                    GroundScan.pointsArray[i].X = (GroundScan.pointsArray[i].X*0.999)+(newData[i].X*0.001);
-                    GroundScan.pointsArray[i].Y = (GroundScan.pointsArray[i].Y*0.999)+(newData[i].Y*0.001);
+                if((Math.Sqrt((newData[i].X*newData[i].X)+(newData[i].Y*newData[i].Y)) >= 0.01)&((carData[i].X*carData[i].X+carData[i].Y*carData[i].Y)<0.1)){
+                    GroundScan.pointsArray[i].X = ((GroundScan.pointsArray[i].X*0.999)+(newData[i].X*0.001));
+                    GroundScan.pointsArray[i].Y = ((GroundScan.pointsArray[i].Y*0.999)+(newData[i].Y*0.001));
                 }
             }
             RawGroundData = RawScanConvertor(GroundScan.pointsArray);
+            if((GroundScan.pointsArray[159].Y>8.5)&(newData[159].Y<8.5)){
+                Console.WriteLine("Необновляем");
+            }
             //GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
             //return ret;
         }
@@ -92,12 +99,41 @@ namespace Sick_test
         public void InitGround(double[] rawData){
             GroundScan.pointsArray = convertor.MakePoint(rawData);
             RawGroundData = rawData;
+            InitedGround = true;
             //return rawData;
+        }
+        public void expandGround(Scan firstData, Scan secondData){
+            var expandData = 0.0;
+            for(int i = 0; i<firstData.pointsArray.Length; i++){
+                if(firstData.pointsArray[i].Y>secondData.pointsArray[i].Y){
+                    expandData = firstData.pointsArray[i].X;
+                    firstData.pointsArray[i].X = secondData.pointsArray[i].X;
+                    secondData.pointsArray[i].X = expandData;
+
+                    expandData = firstData.pointsArray[i].Y;
+                    firstData.pointsArray[i].Y = secondData.pointsArray[i].Y;
+                    secondData.pointsArray[i].Y = expandData;
+                }
+            }
+        }
+        public void InitGround(CircularBuffer<Scan> rawData){
+            var leanth = rawData.MyLeanth;
+            var DataScans = new Scan[leanth];
+            var rawOneData = new Scan();
+            for (int i = 0; i< leanth; i++){
+                DataScans[i] = rawData.Dequeve1();
+                for(int j = 0; j<i; j++){
+                    expandGround(DataScans[j], DataScans[j+1]);
+                }
+            }
+            GroundScan = DataScans[300];
+            RawGroundData = RawScanConvertor(DataScans[300].pointsArray);
+            InitedGround = true;
         }
         public void InitGround(PointXY[] ScanData){
             GroundScan.pointsArray = ScanData;
             RawGroundData = RawScanConvertor(ScanData);
-            //return rawData;
+            InitedGround = true;
         }
         /*public PointXY[] MyGround(Scan MyNewScan, PointXY[] MyPointsArray){
             var ret = new Scan(Step);
