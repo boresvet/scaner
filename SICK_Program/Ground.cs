@@ -126,8 +126,9 @@ namespace Sick_test
                     expandGround(DataScans[j], DataScans[j+1]);
                 }
             }
-            GroundScan = DataScans[300];
-            RawGroundData = RawScanConvertor(DataScans[300].pointsArray);
+            //GroundScan = new Scan();
+            GroundScan = DataScans[300].copyScan();
+            RawGroundData = RawScanConvertor(GroundScan.pointsArray);
             InitedGround = true;
         }
         public void InitGround(PointXY[] ScanData){

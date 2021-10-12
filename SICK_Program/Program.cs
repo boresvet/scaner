@@ -201,13 +201,11 @@ namespace Sick_test
                         ground.InitGround(MyCircularBuffer);
                         Console.WriteLine("Успешная инициализация");
                     }
+                    //Console.WriteLine($" Настоящее значение:{qwer.pointsArray[159].Y}, по");
                     if(qwer.pointsArray[159].Y<8.5){
                         Console.WriteLine("Машинк");
                     }
                     if((ground.InitedGround)&(MyCircularBuffer.MyLeanth>=0)){
-                        if(qwer.pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
                         if(qwer.pointsArray[159].Y<8.5){
                             Console.WriteLine("Машинк");
                         }

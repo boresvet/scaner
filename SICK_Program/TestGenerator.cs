@@ -63,10 +63,10 @@ namespace Sick_test
             Step = size;
         }
         private void numberupdate(){
-            scannumber = (scannumber+1)%100000;
+            scannumber = (scannumber+1)%10000;
         } 
         public double[] RawScanGen(){
-            if(scannumber%10000 == 0){
+            if(scannumber%5000 == 0){
                 carid = 1;
             }
             if(carid>0){
@@ -80,7 +80,7 @@ namespace Sick_test
             }
         }
         public PointXY[] ScanGen(){
-            if(scannumber%10000 == 0){
+            if(scannumber%5000 == 0){
                 carid = 1;
             }
             if(carid!=0){

@@ -10,7 +10,12 @@ namespace Sick_test
             pointsArray = new PointXY[count];
         }
         public Scan(){
-
+        }
+        public Scan copyScan(){
+            var newScan = new Scan(pointsArray.Length);
+            newScan.time = time;
+            Array.Copy(pointsArray, newScan.pointsArray, pointsArray.Length);
+            return newScan;
         }
     }
 }
