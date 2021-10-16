@@ -60,9 +60,6 @@ namespace Sick_test
         }*/
         public void UpdateGround(PointXY[] newData, PointXY[] carData){
             //var ret = new double[Step];
-            if((GroundScan.pointsArray[159].Y>8.5)&(newData[159].Y<8.5)){
-                Console.WriteLine("Необновляем");
-            }
             for (int i = 0; i < Step; i++){
                 if((Math.Sqrt((newData[i].X*newData[i].X)+(newData[i].Y*newData[i].Y)) >= 0.01)&((carData[i].X*carData[i].X+carData[i].Y*carData[i].Y)<0.1)){
                     GroundScan.pointsArray[i].X = ((GroundScan.pointsArray[i].X*0.999)+(newData[i].X*0.001));
@@ -71,7 +68,6 @@ namespace Sick_test
             }
             RawGroundData = RawScanConvertor(GroundScan.pointsArray);
             if((GroundScan.pointsArray[159].Y>8.5)&(newData[159].Y<8.5)){
-                Console.WriteLine("Необновляем");
             }
             //GroundScan.pointsArray = convertor.MakePoint(RawGroundData);
             //return ret;

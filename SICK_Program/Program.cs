@@ -111,7 +111,7 @@ namespace Sick_test
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            var InputT = Task.Run(() => InputTask1("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT = Task.Run(() => InputTask("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent));
             var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
@@ -185,6 +185,8 @@ namespace Sick_test
             CircularBuffer<Scan> MyCircularBuffer = new CircularBuffer<Scan>(10000);
             CircularBuffer<Scan> CarCircularBuffer = new CircularBuffer<Scan>(10000);
             //var trigger = true;
+            var boololdcar = false;
+            var boolcar = false;
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
@@ -202,21 +204,10 @@ namespace Sick_test
                         Console.WriteLine("Успешная инициализация");
                     }
                     //Console.WriteLine($" Настоящее значение:{qwer.pointsArray[159].Y}, по");
-                    if(qwer.pointsArray[159].Y<8.5){
-                        Console.WriteLine("Машинк");
-                    }
                     if((ground.InitedGround)&(MyCircularBuffer.MyLeanth>=0)){
-                        if(qwer.pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
                         MyCar.pointsArray = car.CreatCarScan(qwer.pointsArray, ground.MyGround());
-                        if(qwer.pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
+
                         ground.UpdateGround(qwer.pointsArray, MyCar.pointsArray);
-                        if(qwer.pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
                         CarCircularBuffer.Enqueue1(MyCar);
                     }
                     //Console.WriteLine(MyCircularBuffer.MyLeanth);
@@ -227,19 +218,18 @@ namespace Sick_test
                 }*/
                 //Console.WriteLine("Файл записан");
                 if(ground.InitedGround){
-                    if(car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray) != (MyCircularBuffer.ReadPosition().pointsArray[159].Y <= 8.5)){
+                    /*if(car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray) != (MyCircularBuffer.ReadPosition().pointsArray[159].Y <= 8.5)){
                         Console.WriteLine($" Настоящее значение:{CarCircularBuffer.ReadPosition().pointsArray[159].Y >= 0.1}, полученное значение:{car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray)}, значение 159й точки Земли:{ground.MyGround()[159].Y}, значение 159й точки Машины:{CarCircularBuffer.ReadPosition().pointsArray[159].Y}, Значение исходника {MyCircularBuffer.ReadPosition().pointsArray[159].Y}");
-                        if(MyCircularBuffer.ReadPosition().pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
                     }else{
                         if(car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray)){
-                            Console.WriteLine("Успех!");
+                            //Console.WriteLine("Успех!");
                         }
-                        if(MyCircularBuffer.ReadPosition().pointsArray[159].Y<8.5){
-                            Console.WriteLine("Машинк");
-                        }
+                    }*/
+                    boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
+                    if((boolcar)&(!boololdcar)){
+                        Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
                     }
+                    boololdcar = boolcar;
                     /*if(MyCircularBuffer.MyLeanth%1000 == 0){
                         Console.WriteLine(MyCircularBuffer.MyLeanth);
                     }*/
