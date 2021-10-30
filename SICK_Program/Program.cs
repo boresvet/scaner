@@ -13,28 +13,29 @@ namespace Sick_test
 {
     class Program
     {
-        public void CreateImage(CircularBuffer<Scan> MyCircularBuffer, string Filename){
-            var img = new Bitmap(MyCircularBuffer.MyLeanth, 1000, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        static void CreateImage(CircularBuffer<Scan> myCircularBuffer, string Filename){
+            var img = new Bitmap(myCircularBuffer.MyLeanth, 1000, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             var color = new Color();
-            var Scans = MyCircularBuffer.ReadPosition();
+            var Scans = myCircularBuffer.ReadPosition();
             var cnt = 0;
             var n = 0;
-            while(MyCircularBuffer.IsEmpty == false){
-                Scans = MyCircularBuffer.Dequeve1();
+            int j = 0;
+            while(myCircularBuffer.MyLeanth > j){
+                Scans = myCircularBuffer.ReadPosition();
                 foreach(PointXY i in Scans.pointsArray){
                     n = PointsHigth(i.Y);
                     color = System.Drawing.Color.FromArgb(n,n,127);
                     if(Abs(i.X)<10){
                         var MyPoint = (((i.X/10.0)*500.0)+500)%1000;
-                        img.SetPixel(MyCircularBuffer.MyLeanth,(int)MyPoint,color);
+                        img.SetPixel(myCircularBuffer.MyLeanth,(int)MyPoint,color);
                         //img.SetPixel(0,0,color);
                     }
                     cnt++;
                 }
-                img.Save(Filename, System.Drawing.Imaging.ImageFormat.Png); 
-                img.Dispose();
-                Console.WriteLine(PointsHigth(7.7));
+                //Console.WriteLine(PointsHigth(7.7));
             }
+            img.Save(Filename, System.Drawing.Imaging.ImageFormat.Png); 
+            img.Dispose();
         }
         public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
             var scan = new Scan(Step);
@@ -179,6 +180,7 @@ namespace Sick_test
             //StreamWriter Myfyle = new StreamWriter(writepath, true);
             var GroundScan = new Scan();
             Scan qwer;
+            var Save = new PointSave("1234");
             var car = new MyCar(Step);
             var MyCar = new Scan(286);
             var ground = new Ground(Step, -5, 185);
@@ -187,6 +189,7 @@ namespace Sick_test
             //var trigger = true;
             var boololdcar = false;
             var boolcar = false;
+            string picture = "test1.png";
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
@@ -228,6 +231,7 @@ namespace Sick_test
                     boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
                     if((boolcar)&(!boololdcar)){
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
+                        Save.PointSaveToFile(CarCircularBuffer);
                     }
                     boololdcar = boolcar;
                     /*if(MyCircularBuffer.MyLeanth%1000 == 0){
