@@ -189,7 +189,7 @@ namespace Sick_test
             //var trigger = true;
             var boololdcar = false;
             var boolcar = false;
-            string picture = "test1.png";
+            //string picture = "test1.png";
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});

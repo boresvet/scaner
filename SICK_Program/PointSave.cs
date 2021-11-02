@@ -33,10 +33,10 @@ namespace Sick_test
                     {
                         X = (float)Scans.pointsArray[w].X,
                         Y = (float)Scans.pointsArray[w].Y,
-                        Z = 10f*(float)(n*0.01)
+                        Z = (float)(n*0.01)
                     };
                     AllData[w + width * n] = p;
-                    Console.WriteLine("");
+                    //Console.WriteLine("");
                 }
                 n++;
             }
