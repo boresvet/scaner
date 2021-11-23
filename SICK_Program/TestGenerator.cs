@@ -1,4 +1,7 @@
 using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 namespace Sick_test
 {
     public class TestGenerator{
@@ -73,11 +76,16 @@ namespace Sick_test
 
                 carid = (carid+1)%100;
                 numberupdate();
-                return RawFullScan;
+                Thread.Sleep(100);
+                var retarray = new double[RawFullScan.Length];
+                RawFullScan.CopyTo(retarray, 0);
+                return retarray;
             }else{
                 numberupdate();
-                return RawEmptyScan;
-            }
+                Thread.Sleep(10);
+                var retarray = new double[RawEmptyScan.Length];
+                RawEmptyScan.CopyTo(retarray, 0);
+                return retarray;         }
         }
         public PointXY[] ScanGen(){
             if(scannumber%500 == 0){
@@ -87,10 +95,12 @@ namespace Sick_test
 
                 carid = (carid+1)%100;
                 numberupdate();
-                return FullScan;
+                Thread.Sleep(100);
+                return PointXY.copyScan(FullScan);
             }else{
                 numberupdate();
-                return EmptyScan;
+                Thread.Sleep(10);
+                return PointXY.copyScan(EmptyScan);
             }
         }
     }

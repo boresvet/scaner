@@ -3,7 +3,7 @@ using System;
 namespace Sick_test
 {
     public class CircularBuffer<T>{
-        T[] _buffer;
+        public T[] _buffer;
         int _head;
         int _tail;
         int _length;

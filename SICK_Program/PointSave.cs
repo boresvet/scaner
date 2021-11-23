@@ -21,12 +21,12 @@ namespace Sick_test
 
             var i = myCircularBuffer.MyLeanth;
             var Scans = myCircularBuffer.ReadPosition();
+            width = Scans.pointsArray.Length;
             int n = 0;
             var AllData = new Vector3[i*Scans.pointsArray.Length];
             while(i > n){
                 Scans = myCircularBuffer.ReadPosition();
                 myCircularBuffer.NextPosition();
-                width = Scans.pointsArray.Length;
                 for (var w = 0; w < width; w++)
                 {
                     var p = new Vector3
@@ -36,14 +36,14 @@ namespace Sick_test
                         Z = (float)(n*0.01)
                     };
                     AllData[w + width * n] = p;
-                    //Console.WriteLine("");
+                    //Console.WriteLine(p);
                 }
                 n++;
             }
-
+            Console.WriteLine(i);
 
             var cloud = new PointCloud(AllData);
-            cloud.SaveToPly(ReturnFileName + "test.ply");
+            cloud.SaveToPly(ReturnFileName + "test.ply", false);
         }
     }
 }

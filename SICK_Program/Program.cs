@@ -176,6 +176,8 @@ namespace Sick_test
         }
         private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {   
+            var trigger = true;
+            var mycarleanth = 0;
             //string writepath = @"/home/dan/Рабочиqwerй стол/12345/Sick-test/test.txt";
             //StreamWriter Myfyle = new StreamWriter(writepath, true);
             var GroundScan = new Scan();
@@ -209,7 +211,6 @@ namespace Sick_test
                     //Console.WriteLine($" Настоящее значение:{qwer.pointsArray[159].Y}, по");
                     if((ground.InitedGround)&(MyCircularBuffer.MyLeanth>=0)){
                         MyCar.pointsArray = car.CreatCarScan(qwer.pointsArray, ground.MyGround());
-
                         ground.UpdateGround(qwer.pointsArray, MyCar.pointsArray);
                         CarCircularBuffer.Enqueue1(MyCar);
                     }
@@ -229,9 +230,18 @@ namespace Sick_test
                         }
                     }*/
                     boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
-                    if((boolcar)&(!boololdcar)){
+                    if((boolcar == false)&(boololdcar)){
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
-                        Save.PointSaveToFile(CarCircularBuffer);
+                        if(!trigger){
+                            Save.PointSaveToFile(MyCircularBuffer);
+                        }
+                        trigger = false;
+                        Console.WriteLine(mycarleanth);
+                    }
+                    if(boolcar == true){
+                        mycarleanth +=1;
+                    }else{
+                        mycarleanth = 0;
                     }
                     boololdcar = boolcar;
                     /*if(MyCircularBuffer.MyLeanth%1000 == 0){
