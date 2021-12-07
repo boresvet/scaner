@@ -232,11 +232,11 @@ namespace Sick_test
                     boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
                     if((boolcar == false)&(boololdcar)){
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
-                        if(!trigger){
-                            Save.PointSaveToFile(MyCircularBuffer);
+                        if(trigger){
+                            Console.WriteLine(mycarleanth);
+                            Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
                         }
-                        trigger = false;
-                        Console.WriteLine(mycarleanth);
+                        //trigger = false;
                     }
                     if(boolcar == true){
                         mycarleanth +=1;
@@ -343,7 +343,7 @@ namespace Sick_test
                 Scan.time = DateTime.Now;
                 Thread.Sleep(10);
                 Scan.pointsArray = Conv.MakePoint(RawScan);
-                MyConcurrentQueue.Enqueue(Scan);
+                MyConcurrentQueue.Enqueue(Scan.copyScan());
                 InputEvent.Set();
             }
         }

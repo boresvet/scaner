@@ -82,7 +82,7 @@ namespace Sick_test
                 return retarray;
             }else{
                 numberupdate();
-                Thread.Sleep(10);
+                Thread.Sleep(20);
                 var retarray = new double[RawEmptyScan.Length];
                 RawEmptyScan.CopyTo(retarray, 0);
                 return retarray;         }
@@ -99,7 +99,7 @@ namespace Sick_test
                 return PointXY.copyScan(FullScan);
             }else{
                 numberupdate();
-                Thread.Sleep(10);
+                Thread.Sleep(20);
                 return PointXY.copyScan(EmptyScan);
             }
         }

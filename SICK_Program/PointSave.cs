@@ -17,16 +17,21 @@ namespace Sick_test
             ReturnFileName = fileName;
         }
 
-        public void PointSaveToFile(CircularBuffer<Scan> myCircularBuffer){
-
+        public void PointSaveToFile(CircularBuffer<Scan> myCircularBuffer, int savelength){
+            var convertstruct = new Scan[myCircularBuffer.MyLeanth];
             var i = myCircularBuffer.MyLeanth;
-            var Scans = myCircularBuffer.ReadPosition();
+            convertstruct = myCircularBuffer._buffer;
+            var Scans = new Scan(convertstruct[0].pointsArray.Length);
             width = Scans.pointsArray.Length;
-            int n = 0;
+            int n = savelength;
             var AllData = new Vector3[i*Scans.pointsArray.Length];
             while(i > n){
-                Scans = myCircularBuffer.ReadPosition();
-                myCircularBuffer.NextPosition();
+                /*while(i>(n-savelength)){
+                    myCircularBuffer.NextPosition();
+                    n++;
+                }*/
+                Scans = convertstruct[n].copyScan();
+                //myCircularBuffer.NextPosition();
                 for (var w = 0; w < width; w++)
                 {
                     var p = new Vector3
@@ -41,7 +46,6 @@ namespace Sick_test
                 n++;
             }
             Console.WriteLine(i);
-
             var cloud = new PointCloud(AllData);
             cloud.SaveToPly(ReturnFileName + "test.ply", false);
         }
