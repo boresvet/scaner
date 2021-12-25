@@ -238,7 +238,8 @@ namespace Sick_test
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
                         if(trigger){
                             Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
-                            Console.WriteLine(Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan()));
+                            var size = Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan());
+                            Console.WriteLine($" Размеры: Ширина {size.X}, Высота: {size.Y}");
                             Console.WriteLine(mycarleanth);
                         }
                         //trigger = false;
