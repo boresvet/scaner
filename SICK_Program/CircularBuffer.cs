@@ -26,6 +26,13 @@ namespace Sick_test
         public int MyLeanth{
             get { return _length;}
         }
+        public void Dequeve(){
+            lock(_lock){
+                if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
+                _tail = NextPosition(_tail);
+                _length --;
+            }
+        }
         public T Dequeve1(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
@@ -64,6 +71,24 @@ namespace Sick_test
             lock(_lock){
                 _head = NextPosition(_head);
                 _tail = NextPosition(_tail);
+            }
+        }
+
+        public void CleanBuffer(bool trigger = false){ //При наличии триггера буффер очищается не полностью
+            lock(_lock){
+                if(trigger){
+                    T dequeved = Dequeve1();
+                    _buffer = new T[_buffersize];
+                    _head = _buffersize -1;
+                    _tail = 0;
+                    _length = 0;
+                    Enqueue1(dequeved);
+                }else{
+                    _buffer = new T[_buffersize];
+                    _head = _buffersize -1;
+                    _tail = 0;
+                    _length = 0;
+                }
             }
         }
 

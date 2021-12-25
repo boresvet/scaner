@@ -192,6 +192,7 @@ namespace Sick_test
             var boololdcar = false;
             var boolcar = false;
             //string picture = "test1.png";
+            var Size = new CarSize();
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
@@ -230,11 +231,15 @@ namespace Sick_test
                         }
                     }*/
                     boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
-                    if((boolcar == false)&(boololdcar)){
+                    if(boolcar == false){
+                        CarCircularBuffer.CleanBuffer();
+                    }
+                    if((boolcar)&(boololdcar == false)){
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
                         if(trigger){
-                            Console.WriteLine(mycarleanth);
                             Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
+                            Console.WriteLine(Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan()));
+                            Console.WriteLine(mycarleanth);
                         }
                         //trigger = false;
                     }

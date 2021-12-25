@@ -1,21 +1,12 @@
 using static System.Math;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Sick_test
 {
     class CarSize
     {
-        public float groundA;
-        public float groundB;
-        public Scan carScan;
-        public int Step;
-        public Scan sampleScan;
-        private PointXY[] groundArray;
-        public CarSize(int ScanSize, int CarSize)
-        {
-            carScan = new Scan(ScanSize);
-            Step = ScanSize;
-            sampleScan = new Scan(ScanSize);
-        }
 
         public PointXY[] MinAndMaxPoint(Scan retScan){
             var retPoints = new PointXY[2];
@@ -67,11 +58,18 @@ namespace Sick_test
         public PointXY[] CreateLeftGroundBorderPoints(Scan[] scanArray, Scan groundscan){
             var point = new PointXY[scanArray.Length];
             for(int J = 0; J<scanArray.Length; J++){
-                foreach(PointXY K in scanArray[J].copyScan().pointsArray){
-                    if((K.X*K.X>= 0.25 )|(K.Y*K.Y>= 0.25)){
-                        point[J] = K;
-                        break;
+                var trig = true;
+                for(int i = 0; i<scanArray[J].pointsArray.Length; i++){
+                    var K = scanArray[J].pointsArray[i];
+                    if(((K.X*K.X>= 0.25 )|(K.Y*K.Y>= 0.25))&(trig)){
+                        point[J] = groundscan.pointsArray[i];
+                        trig = false;
+                    }else{
+                        //point[J] = new PointXY(){X = 0.0, Y = 0.0};
                     }
+                }
+                if(trig){
+                    trig = false;
                 }
             }
             return point;
@@ -79,14 +77,20 @@ namespace Sick_test
 
         public PointXY[] CreateRightGroundBorderPoints(Scan[] scanArray, Scan groundscan){
             var point = new PointXY[scanArray.Length];
-            var onepoint = new PointXY();
             for(int J = 0; J<scanArray.Length; J++){
-                foreach(PointXY K in scanArray[J].copyScan().pointsArray){
-                    if((K.X*K.X>= 0.25 )|(K.Y*K.Y>= 0.25)){
-                        onepoint = K;
+                var trig = true;
+                for(int i = 0; i<scanArray[J].pointsArray.Length; i++){
+                    var K = scanArray[J].pointsArray[i];
+                    if(((K.X*K.X>= 0.25 )|(K.Y*K.Y>= 0.25))){
+                        point[J] = groundscan.pointsArray[i];
+                        trig = false;
+                    }else{
+                        //point[J] = new PointXY(){X = 0.0, Y = 0.0};
                     }
                 }
-                point[J] = onepoint;
+                if(trig){
+                    trig = false;
+                }
             }
             return point;
         }
@@ -153,9 +157,9 @@ namespace Sick_test
         }
 
         public PointXY RetCarSize(CircularBuffer<Scan> retScan, Scan ground){
-            var convertstruct = new Scan[retScan._buffer.Length];
+            //var convertstruct = new Scan[retScan.MyLeanth];
             var scan = new Scan(retScan._buffer[0].pointsArray.Length);
-            retScan._buffer.CopyTo(convertstruct,0);
+            var convertstruct = retScan._buffer.Take(retScan.MyLeanth).ToArray();
             var groundLine = CreateGroundLine(convertstruct,ground.copyScan());
             var sizeArray = new PointXY[convertstruct.Length];
             var firstSize = sizeArray[0] = CarScanSize(convertstruct[0],groundLine,ground.copyScan());
