@@ -193,36 +193,59 @@ namespace Sick_test
             var boolcar = false;
             //string picture = "test1.png";
             var Size = new CarSize();
+            bool trig = true;
             while (true)
             {   
                 var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
                 if(Number == 1) break;
                 InputEvent.Reset();
-                while(MyConcurrentQueue.TryDequeue(out qwer)){
+                while(MyConcurrentQueue.IsEmpty);
+                var sortArray = new Scan[MyConcurrentQueue.Count];
+                for(int i = 0;i<sortArray.Length; i++){
                     //Console.WriteLine(qwer.time);
                     //Console.WriteLine(MyCircularBuffer.IsEmpty);
+                    MyConcurrentQueue.TryDequeue(out qwer);
                     MyCircularBuffer.Enqueue1(qwer);
                     /*if(MyCircularBuffer.IsEmpty){
                         ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
                     }*/
+                    sortArray[i] = qwer;
+                    //Console.WriteLine(MyCircularBuffer.MyLeanth);
+                }
+                sortArray.Reverse();
+                for(int i = 0;i<sortArray.Length; i++){
+                    var qwe = sortArray[i];
                     if((!ground.InitedGround)&(MyCircularBuffer.MyLeanth>=1000)){
                         ground.InitGround(MyCircularBuffer);
                         Console.WriteLine("Успешная инициализация");
                     }
-                    //Console.WriteLine($" Настоящее значение:{qwer.pointsArray[159].Y}, по");
+                    //Console.WriteLine($" Настоящее значение:{qwe.pointsArray[159].Y}, по");
                     if((ground.InitedGround)&(MyCircularBuffer.MyLeanth>=0)){
-                        MyCar.pointsArray = car.CreatCarScan(qwer.pointsArray, ground.MyGround());
-                        ground.UpdateGround(qwer.pointsArray, MyCar.pointsArray);
-                        CarCircularBuffer.Enqueue1(MyCar);
+                        MyCar.pointsArray = car.CreatCarScan(qwe.pointsArray, ground.MyGround());
+                        ground.UpdateGround(qwe.pointsArray, MyCar.pointsArray);
+                        if(car.SeeCar(MyCar.pointsArray)){
+                            CarCircularBuffer.Enqueue1(MyCar.copyScan());
+                            trig = false;
+                        }else{
+                            if(trig){
+                            CarCircularBuffer.CleanBuffer();
+                            } else {
+                                Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
+                                Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
+                                var size = Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan());
+                                Console.WriteLine($" Размеры: Ширина {size.X}, Высота: {size.Y}");
+                                CarCircularBuffer.CleanBuffer();
+                                trig = true;
+                            };
+                        }
                     }
-                    //Console.WriteLine(MyCircularBuffer.MyLeanth);
                 }
                 //if((MyCircularBuffer.MyLeanth >= 5000)&(MyCircularBuffer.MyLeanth <= 5050)) Console.WriteLine("Ура, пять тысясяч пришло!))");
                 /*while(MyCircularBuffer.IsEmpty == false){
                     Myfyle.WriteLine($"{MyCircularBuffer.ReadPosition().time}   {PointsToString(MyCircularBuffer.Dequeve1().pointsArray)}");
                 }*/
                 //Console.WriteLine("Файл записан");
-                if(ground.InitedGround){
+                /*if(ground.InitedGround){
                     /*if(car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray) != (MyCircularBuffer.ReadPosition().pointsArray[159].Y <= 8.5)){
                         Console.WriteLine($" Настоящее значение:{CarCircularBuffer.ReadPosition().pointsArray[159].Y >= 0.1}, полученное значение:{car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray)}, значение 159й точки Земли:{ground.MyGround()[159].Y}, значение 159й точки Машины:{CarCircularBuffer.ReadPosition().pointsArray[159].Y}, Значение исходника {MyCircularBuffer.ReadPosition().pointsArray[159].Y}");
                     }else{
@@ -230,17 +253,13 @@ namespace Sick_test
                             //Console.WriteLine("Успех!");
                         }
                     }*/
-                    boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
-                    if(boolcar == false){
-                        CarCircularBuffer.CleanBuffer();
-                    }
+                    /*boolcar = car.SeeCar(CarCircularBuffer.ReadPosition().pointsArray);
                     if((boolcar)&(boololdcar == false)){
                         Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
                         if(trigger){
                             Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
                             var size = Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan());
                             Console.WriteLine($" Размеры: Ширина {size.X}, Высота: {size.Y}");
-                            Console.WriteLine(mycarleanth);
                         }
                         //trigger = false;
                     }
@@ -266,7 +285,7 @@ namespace Sick_test
                         Console.WriteLine(MyCircularBuffer.MyLeanth);
                     }*/
 
-                }
+                //}
             }
         }
         private static void InputTask(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)

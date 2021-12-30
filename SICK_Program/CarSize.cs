@@ -182,8 +182,8 @@ namespace Sick_test
                     secondSize = firstSize;
                     firstSize = sizeArray[i];
                 }
-                if(sizeArray[i].Y>maxHight){
-                    maxHight = sizeArray[i].Y;
+                if(Abs(sizeArray[i].Y)>maxHight){
+                    maxHight = Abs(sizeArray[i].Y);
                 }
             }
             var size = new PointXY(){X = fiveSize.X, Y = maxHight};
