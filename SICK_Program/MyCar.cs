@@ -33,7 +33,7 @@ namespace Sick_test
             for(int i = 0; i<carScan.Length; i++){
                 if((Math.Sqrt((carScan[i].Y*carScan[i].Y)+(carScan[i].X*carScan[i].X))) >=0.01){
                     trigger++;
-                    if(trigger >=10){
+                    if(trigger >=15){
                         return true;
                     }
                 }

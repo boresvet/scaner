@@ -112,7 +112,7 @@ namespace Sick_test
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            var InputT = Task.Run(() => InputTask1("192.168.5.241", MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT = Task.Run(() => InputTask1("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
             var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();

@@ -1,6 +1,7 @@
 using PointCloudTools;
 using System;
 using System.Numerics;
+using System.Globalization;
 
 namespace Sick_test
 {
@@ -47,7 +48,8 @@ namespace Sick_test
             }
             Console.WriteLine(i);
             var cloud = new PointCloud(AllData);
-            cloud.SaveToPly(ReturnFileName + "test.ply", false);
+            var retname = (DateTime.Now.ToString("G", DateTimeFormatInfo.InvariantInfo)) + "test" + n.ToString();
+            cloud.SaveToPly(retname.Replace('/',':')+".ply", true);
         }
     }
 }
