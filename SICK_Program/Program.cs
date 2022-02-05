@@ -105,25 +105,31 @@ namespace Sick_test
         }
 
         static void Main(){
-            ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
+            /*ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             var InputEvent = new ManualResetEvent(false);
-            var ExitEvent = new ManualResetEvent(false);
+            var ExitEvent = new ManualResetEvent(false);*/
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            var InputT = Task.Run(() => InputTask1("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
+            /*var InputT = Task.Run(() => InputTask1("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
             var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll(InputT, MainT);
             Console.WriteLine("Завершено");
-            return;
+            return;*/
             /*for (int i = 0; i < pos.Count(); i++)
             {
                 Console.WriteLine($"{addr},  {i + 1}, {qwer[i].X},  {qwer[i].Y} ");
             }*/
-
+            var translatePoint = new PointXY();
+            translatePoint.X = 17;
+            translatePoint.Y = 4;
+            var TestGen = new TestGenerator(Step, 5, -5, 10, -5, 185);
+            var RawScan = TestGen.ScanGen();
+            var Translator = new translator(translatePoint);
+            var scan = Translator.Translate(RawScan);
             Console.WriteLine();
         }
         static void Main1()
