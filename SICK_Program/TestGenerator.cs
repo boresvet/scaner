@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using static System.Math;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Sick_test

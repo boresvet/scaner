@@ -8,5 +8,6 @@ namespace Sick_test
             oldArray.CopyTo(newScan, 0);
             return newScan;
         }
+        
     }
 }
