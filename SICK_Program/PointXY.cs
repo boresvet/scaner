@@ -9,4 +9,15 @@ namespace Sick_test
             return newScan;
         }
     }
+
+
+    public struct PointXYint{
+        public int X,Y;
+
+        static public PointXY[] copyScan(PointXY[] oldArray){
+            var newScan = new PointXY[oldArray.Length];
+            oldArray.CopyTo(newScan, 0);
+            return newScan;
+        }
+    }
 }

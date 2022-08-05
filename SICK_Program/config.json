@@ -1,0 +1,86 @@
+{
+"RoadSettings": 
+{
+    "UpLimit": 7000,
+    "DownLimit": 700,
+    "LeftLimit": 10000,
+    "RightLimit": 20000,
+	
+    "Lanes": 
+	[
+		{"ID":0, "Offset":2000, "Width":2500}
+	]
+},
+"Scanners": 
+	[
+		{
+		"ID": 1,
+
+		"Connection":{
+			"ScannerAddres": "10.199.1.131",
+			"ScannerPort": 2112
+		},
+		
+		"Settings":{
+			"Frequency": 100,
+			"StartAngle": -5,
+			"EndAngle": 185,
+			"Resolution": 0.6667
+		},
+		
+		"Transformations":{	
+			"Height" : 1500,
+			"HorisontalOffset" : 2500,
+			"CorrectionAngle": 2
+		}
+		
+		},
+		{
+		"ID": 2,
+
+		"Connection":{
+			"ScannerAddres": "10.199.1.132",
+			"ScannerPort": 2112
+		},
+		
+		"Settings":{
+			"Frequency": 100,
+			"StartAngle": -5,
+			"EndAngle": 185,
+			"Resolution": 0.6667
+		},
+		
+		"Transformations":{	
+			"Height" : 1500,
+			"HorisontalOffset" : 2500,
+			"CorrectionAngle": 2
+		}
+		
+		},
+		{
+			"ID": 3,
+	
+			"Connection":{
+				"ScannerAddres": "10.199.1.133",
+				"ScannerPort": 2112
+			},
+			
+			"Settings":{
+				"Frequency": 100,
+				"StartAngle": -5,
+				"EndAngle": 185,
+				"Resolution": 0.6667
+			},
+			
+			"Transformations":{	
+				"Height" : 1500,
+				"HorisontalOffset" : 2500,
+				"CorrectionAngle": 2
+			}
+			
+			}
+	]
+}
+
+
+

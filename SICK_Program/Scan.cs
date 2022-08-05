@@ -18,4 +18,20 @@ namespace Sick_test
             return newScan;
         }
     }
+    public class Scanint{
+        public PointXYint[] pointsArray; 
+        public DateTime time;
+
+        public Scanint(int count){
+            pointsArray = new PointXYint[count];
+        }
+        public Scanint(){
+        }
+        public Scanint copyScan(){
+            var newScan = new Scanint(pointsArray.Length);
+            newScan.time = time;
+            Array.Copy(pointsArray, newScan.pointsArray, pointsArray.Length);
+            return newScan;
+        }
+    }
 }

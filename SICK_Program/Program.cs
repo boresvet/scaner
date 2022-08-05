@@ -9,8 +9,51 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Sick_test
 {
+    public class Lane{
+        public int ID { get; set; }
+        public int Offset { get; set; }
+        public int Width { get; set; }
+    }
+    
+    public class config{
+        public RoadSetting RoadSettings { get; set; }
+        public Scanner[] Scanners { get; set; }
+    }
+    public class RoadSetting{
+        public int UpLimit { get; set; }
+        public int DownLimit { get; set; }
+        public int LeftLimit { get; set; }
+        public int RightLimit { get; set; }
+        public Lane[] Lanes { get; set; }
+    }
+
+    public class Scanner{
+        public int ID { get; set; }
+        public Connection Connection { get; set; }
+        public Settings Settings { get; set; }
+        public Transformations Transformations { get; set; }
+    }
+    public class Connection{
+        public string ScannerAddres { get; set; }
+        public int ScannerPort { get; set; }
+    }
+    public class Settings{
+        public int Frequency { get; set; }
+        public int StartAngle { get; set; }
+        public int EndAngle { get; set; }
+        public double Resolution { get; set; }
+    }
+    public class Transformations{
+        public int Height { get; set; }
+        public int HorisontalOffset { get; set; }
+        public int CorrectionAngle { get; set; }
+
+    }
     class Program
     {
         static void CreateImage(CircularBuffer<Scan> myCircularBuffer, string Filename){
@@ -30,7 +73,7 @@ namespace Sick_test
                         img.SetPixel(myCircularBuffer.MyLeanth,(int)MyPoint,color);
                         //img.SetPixel(0,0,color);
                     }
-                    cnt++;
+                cnt++;
                 }
                 //Console.WriteLine(PointsHigth(7.7));
             }
@@ -75,12 +118,20 @@ namespace Sick_test
             }
         }
         const int Step = 286; //Количество шагов
-        static double[] ConnectionResultDistanceData(LMDScandataResult res){
+        /*static double[] ConnectionResultDistanceData(LMDScandataResult res){
             double[] result;
             if (res.DistancesData != null){
                 result = res.DistancesData.ToArray();
             }else{
                 result = new double[Step];}
+            return result;
+        }*/
+        static int[] ConnectionResultDistanceDataint(LMDScandataResult res){
+            int[] result;
+            if (res.DistancesData != null){
+                result = res.DistancesData.ToArray();
+            }else{
+                result = new int[Step];}
             return result;
         }
         static double[] XConv(PointXY[] mass){
@@ -105,32 +156,60 @@ namespace Sick_test
         }
 
         static void Main(){
-            /*ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
+
+                // Read the stream as a string, and write the string to the console.
+            ConcurrentQueue<Scanint> MyConcurrentQueue = new ConcurrentQueue<Scanint>();
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             var InputEvent = new ManualResetEvent(false);
-            var ExitEvent = new ManualResetEvent(false);*/
+            var ExitEvent = new ManualResetEvent(false);
+            
+            var ReadFile = File.ReadAllText("config.json");
+            Console.WriteLine(ReadFile);
+            config config = JsonSerializer.Deserialize<config>(ReadFile);
+            var Scaners = config.Scanners.ToArray();
+            var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue, InputEvent, ExitEvent));
+            Console.ReadLine();
+            ExitEvent.Set();
+            Task.WaitAll(InputT1, InputT2, InputT3);
+            Console.WriteLine("Завершено");
+            return;
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+        }
+        static void Main2(){
+            ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
+            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
+            var InputEvent = new ManualResetEvent(false);
+            var ExitEvent = new ManualResetEvent(false);
             //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
-            /*var InputT = Task.Run(() => InputTask1("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
+            //var InputT = Task.Run(() => InputTask("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
             var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
-            Task.WaitAll(InputT, MainT);
+            //Task.WaitAll(InputT, MainT);PointXYint
             Console.WriteLine("Завершено");
-            return;*/
+            return;
             /*for (int i = 0; i < pos.Count(); i++)
             {
                 Console.WriteLine($"{addr},  {i + 1}, {qwer[i].X},  {qwer[i].Y} ");
             }*/
-            var translatePoint = new PointXY();
+            /*var translatePoint = new PointXY();
             translatePoint.X = 17;
-            translatePoint.Y = 4;
+            translatePo}int.Y = 4;
             var TestGen = new TestGenerator(Step, 5, -5, 10, -5, 185);
             var RawScan = TestGen.ScanGen();
             var Translator = new translator(translatePoint);
             var scan = Translator.Translate(RawScan);
-            Console.WriteLine();
+            Console.WriteLine();*/
+
+
         }
         static void Main1()
         {
@@ -294,19 +373,22 @@ namespace Sick_test
                 //}
             }
         }
-        private static void InputTask(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
+        private static void InputTask(Scanner scaner, ConcurrentQueue<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {
-            var lms = new LMS1XX(addr, 2111, 5000, 5000);
-            var Conv = new SpetialConvertor(-5, 185, Step);
+            var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
+            //step = 286;
+            var lms = new LMS1XX(scaner.Connection.ScannerAddres, scaner.Connection.ScannerPort, 5000, 5000);
+            var Conv = new SpetialConvertorint(-5 + scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, step);
             lms.Connect();
+            var translator = new translator(new PointXYint(){X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
             var accessResult = lms.SetAccessMode();
             var sss = lms.Stop();
             var startResult = lms.Start();
             var runResult = lms.Run();
             var contResult = lms.StartContinuous();
             var res = lms.ScanContinious();
-            var Scan = new Scan{
-                pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res)),
+            var Scan = new Scanint{
+                pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
                 time = DateTime.Now
             };
             var oldscannumber=0;
@@ -328,7 +410,10 @@ namespace Sick_test
                     Console.WriteLine("Тысячный скан");
                 }*/
                 Scan.time = DateTime.Now;
-                Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceData(res));
+                Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceDataint(res));
+                Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
+                Console.WriteLine(res.TimeSinceStartup);
+                //Console.WriteLine(res.TimeOfTransmission);
                 MyConcurrentQueue.Enqueue(Scan);
                 InputEvent.Set();
             }
