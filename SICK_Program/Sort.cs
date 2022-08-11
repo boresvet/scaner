@@ -1,14 +1,14 @@
 namespace Sick_test
 {
-    public class HoareSort{
+    public class Sorts{
 
-        public void HoareSort(PointXYint[] array, int start, int end)
+        public static void HoareSort(PointXYint[] array, int start, int end)
 		{
 			if (end == start) return;
 			var pivot = array[end];
 			var storeIndex = start;
 			for (int i = start; i <= end - 1; i++)
-				if (array[i].X <= pivot)
+				if (array[i].X <= pivot.X)
 				{
 					var t = array[i];
 					array[i] = array[storeIndex];
@@ -23,7 +23,7 @@ namespace Sick_test
 			if (storeIndex < end) HoareSort(array, storeIndex + 1, end);
 		}
 
-		public void HoareSort(PointXYint[] array)
+		public static void HoareSort(PointXYint[] array)
 		{
 			HoareSort(array, 0, array.Length - 1);
 		}

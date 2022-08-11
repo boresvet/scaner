@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq
+using System.Linq;
 
 namespace Sick_test
 {
@@ -143,10 +143,15 @@ namespace Sick_test
             for(var i = 0; i < Scaners.Length; i++){
                 MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
             }
+            var LaneConcurrentQueue = new CircularBuffer<Scanint>[config.RoadSettings.Lanes.Length];
+            for(var i = 0; i < config.RoadSettings.Lanes.Length; i++){
+                LaneConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
+            }
             var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue[0], InputEvent[0], ErrorEvent[0], ExitEvent));
             var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue[2], InputEvent[2], ErrorEvent[0], ExitEvent));
-            var MainT = Task.Run(() => MainTask(config, MyConcurrentQueue, InputEvent, RoadEvent, ErrorEvent, ExitEvent));
+            var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, LaneConcurrentQueue, InputEvent, RoadEvent, ErrorEvent, ExitEvent));
+            var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll( MainT, InputT1, InputT2, InputT3);
@@ -158,11 +163,34 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
-        static void TMainT(config config, ConcurrentQueue<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent[] RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
+        static void TLaneT(config config, CircularBuffer<Scanint> LaneConcurrentQueue, ManualResetEvent RoadEvent, ManualResetEvent ExitEvent){
+            //var res = new Scanint(MyConcurrentQueue.);
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    return;
+                }
+                RoadEvent.WaitOne(0);
+/*                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                    RoadScan = new Scanint(0);
+                    MyConcurrentQueue[i].TryDequeue(out var res);
+                    InputEvent[i].Reset();
+                    if(RoadScan.pointsArray.Length == o){
+                        RoadScan.DateTime = res.DateTime;
+                    }
+                    RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray();
+                } */
+
+
+
+
+            }
+        }
+        static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, CircularBuffer<Scanint>[] LaneConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
             var WorkScanners = new bool[MyConcurrentQueue.Length];
             for(int i = 0; i<MyConcurrentQueue.Length; i++){
                 WorkScanners[i] = true;
             }
+            var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             var RoadScan = new Scanint(0);
             //var res = new Scanint(MyConcurrentQueue.);
             while(true){
@@ -176,23 +204,39 @@ namespace Sick_test
                         }
                     }
                 }
-                WaitHandle.WaitAny(InputEvent, 0)
+                WaitHandle.WaitAny(InputEvent, 0);
                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
                     RoadScan = new Scanint(0);
-                    MyConcurrentQueue[i].TryDequeue(out var res);
+                    var res = MyConcurrentQueue[i].ZeroPoint();
                     InputEvent[i].Reset();
-                    if(RoadScan.pointsArray.Length == o){
-                        RoadScan.DateTime = res.DateTime;
+                    if(RoadScan.pointsArray.Length == 0){
+                        RoadScan.time = res.time;
                     }
-                    RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray()
+                    RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
                 }
-                HoareSort.HoareSort(RoadScan)
-
+                Sorts.HoareSort(RoadScan.pointsArray);
+                LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
 
 
 
             }
+        }
+        public static Scanint[] LaneGen(Scanint Road, Lane[] inputLanes){
+            var retArray = new Scanint[inputLanes.Length];
+            for(int j = 0; j < inputLanes.Length; j++){
+                int i = 0;
+                var startLane = 0;
+                while(Road.pointsArray[i].X<=(inputLanes[j].Offset+inputLanes[j].Width)){
+                    if((Road.pointsArray[i].X<=inputLanes[j].Offset)&(startLane==0)){
+                        startLane = i;
+                    }
+                    i++;
+                }
+                retArray[j].pointsArray = Road.pointsArray.Take(i).Skip(startLane).ToArray();
+                retArray[j].time = Road.time;
+            }
+            return retArray;
         }
         static void TestInputT(Scanner scaner, ConcurrentQueue<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent, ManualResetEvent ErrorEvent)
         {
@@ -211,7 +255,16 @@ namespace Sick_test
                     //lms.Disconnect();
                     return;
                 }
-                res = testgen.RawScanIntGen();
+                
+                
+                //res = testgen.RawScanIntGen();
+                // ЗАБРАТЬ ГОТОВЫЙ МЕТОД С НОУТА
+
+
+
+
+
+
 
                 /*if(oldscannumber%1000 == 0){
                     Console.WriteLine("Тысячный скан");
@@ -236,7 +289,7 @@ namespace Sick_test
             }
             return ret;
         }
-        private static void MainTask(CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent)
+        private static void MainTask(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent)
         {   
             //Task.Delay(100000);
 
@@ -248,23 +301,27 @@ namespace Sick_test
                 ScansArray[i] = new Scanint(286);
             }
             WaitHandle.WaitAll(InputEvent);
-
+            var WorkScanners = new bool[MyConcurrentQueue.Length];
+            for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                WorkScanners[i] = true;
+            }
             //var timespan = New TimeSpan(5000, 5000, 5000);
             //CircularBuffer<Scanint> MyCircularBuffer = new CircularBuffer<Scanint>(10000);
-            while (true){   
+            while (true){
+                
                 WaitHandle.WaitAll(InputEvent);
                 //var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
                 //while(EmptyBuffer(MyConcurrentQueue));
                 if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
-                    for(int i = 0; i<scaners.Length; i++){
+                    for(int i = 0; i<config.Scanners.Length; i++){
                         if(ErrorEvent[i].WaitOne(0)){
                             WorkScanners[i] = false;
                         }
                     }
                 }
                 if(WaitHandle.WaitAny(InputEvent, 0)!=0) {
-                    for(int i = 0; i<scaners.Length; i++){
-                        MyConcurrentQueue.TryDequeue(out res);
+                    for(int i = 0; i<config.Scanners.Length; i++){
+                        var res = MyConcurrentQueue[i].ZeroPoint();
                     }
                 }
                 Console.WriteLine(ScansArray[2].time);
@@ -514,7 +571,7 @@ namespace Sick_test
                     InputEvent.Set();
                 }
             }
-            catch(){
+            catch{
                 ErrorEvent.Set();
                 InputEvent.Set();
             }
