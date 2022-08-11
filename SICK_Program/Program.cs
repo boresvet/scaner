@@ -11,49 +11,11 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq
 
 namespace Sick_test
 {
-    public class Lane{
-        public int ID { get; set; }
-        public int Offset { get; set; }
-        public int Width { get; set; }
-    }
-    
-    public class config{
-        public RoadSetting RoadSettings { get; set; }
-        public Scanner[] Scanners { get; set; }
-    }
-    public class RoadSetting{
-        public int UpLimit { get; set; }
-        public int DownLimit { get; set; }
-        public int LeftLimit { get; set; }
-        public int RightLimit { get; set; }
-        public Lane[] Lanes { get; set; }
-    }
 
-    public class Scanner{
-        public int ID { get; set; }
-        public Connection Connection { get; set; }
-        public Settings Settings { get; set; }
-        public Transformations Transformations { get; set; }
-    }
-    public class Connection{
-        public string ScannerAddres { get; set; }
-        public int ScannerPort { get; set; }
-    }
-    public class Settings{
-        public int Frequency { get; set; }
-        public int StartAngle { get; set; }
-        public int EndAngle { get; set; }
-        public double Resolution { get; set; }
-    }
-    public class Transformations{
-        public int Height { get; set; }
-        public int HorisontalOffset { get; set; }
-        public int CorrectionAngle { get; set; }
-
-    }
     class Program
     {
         static void CreateImage(CircularBuffer<Scan> myCircularBuffer, string Filename){
@@ -158,21 +120,36 @@ namespace Sick_test
         static void Main(){
 
                 // Read the stream as a string, and write the string to the console.
-            ConcurrentQueue<Scanint> MyConcurrentQueue = new ConcurrentQueue<Scanint>();
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
-            var InputEvent = new ManualResetEvent(false);
+
+            //var InputEvent = new ManualResetEvent(false);
             var ExitEvent = new ManualResetEvent(false);
-            
+            var RoadEvent = new ManualResetEvent(false);
+
             var ReadFile = File.ReadAllText("config.json");
-            Console.WriteLine(ReadFile);
+            //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
-            var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue, InputEvent, ExitEvent));
-            var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue, InputEvent, ExitEvent));
-            var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue, InputEvent, ExitEvent));
+            var InputEvent = new ManualResetEvent[Scaners.Length];
+            for(var i = 0; i < Scaners.Length; i++){
+                InputEvent[i] = new ManualResetEvent(false);
+            }
+
+            var ErrorEvent = new ManualResetEvent[Scaners.Length];
+            for(var i = 0; i < Scaners.Length; i++){
+                ErrorEvent[i] = new ManualResetEvent(false);
+            }
+            var MyConcurrentQueue = new CircularBuffer<Scanint>[Scaners.Length];
+            for(var i = 0; i < Scaners.Length; i++){
+                MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
+            }
+            var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue[0], InputEvent[0], ErrorEvent[0], ExitEvent));
+            var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
+            var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue[2], InputEvent[2], ErrorEvent[0], ExitEvent));
+            var MainT = Task.Run(() => MainTask(config, MyConcurrentQueue, InputEvent, RoadEvent, ErrorEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
-            Task.WaitAll(InputT1, InputT2, InputT3);
+            Task.WaitAll( MainT, InputT1, InputT2, InputT3);
             Console.WriteLine("Завершено");
             return;
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
@@ -180,6 +157,125 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+        }
+        static void TMainT(config config, ConcurrentQueue<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent[] RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
+            var WorkScanners = new bool[MyConcurrentQueue.Length];
+            for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                WorkScanners[i] = true;
+            }
+            var RoadScan = new Scanint(0);
+            //var res = new Scanint(MyConcurrentQueue.);
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    return;
+                }
+                if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
+                    for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                        if(ErrorEvent[i].WaitOne(0)){
+                            WorkScanners[i] = false;
+                        }
+                    }
+                }
+                WaitHandle.WaitAny(InputEvent, 0)
+                for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                    RoadScan = new Scanint(0);
+                    MyConcurrentQueue[i].TryDequeue(out var res);
+                    InputEvent[i].Reset();
+                    if(RoadScan.pointsArray.Length == o){
+                        RoadScan.DateTime = res.DateTime;
+                    }
+                    RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray()
+                }
+                HoareSort.HoareSort(RoadScan)
+
+                //Сделать дороги
+
+
+
+            }
+        }
+        static void TestInputT(Scanner scaner, ConcurrentQueue<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent, ManualResetEvent ErrorEvent)
+        {
+            try{
+            var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
+            var res = new int[step];            
+            var translator = new translator(new PointXYint{X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
+            var testgen = new TestGenerator(step,  5, -5, 10, -5+scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle);
+            var Conv = new SpetialConvertorint(-5+scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, Step);
+            var Scan = new Scanint{
+                pointsArray = translator.Translate(Conv.MakePoint(res)),
+                time = DateTime.Now
+            };
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    //lms.Disconnect();
+                    return;
+                }
+                res = testgen.RawScanIntGen();
+
+                /*if(oldscannumber%1000 == 0){
+                    Console.WriteLine("Тысячный скан");
+                }*/
+                Scan.time = DateTime.Now;
+                Scan.pointsArray = Conv.MakePoint(res);
+                Console.WriteLine(Scan.time);
+                MyConcurrentQueue.Enqueue(Scan);
+                InputEvent.Set();
+                }
+            }
+
+            catch{
+                ErrorEvent.Set();
+                return;
+            }
+        }
+        private static bool EmptyBuffer(CircularBuffer<Scanint>[] MyConcurrentQueue){
+            var ret = true;
+            foreach (CircularBuffer<Scanint> i in MyConcurrentQueue){
+                ret = ret&i.IsEmpty;
+            }
+            return ret;
+        }
+        private static void MainTask(CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent)
+        {   
+            //Task.Delay(100000);
+
+            
+            var GroundScan = new Scan();
+            Scanint qwer;
+            var ScansArray = new Scanint[MyConcurrentQueue.Length];
+            for(var i = 0; i<MyConcurrentQueue.Length; i++){
+                ScansArray[i] = new Scanint(286);
+            }
+            WaitHandle.WaitAll(InputEvent);
+
+            //var timespan = New TimeSpan(5000, 5000, 5000);
+            //CircularBuffer<Scanint> MyCircularBuffer = new CircularBuffer<Scanint>(10000);
+            while (true){   
+                WaitHandle.WaitAll(InputEvent);
+                //var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
+                //while(EmptyBuffer(MyConcurrentQueue));
+                if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
+                    for(int i = 0; i<scaners.Length; i++){
+                        if(ErrorEvent[i].WaitOne(0)){
+                            WorkScanners[i] = false;
+                        }
+                    }
+                }
+                if(WaitHandle.WaitAny(InputEvent, 0)!=0) {
+                    for(int i = 0; i<scaners.Length; i++){
+                        MyConcurrentQueue.TryDequeue(out res);
+                    }
+                }
+                Console.WriteLine(ScansArray[2].time);
+                //MyCircularBuffer.Enqueue(qwer);
+                /*if(MyCircularBuffer.IsEmpty){
+                ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
+                }*/                    //Console.WriteLine(MyCircularBuffer.MyLeanth);
+                foreach (ManualResetEvent i in InputEvent){
+                    i.Reset();
+                }
+            }
         }
         static void Main2(){
             ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
@@ -190,7 +286,7 @@ namespace Sick_test
             //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
             //var r = LMDScandataResult.Parse(s);
             //var InputT = Task.Run(() => InputTask("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
-            var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
+            //var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
             //Task.WaitAll(InputT, MainT);PointXYint
@@ -208,9 +304,8 @@ namespace Sick_test
             var Translator = new translator(translatePoint);
             var scan = Translator.Translate(RawScan);
             Console.WriteLine();*/
-
-
         }
+
         static void Main1()
         {
             var yutu = new Scan(546);
@@ -259,7 +354,8 @@ namespace Sick_test
                 Assert.Pass("Усёхорошо");
             }*/
         }
-        private static void MainTask(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
+
+        private static void MainTask1(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
         {   
             var trigger = true;
             var mycarleanth = 0;
@@ -290,7 +386,7 @@ namespace Sick_test
                     //Console.WriteLine(qwer.time);
                     //Console.WriteLine(MyCircularBuffer.IsEmpty);
                     MyConcurrentQueue.TryDequeue(out qwer);
-                    MyCircularBuffer.Enqueue1(qwer);
+                    MyCircularBuffer.Enqueue(qwer);
                     /*if(MyCircularBuffer.IsEmpty){
                         ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
                     }*/
@@ -309,7 +405,7 @@ namespace Sick_test
                         MyCar.pointsArray = car.CreatCarScan(qwe.pointsArray, ground.MyGround());
                         ground.UpdateGround(qwe.pointsArray, MyCar.pointsArray);
                         if(car.SeeCar(MyCar.pointsArray)){
-                            CarCircularBuffer.Enqueue1(MyCar.copyScan());
+                            CarCircularBuffer.Enqueue(MyCar.copyScan());
                             trig = false;
                         }else{
                             if(trig){
@@ -373,48 +469,53 @@ namespace Sick_test
                 //}
             }
         }
-        private static void InputTask(Scanner scaner, ConcurrentQueue<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
-        {
-            var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
-            //step = 286;
-            var lms = new LMS1XX(scaner.Connection.ScannerAddres, scaner.Connection.ScannerPort, 5000, 5000);
-            var Conv = new SpetialConvertorint(-5 + scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, step);
-            lms.Connect();
-            var translator = new translator(new PointXYint(){X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
-            var accessResult = lms.SetAccessMode();
-            var sss = lms.Stop();
-            var startResult = lms.Start();
-            var runResult = lms.Run();
-            var contResult = lms.StartContinuous();
-            var res = lms.ScanContinious();
-            var Scan = new Scanint{
-                pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
-                time = DateTime.Now
-            };
-            var oldscannumber=0;
-            while(true){
-                if (ExitEvent.WaitOne(0)) {
-                    lms.Disconnect();
-                    return;
+        private static void InputTask(Scanner scaner, CircularBuffer<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ErrorEvent, ManualResetEvent ExitEvent){
+            try{
+                var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
+                //step = 286;
+                var lms = new LMS1XX(scaner.Connection.ScannerAddres, scaner.Connection.ScannerPort, 5000, 5000);
+                var Conv = new SpetialConvertorint(-5 + scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, step);
+                lms.Connect();
+                var translator = new translator(new PointXYint(){X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
+                var accessResult = lms.SetAccessMode();
+                var sss = lms.Stop();
+                var startResult = lms.Start();
+                var runResult = lms.Run();
+                var contResult = lms.StartContinuous();
+                var res = lms.ScanContinious();
+                var Scan = new Scanint{
+                    pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
+                    time = DateTime.Now
+                };
+                var oldscannumber=0;
+                while(true){
+                    if (ExitEvent.WaitOne(0)) {
+                        lms.Disconnect();
+                        return;
+                    }
+                    res = lms.ScanContinious();
+                    if (oldscannumber!=res.ScanCounter){ 
+                        //Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                    }
+                    if (res.ScanCounter == null){
+                        oldscannumber++;
+                    }else{
+                        oldscannumber = (int)res.ScanCounter+1;
+                    }
+                    /*if(oldscannumber%1000 == 0){
+                        Console.WriteLine("Тысячный скан");
+                    }*/
+                    Scan.time = DateTime.Now;
+                    Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceDataint(res));
+                    //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
+                    //Console.WriteLine(res.TimeSinceStartup);
+                    //Console.WriteLine(res.TimeOfTransmission);
+                    MyConcurrentQueue.AddZeroPoint(Scan);
+                    InputEvent.Set();
                 }
-                res = lms.ScanContinious();
-                if (oldscannumber!=res.ScanCounter){ 
-                    Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                }
-                if (res.ScanCounter == null){
-                    oldscannumber++;
-                }else{
-                    oldscannumber = (int)res.ScanCounter+1;
-                }
-                /*if(oldscannumber%1000 == 0){
-                    Console.WriteLine("Тысячный скан");
-                }*/
-                Scan.time = DateTime.Now;
-                Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceDataint(res));
-                Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
-                Console.WriteLine(res.TimeSinceStartup);
-                //Console.WriteLine(res.TimeOfTransmission);
-                MyConcurrentQueue.Enqueue(Scan);
+            }
+            catch(){
+                ErrorEvent.Set();
                 InputEvent.Set();
             }
         }

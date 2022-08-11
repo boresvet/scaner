@@ -26,14 +26,14 @@ namespace Sick_test
         public int MyLeanth{
             get { return _length;}
         }
-        public void Dequeve(){
+        public void Dequeue(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
                 _tail = NextPosition(_tail);
                 _length --;
             }
         }
-        public T Dequeve1(){
+        public T Dequeue1(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
                 T dequeved = _buffer[_tail];
@@ -47,7 +47,7 @@ namespace Sick_test
             return (position + 1) % _buffersize;
         }
 
-        public void Enqueue1(T toadd){
+        public void Enqueue(T toadd){
             lock(_lock){
                 _head = NextPosition(_head);
                 _buffer[_head] = toadd;
@@ -57,7 +57,22 @@ namespace Sick_test
                     _length++;
             }
         }
+        public T ZeroPoint(){
+            lock(_lock){
+                if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
+                else{
+                    T dequeved = _buffer[0];
+                    return dequeved;
+                }
+            }
+        }
+        public void AddZeroPoint(T toadd){
+            lock(_lock){
+                _buffer[0] = toadd;
+                _length = 1; 
 
+            }
+        }
         public T ReadPosition(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
@@ -77,12 +92,12 @@ namespace Sick_test
         public void CleanBuffer(bool trigger = false){ //При наличии триггера буффер очищается не полностью
             lock(_lock){
                 if(trigger){
-                    T dequeved = Dequeve1();
+                    T dequeved = Dequeue1();
                     _buffer = new T[_buffersize];
                     _head = _buffersize -1;
                     _tail = 0;
                     _length = 0;
-                    Enqueue1(dequeved);
+                    Enqueue(dequeved);
                 }else{
                     _buffer = new T[_buffersize];
                     _head = _buffersize -1;

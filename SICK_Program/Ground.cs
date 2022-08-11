@@ -117,7 +117,7 @@ namespace Sick_test
             var DataScans = new Scan[leanth];
             var rawOneData = new Scan();
             for (int i = 0; i< leanth; i++){
-                DataScans[i] = rawData.Dequeve1();
+                DataScans[i] = rawData.Dequeue1();
                 for(int j = 0; j<i; j++){
                     expandGround(DataScans[j], DataScans[j+1]);
                 }
