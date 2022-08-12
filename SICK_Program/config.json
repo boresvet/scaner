@@ -8,7 +8,7 @@
 	
     "Lanes": 
 	[
-		{"ID":0, "Offset":2000, "Width":2500}
+		{"ID":0, "Offset":-100, "Width":2500}
 	]
 },
 "Scanners": 

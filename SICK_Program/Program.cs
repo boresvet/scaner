@@ -169,7 +169,7 @@ namespace Sick_test
                 if (ExitEvent.WaitOne(0)) {
                     return;
                 }
-                RoadEvent.WaitOne(0);
+                RoadEvent.WaitOne();
 /*                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
                     RoadScan = new Scanint(0);
                     MyConcurrentQueue[i].TryDequeue(out var res);
@@ -180,6 +180,7 @@ namespace Sick_test
                     RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray();
                 } */
 
+                RoadEvent.Reset();
 
 
 
@@ -204,9 +205,10 @@ namespace Sick_test
                         }
                     }
                 }
-                WaitHandle.WaitAny(InputEvent, 0);
+                WaitHandle.WaitAll(InputEvent);
+                RoadScan = new Scanint(0);
+
                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
-                    RoadScan = new Scanint(0);
                     var res = MyConcurrentQueue[i].ZeroPoint();
                     InputEvent[i].Reset();
                     if(RoadScan.pointsArray.Length == 0){
@@ -217,23 +219,27 @@ namespace Sick_test
                 Sorts.HoareSort(RoadScan.pointsArray);
                 LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
-
-
+                for(int i = 0; i<LaneConcurrentQueue.Length; i++){
+                    LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
+                }
+                RoadEvent.Set();
 
             }
         }
         public static Scanint[] LaneGen(Scanint Road, Lane[] inputLanes){
             var retArray = new Scanint[inputLanes.Length];
             for(int j = 0; j < inputLanes.Length; j++){
+                retArray[j] = new Scanint(0);
                 int i = 0;
                 var startLane = 0;
                 while(Road.pointsArray[i].X<=(inputLanes[j].Offset+inputLanes[j].Width)){
-                    if((Road.pointsArray[i].X<=inputLanes[j].Offset)&(startLane==0)){
+                    if((Road.pointsArray[i].X>=inputLanes[j].Offset)&(startLane==0)){
                         startLane = i;
                     }
                     i++;
                 }
-                retArray[j].pointsArray = Road.pointsArray.Take(i).Skip(startLane).ToArray();
+                Console.WriteLine(Road.pointsArray.Take(i).Skip(startLane).ToArray().Length);
+                retArray[j].pointsArray = Road.copyScan().pointsArray;
                 retArray[j].time = Road.time;
             }
             return retArray;
