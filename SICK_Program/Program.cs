@@ -179,7 +179,7 @@ namespace Sick_test
                     }
                     RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray();
                 } */
-
+                Console.WriteLine("356673");
                 RoadEvent.Reset();
 
 
