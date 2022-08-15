@@ -46,7 +46,7 @@ namespace Sick_test
                 }
                 n++;
             }
-            Console.WriteLine(i);
+            //Console.WriteLine(i);
             var cloud = new PointCloud(AllData);
             var retname = (DateTime.Now.ToString("G", DateTimeFormatInfo.InvariantInfo)) + "test" + n.ToString();
             cloud.SaveToPly(retname.Replace('/',':')+".ply", true);

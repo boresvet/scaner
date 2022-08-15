@@ -14,13 +14,21 @@ namespace Sick_test
         private int carleanth = 2;
         private PointXY[] EmptyScan;
         private PointXY[] FullScan;
+        private PointXYint[] EmptyScanInt;
+        private PointXYint[] FullScanInt;
         private double[] RawEmptyScan;
+        private int[] RawEmptyScanInt;
+
         private double[] RawFullScan;
+        private int[] RawFullScanInt;
+
         public TestGenerator(int size, int leftgrade, int rightgrade, int groundhight, int startgrade, int endgrade){
             Step = size;
             groundsize = groundhight;
             RawEmptyScan = new double[size];
             RawFullScan = new double[size];
+            RawEmptyScanInt = new int[size];
+            RawFullScanInt = new int[size];
             for(int i = 0; i<Step; i++){
                 var grade = (double)startgrade+((((double)(endgrade-startgrade)/Step)*(i+1)*Math.PI/180));
                 var firstlen = leftgrade/Math.Sin(grade);
@@ -28,12 +36,15 @@ namespace Sick_test
                 var thirdlen = rightgrade/(Math.Sin(grade));
                 if((firstlen>=0.1)){
                     RawEmptyScan[i] = firstlen;
+                    RawEmptyScanInt[i] = (int)(RawEmptyScan[i]*1000);
                 }
                 if(((secondlen>=0.1)&(secondlen<RawEmptyScan[i]))|((secondlen>=0.1)&(RawEmptyScan[i]<=0.1))){
                     RawEmptyScan[i] = secondlen;
+                    RawEmptyScanInt[i] = (int)(RawEmptyScan[i]*1000);
                 }
                 if(((thirdlen>=0.1)&(thirdlen<RawEmptyScan[i]))|((thirdlen>-0)&(RawEmptyScan[i]<=0.1))){
                     RawEmptyScan[i] = thirdlen;
+                    RawEmptyScanInt[i] = (int)(RawEmptyScan[i]*1000);
                 }
                 firstlen = 0;
                 secondlen = 0;
@@ -47,15 +58,19 @@ namespace Sick_test
                 var forthlen = -(groundsize-carhight)/(Math.Cos(grade));
                 if((firstlen>=0.1)){
                     RawFullScan[i] = firstlen;
+                    RawFullScanInt[i] = (int)(RawFullScan[i]*1000);
                 }
                 if(((secondlen>=0.1)&(secondlen<RawFullScan[i]))|((secondlen>=0.1)&(RawFullScan[i]<=0.1))){
                     RawFullScan[i] = secondlen;
+                    RawFullScanInt[i] = (int)(RawFullScan[i]*1000);
                 }
                 if(((thirdlen>=0.1)&(thirdlen<RawFullScan[i]))|((thirdlen>-0)&(RawFullScan[i]<=0.1))){
                     RawFullScan[i] = thirdlen;
+                    RawFullScanInt[i] = (int)(RawFullScan[i]*1000);
                 }
                 if((((forthlen>=0.1)&(forthlen<RawFullScan[i]))|((forthlen>-0)&(RawFullScan[i]<=0.1)))&((carleanth/2)>=(forthlen*forthlen-(groundhight-carhight)*(groundhight-carhight)))){
                     RawFullScan[i] = forthlen;
+                    RawFullScanInt[i] = (int)(RawFullScan[i]*1000);
                 }
                 firstlen = 0;
                 secondlen = 0;
@@ -64,6 +79,8 @@ namespace Sick_test
             }
             EmptyScan = new PointXY[size];
             FullScan = new PointXY[size];
+            EmptyScanInt = new PointXYint[size];
+            FullScanInt = new PointXYint[size];
             Step = size;
         }
         private void numberupdate(){
@@ -86,7 +103,28 @@ namespace Sick_test
                 Thread.Sleep(20);
                 var retarray = new double[RawEmptyScan.Length];
                 RawEmptyScan.CopyTo(retarray, 0);
-                return retarray;         }
+                return retarray;
+            }
+        }
+
+        public int[] RawScanIntGen(){
+            if(scannumber%500 == 0){
+                carid = 1;
+            }
+            if(carid>0){
+                carid = (carid+1)%100;
+                numberupdate();
+                Thread.Sleep(10);
+                var retarray = new int[RawFullScan.Length];
+                RawFullScanInt.CopyTo(retarray, 0);
+                return retarray;
+            }else{
+                numberupdate();
+                Thread.Sleep(20);
+                var retarray = new int[RawEmptyScan.Length];
+                RawEmptyScanInt.CopyTo(retarray, 0);
+                return retarray;
+            }
         }
         public PointXY[] ScanGen(){
             if(scannumber%500 == 0){

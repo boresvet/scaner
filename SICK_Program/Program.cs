@@ -63,10 +63,10 @@ namespace Sick_test
                 if(ArrayPointsIndex[i]!=0){
                     scan.pointsArray[i].X = scan.pointsArray[i].X/(ArrayPointsIndex[i]+1);
                     scan.pointsArray[i].Y = scan.pointsArray[i].Y/(ArrayPointsIndex[i]+1);
-                    Console.WriteLine(ArrayPointsIndex[i]);
+                    //Console.WriteLine(ArrayPointsIndex[i]);
                 }
             }
-            Console.WriteLine(ArrayPointsIndex[100]);
+            //Console.WriteLine(ArrayPointsIndex[100]);
             return scan;
         }
 
@@ -150,8 +150,8 @@ namespace Sick_test
             var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue[0], InputEvent[0], ErrorEvent[0], ExitEvent));
             var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue[2], InputEvent[2], ErrorEvent[0], ExitEvent));
-            var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, LaneConcurrentQueue, InputEvent, RoadEvent, ErrorEvent, ExitEvent));
-            var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
+            var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, InputEvent, ErrorEvent, ExitEvent));
+            //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll( MainT, InputT1, InputT2, InputT3);
@@ -179,14 +179,57 @@ namespace Sick_test
                     }
                     RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray();
                 } */
-                Console.WriteLine("356673");
+                //Console.WriteLine("356673");
                 RoadEvent.Reset();
 
 
 
             }
         }
-        static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, CircularBuffer<Scanint>[] LaneConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
+
+        static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
+            var WorkScanners = new bool[MyConcurrentQueue.Length];
+            for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                WorkScanners[i] = true;
+            }
+            var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
+            var RoadScan = new Scanint(0);
+            //var res = new Scanint(MyConcurrentQueue.);
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    return;
+                }
+                if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
+                    for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                        if(ErrorEvent[i].WaitOne(0)){
+                            WorkScanners[i] = false;
+                        }
+                    }
+                }
+                WaitHandle.WaitAll(InputEvent);
+                RoadScan = new Scanint(0);
+
+                for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                    var res = MyConcurrentQueue[i].ZeroPoint();
+                    InputEvent[i].Reset();
+                    if(RoadScan.pointsArray.Length == 0){
+                        RoadScan.time = res.time;
+                    }
+                    RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
+                }
+                Sorts.HoareSort(RoadScan.pointsArray);
+                //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
+                //Сделать дороги
+                /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
+                    LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
+                }
+                RoadEvent.Set();*/
+                Console.WriteLine("Обработан скан дороги");
+            }
+        }
+
+        //с разбиением на полосы
+        /*static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, CircularBuffer<Scanint>[] LaneConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
             var WorkScanners = new bool[MyConcurrentQueue.Length];
             for(int i = 0; i<MyConcurrentQueue.Length; i++){
                 WorkScanners[i] = true;
@@ -225,7 +268,7 @@ namespace Sick_test
                 RoadEvent.Set();
 
             }
-        }
+        }*/
         public static Scanint[] LaneGen(Scanint Road, Lane[] inputLanes){
             var retArray = new Scanint[inputLanes.Length];
             for(int j = 0; j < inputLanes.Length; j++){
@@ -238,7 +281,7 @@ namespace Sick_test
                     }
                     i++;
                 }
-                Console.WriteLine(Road.pointsArray.Take(i).Skip(startLane).ToArray().Length);
+                //Console.WriteLine(Road.pointsArray.Take(i).Skip(startLane).ToArray().Length);
                 retArray[j].pointsArray = Road.copyScan().pointsArray;
                 retArray[j].time = Road.time;
             }
@@ -261,23 +304,14 @@ namespace Sick_test
                     //lms.Disconnect();
                     return;
                 }
-                
-                
-                //res = testgen.RawScanIntGen();
-                // ЗАБРАТЬ ГОТОВЫЙ МЕТОД С НОУТА
-
-
-
-
-
-
+                res = testgen.RawScanIntGen();
 
                 /*if(oldscannumber%1000 == 0){
                     Console.WriteLine("Тысячный скан");
                 }*/
                 Scan.time = DateTime.Now;
                 Scan.pointsArray = Conv.MakePoint(res);
-                Console.WriteLine(Scan.time);
+                //Console.WriteLine(Scan.time);
                 MyConcurrentQueue.Enqueue(Scan);
                 InputEvent.Set();
                 }
@@ -330,7 +364,7 @@ namespace Sick_test
                         var res = MyConcurrentQueue[i].ZeroPoint();
                     }
                 }
-                Console.WriteLine(ScansArray[2].time);
+                //Console.WriteLine(ScansArray[2].time);
                 //MyCircularBuffer.Enqueue(qwer);
                 /*if(MyCircularBuffer.IsEmpty){
                 ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
@@ -558,7 +592,7 @@ namespace Sick_test
                     }
                     res = lms.ScanContinious();
                     if (oldscannumber!=res.ScanCounter){ 
-                        //Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                        Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
                     }
                     if (res.ScanCounter == null){
                         oldscannumber++;
@@ -575,6 +609,8 @@ namespace Sick_test
                     //Console.WriteLine(res.TimeOfTransmission);
                     MyConcurrentQueue.AddZeroPoint(Scan);
                     InputEvent.Set();
+                    Console.Write("Принят скан от сканера  ");
+                    Console.WriteLine(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1));
                 }
             }
             catch{
