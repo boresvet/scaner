@@ -8,6 +8,9 @@ namespace Sick_test
             oldArray.CopyTo(newScan, 0);
             return newScan;
         }
+        public string ToString(){
+            return (@"{""X"": " + X.ToString() + @", ""Y"": " + Y.ToString()+"}");
+        }
     }
 
 
@@ -18,6 +21,15 @@ namespace Sick_test
             var newScan = new PointXY[oldArray.Length];
             oldArray.CopyTo(newScan, 0);
             return newScan;
+        }
+        public string ToString(){
+            return (@"{""X"": " + X.ToString() + @", ""Y"": " + Y.ToString()+"}");
+        }
+        public PointXYint[] ToArray(){
+            var ret = new PointXYint[1];
+            ret[0].X = X;
+            ret[0].Y = Y;
+            return ret;
         }
     }
 }

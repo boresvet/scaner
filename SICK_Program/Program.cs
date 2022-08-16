@@ -96,25 +96,20 @@ namespace Sick_test
                 result = new int[Step];}
             return result;
         }
-        static double[] XConv(PointXY[] mass){
-            double[] ret = new double[Step]; 
-            for(int i = 0; i<mass.Length; i++){
-                ret[i] = (double)mass[i].X;
-            }
-            return ret;
-        }
-
-        static double[] YConv(PointXY[] mass){
-            double[] ret = new double[Step]; 
-            for(int i = 0; i<mass.Length; i++){
-                ret[i] = (double)mass[i].Y;
-            }
-            return ret;
+        static string PointsToString(PointXYint[] mass){
+            //var massStr = Array.ConvertAll<double, string>(XConv(mass), x => x.ToString());
+            //var massStr1 = Array.ConvertAll<double, string>(YConv(mass), x => x.ToString());
+            return (@"""PointsMass"":[" + String.Join(", ", mass.Select(n => n.ToString())) + "]");
         }
         static string PointsToString(PointXY[] mass){
             //var massStr = Array.ConvertAll<double, string>(XConv(mass), x => x.ToString());
             //var massStr1 = Array.ConvertAll<double, string>(YConv(mass), x => x.ToString());
-            return String.Join(" ", XConv(mass).Select(n => n.ToString())) + " &&& " + String.Join(" ", YConv(mass).Select(n => n.ToString()));
+            return (@"""PointsMass"":[" + String.Join(", ", mass.Select(n => n.ToString())) + "]");
+        }
+        static void saveTableToFile(PointXYint[][] mass){
+            string writepath = @"/home/dan/Рабочий стол/Sick-test/test.json";
+            StreamWriter Myfyle = new StreamWriter(writepath, true);
+            Myfyle.WriteLine(@"{""PointsXY"":[" + String.Join(", ", mass.Select(n => PointsToString(n))) + "]}");
         }
 
         static void Main(){
@@ -181,9 +176,6 @@ namespace Sick_test
                 } */
                 //Console.WriteLine("356673");
                 RoadEvent.Reset();
-
-
-
             }
         }
 
@@ -194,9 +186,39 @@ namespace Sick_test
             }
             var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             var RoadScan = new Scanint(0);
+            WaitHandle.WaitAll(InputEvent);
+
+
+
+
+                var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/20][];
+                for(var i = 0; i < pointsSortTable.Length; i++){
+                    pointsSortTable[i] = new PointXYint[0];
+                }
+
+
+
+
+
+
             //var res = new Scanint(MyConcurrentQueue.);
             while(true){
+
                 if (ExitEvent.WaitOne(0)) {
+                    //saveTableToFile(pointsSortTable);
+                    for(int l = 0; l<pointsSortTable.Length; l++){
+                        if(pointsSortTable[l].Length == 0){
+                            //Console.Write("Пустой столбец ");
+                            //Console.WriteLine(l);
+                        }else{
+                            Console.Write("Заполнен столбец ");
+                            Console.Write(l);
+                            Console.Write(" Значений: ");
+                            Console.WriteLine(pointsSortTable[l].Length);
+                        }
+                    }
+                    Console.Write("Всего столбцов ");
+                    Console.WriteLine(pointsSortTable.Length);
                     return;
                 }
                 if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
@@ -206,10 +228,15 @@ namespace Sick_test
                         }
                     }
                 }
-                WaitHandle.WaitAll(InputEvent);
                 RoadScan = new Scanint(0);
-
+                WaitHandle.WaitAny(InputEvent);
+                WaitHandle.WaitAll(InputEvent, 50);
                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                    /*if(InputEvent[i].WaitOne(0)){
+                    }else{
+                        Console.Write("Пропал скан ");
+                        Console.WriteLine(i+1);
+                    }*/
                     var res = MyConcurrentQueue[i].ZeroPoint();
                     InputEvent[i].Reset();
                     if(RoadScan.pointsArray.Length == 0){
@@ -218,6 +245,22 @@ namespace Sick_test
                     RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
                 }
                 Sorts.HoareSort(RoadScan.pointsArray);
+
+
+
+
+                int j = 0;
+                while(j<RoadScan.pointsArray.Length){
+                    if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
+                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/20)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/20)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();
+                    }
+                    j++;
+                }
+
+
+
+
+
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
@@ -340,7 +383,7 @@ namespace Sick_test
             for(var i = 0; i<MyConcurrentQueue.Length; i++){
                 ScansArray[i] = new Scanint(286);
             }
-            WaitHandle.WaitAll(InputEvent);
+            WaitHandle.WaitAll(InputEvent, 50);
             var WorkScanners = new bool[MyConcurrentQueue.Length];
             for(int i = 0; i<MyConcurrentQueue.Length; i++){
                 WorkScanners[i] = true;
@@ -349,7 +392,7 @@ namespace Sick_test
             //CircularBuffer<Scanint> MyCircularBuffer = new CircularBuffer<Scanint>(10000);
             while (true){
                 
-                WaitHandle.WaitAll(InputEvent);
+                WaitHandle.WaitAll(InputEvent, 50);
                 //var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
                 //while(EmptyBuffer(MyConcurrentQueue));
                 if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
