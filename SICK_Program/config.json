@@ -5,11 +5,16 @@
     "DownLimit": 700,
     "LeftLimit": 10000,
     "RightLimit": 20000,
+	"Step": 20,
 	
     "Lanes": 
 	[
 		{"ID":0, "Offset":-100, "Width":2500}
-	]
+	], 
+    "Blinds": 
+	[
+		{"ID":0, "Offset":2400, "Width":500, "Height":150}
+	] 
 },
 "Scanners": 
 	[

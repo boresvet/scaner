@@ -3,7 +3,12 @@
         public int Offset { get; set; }
         public int Width { get; set; }
     }
-    
+    public class Blind{
+        public int ID { get; set; }
+        public int Offset { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
     public class config{
         public RoadSetting RoadSettings { get; set; }
         public Scanner[] Scanners { get; set; }
@@ -13,7 +18,10 @@
         public int DownLimit { get; set; }
         public int LeftLimit { get; set; }
         public int RightLimit { get; set; }
+        public int Step { get; set; }
         public Lane[] Lanes { get; set; }
+        public Blind[] Blinds { get; set; }
+
     }
 
     public class Scanner{

@@ -27,7 +27,6 @@ namespace Sick_test
 		{
 			HoareSort(array, 0, array.Length - 1);
 		}
-
 		/*public static void Main()
 		{
 			int [] array = {3,2,5,7,8,1,9 };
