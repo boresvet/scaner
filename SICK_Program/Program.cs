@@ -238,6 +238,7 @@ namespace Sick_test
             var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             var RoadScan = new Scanint(0);
             WaitHandle.WaitAll(InputEvent);
+            var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
 
 
 
@@ -317,7 +318,6 @@ namespace Sick_test
 
 
 
-
                 int j = 0;
                 while(j<RoadScan.pointsArray.Length){
                     if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
@@ -325,6 +325,7 @@ namespace Sick_test
                     }
                     j++;
                 }
+                pointsfilter.FilterPoints(pointsSortTable);
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
