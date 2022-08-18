@@ -28,10 +28,12 @@ namespace Sick_test
             return Settings.DownLimit;
         }
 
-		public void FilterPoints(PointXYint[][] array){
+		public PointXYint[][] FilterPoints(PointXYint[][] array){
+            var retArray = new PointXYint[array.Length][];
 			for(int i = 0; i<array.Length; i++){
-                array[i] = Array.FindAll(array[i], point => (point.Y<filterMax[i])&(point.Y>filterMin[i]));
+                retArray[i] = Array.FindAll(array[i], point => (point.Y<filterMax[i])&(point.Y>filterMin[i]));
             }
+            return retArray;
 		}
     }
 }

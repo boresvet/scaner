@@ -188,18 +188,17 @@ namespace Sick_test
             for(var i = 0; i < Scaners.Length; i++){
                 MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
             }
-            var LaneConcurrentQueue = new CircularBuffer<Scanint>[config.RoadSettings.Lanes.Length];
-            for(var i = 0; i < config.RoadSettings.Lanes.Length; i++){
-                LaneConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
+
+            var InputT = new Task[Scaners.Length];
+            for(int y = 0; y<Scaners.Length; y++){
+            InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
+            //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             }
-            var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue[0], InputEvent[0], ErrorEvent[0], ExitEvent));
-            var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
-            var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue[2], InputEvent[2], ErrorEvent[0], ExitEvent));
             var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, InputEvent, ErrorEvent, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
-            Task.WaitAll( MainT, InputT1, InputT2, InputT3);
+            Task.WaitAll(InputT.Concat(new [] {MainT}).ToArray());
             Console.WriteLine("Завершено");
             return;
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
@@ -324,7 +323,7 @@ namespace Sick_test
                     }
                     j++;
                 }
-                pointsfilter.FilterPoints(pointsSortTable);
+                var FilteredPoints = pointsfilter.FilterPoints(pointsSortTable);
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
