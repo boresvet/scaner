@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq;
 
 namespace Sick_test
 {
@@ -235,15 +234,15 @@ namespace Sick_test
             for(int i = 0; i<MyConcurrentQueue.Length; i++){
                 WorkScanners[i] = true;
             }
-            var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
-            var RoadScan = new Scanint(0);
+            //var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
+            Scanint RoadScan;// = new Scanint(0);
             WaitHandle.WaitAll(InputEvent);
             var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
 
 
 
 
-                var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/20][];
+                var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
                 for(var i = 0; i < pointsSortTable.Length; i++){
                     pointsSortTable[i] = new PointXYint[0];
                 }
@@ -321,7 +320,7 @@ namespace Sick_test
                 int j = 0;
                 while(j<RoadScan.pointsArray.Length){
                     if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
-                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/20)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/20)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();
+                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
                     }
                     j++;
                 }
@@ -715,7 +714,7 @@ namespace Sick_test
                         Console.WriteLine("Тысячный скан");
                     }*/
                     Scan.time = DateTime.Now;
-                    Scan.pointsArray = Conv.MakePoint(ConnectionResultDistanceDataint(res));
+                    Scan.pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res)));
                     //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                     //Console.WriteLine(res.TimeSinceStartup);
                     //Console.WriteLine(res.TimeOfTransmission);
