@@ -719,7 +719,7 @@ namespace Sick_test
                     //Console.WriteLine(res.TimeOfTransmission);
                     MyConcurrentQueue.AddZeroPoint(Scan);
                     InputEvent.Set();
-                    //Console.Write("Принят скан от сканера  ");
+                    Console.Write("Принят скан от сканера  ");
                     //Console.WriteLine(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1));
                 }
             }
