@@ -35,5 +35,29 @@ namespace Sick_test
             }
             return retArray;
 		}
+        public int[] CarPoints(PointXYint[][] array){
+            var retArray = new int[array.Length];
+			for(int i = 0; i<array.Length; i++){
+                if(array[i].Length == 0){
+                    retArray[i] = -1;
+                }else{
+                    if(Array.FindAll(array[i], point => (point.Y<filterMax[i])&(point.Y>filterMin[i])).Length == 0){
+                        retArray[i] = 0;
+                    }else{
+                        retArray[i] = maxPoint(Array.FindAll(array[i], point => (point.Y<filterMax[i])&(point.Y>filterMin[i])));
+                    }
+                }
+            }
+            return retArray;
+        }
+        private int maxPoint(PointXYint[] array){
+            var retint = 0;
+            foreach(PointXYint j in array){
+                if(j.Y > retint){
+                    retint = j.Y;
+                }
+            }
+            return retint;
+        }
     }
 }

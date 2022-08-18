@@ -323,7 +323,7 @@ namespace Sick_test
                     }
                     j++;
                 }
-                var FilteredPoints = pointsfilter.FilterPoints(pointsSortTable);
+                var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
