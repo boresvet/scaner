@@ -112,52 +112,6 @@ namespace Sick_test
         }
 
 
-
-        /*static void Main1(){
-
-                // Read the stream as a string, and write the string to the console.
-            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
-
-            //var InputEvent = new ManualResetEvent(false);
-            var ExitEvent = new ManualResetEvent(false);
-            //var RoadEvent = new ManualResetEvent(false);
-
-            var ReadFile = File.ReadAllText("config.json");
-            //Console.WriteLine(ReadFile);
-            config config = JsonSerializer.Deserialize<config>(ReadFile);
-            var Scaners = config.Scanners.ToArray();
-            var InputEvent = new ManualResetEvent[Scaners.Length];
-            for(var i = 0; i < Scaners.Length; i++){
-                InputEvent[i] = new ManualResetEvent(false);
-            }
-
-            var ErrorEvent = new ManualResetEvent[Scaners.Length];
-            for(var i = 0; i < Scaners.Length; i++){
-                ErrorEvent[i] = new ManualResetEvent(false);
-            }
-            var MyConcurrentQueue = new CircularBuffer<Scanint>[Scaners.Length];
-            for(var i = 0; i < Scaners.Length; i++){
-                MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
-            }
-
-            var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent))).ToArray();
-            //for(int y = 0; y<Scaners.Length; y++){
-            //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
-            //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
-            //}
-            var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, InputEvent, ErrorEvent, ExitEvent));
-            //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
-            Console.ReadLine();
-            ExitEvent.Set();
-            Task.WaitAll(InputT.Concat(new [] {MainT}).ToArray());
-            Console.WriteLine("Завершено");
-            return;
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-        }*/
         static void Main(){
 
                 // Read the stream as a string, and write the string to the console.
