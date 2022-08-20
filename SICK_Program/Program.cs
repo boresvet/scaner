@@ -188,7 +188,7 @@ namespace Sick_test
 
 
 
-
+            var trig = false;
 
 
             //var res = new Scanint(MyConcurrentQueue.);
@@ -229,11 +229,10 @@ namespace Sick_test
                     
                     return;
                 }
-                if(WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0) {
+                if((WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0)|(trig)) {
                     for(int i = 0; i<Inputs.ErrorEvent.Length; i++){
-                        if(Inputs.ErrorEvent[i].WaitOne(0)){
-                            WorkScanners[i] = false;
-                        }
+                        WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0)==false);
+                        trig = true;
                     }
                 }
                 RoadScan = new Scanint(0);
@@ -245,12 +244,14 @@ namespace Sick_test
                         Console.Write("Пропал скан ");
                         Console.WriteLine(i+1);
                     }*/
-                    var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
-                    Inputs.InputEvent[i].Reset();
-                    if(RoadScan.pointsArray.Length == 0){
-                        RoadScan.time = res.time;
+                    if(WorkScanners[i]){
+                        var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
+                        Inputs.InputEvent[i].Reset();
+                        if(RoadScan.pointsArray.Length == 0){
+                            RoadScan.time = res.time;
+                        }
+                        RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
                     }
-                    RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
                 }
                 Sorts.HoareSort(RoadScan.pointsArray);
 
@@ -617,55 +618,58 @@ namespace Sick_test
             }
         }
         private static void InputTask(inputClass Inputs, ManualResetEvent ExitEvent){
-            try{
-                var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
-                //step = 286;
-                var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
-                var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
-                lms.Connect();
-                var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
-                var accessResult = lms.SetAccessMode();
-                var sss = lms.Stop();
-                var startResult = lms.Start();
-                var runResult = lms.Run();
-                var contResult = lms.StartContinuous();
-                var res = lms.ScanContinious();
-                var Scan = new Scanint{
-                    pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
-                    time = DateTime.Now
-                };
-                var oldscannumber=0;
-                while(true){
-                    if (ExitEvent.WaitOne(0)) {
-                        lms.Disconnect();
-                        return;
+            while(true){
+                try{
+                    var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
+                    //step = 286;
+                    var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
+                    var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    lms.Connect();
+                    Inputs.ErrorEvent.Reset();
+                    var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
+                    var accessResult = lms.SetAccessMode();
+                    var sss = lms.Stop();
+                    var startResult = lms.Start();
+                    var runResult = lms.Run();
+                    var contResult = lms.StartContinuous();
+                    var res = lms.ScanContinious();
+                    var Scan = new Scanint{
+                        pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
+                        time = DateTime.Now
+                    };
+                    var oldscannumber=0;
+                    while(true){
+                        if (ExitEvent.WaitOne(0)) {
+                            lms.Disconnect();
+                            return;
+                        }
+                        res = lms.ScanContinious();
+                        if (oldscannumber!=res.ScanCounter){ 
+                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                        }
+                        if (res.ScanCounter == null){
+                            oldscannumber++;
+                        }else{
+                            oldscannumber = (int)res.ScanCounter+1;
+                        }
+                        /*if(oldscannumber%1000 == 0){
+                            Console.WriteLine("Тысячный скан");
+                        }*/
+                        Scan.time = DateTime.Now;
+                        Scan.pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res)));
+                        //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
+                        //Console.WriteLine(res.TimeSinceStartup);
+                        //Console.WriteLine(res.TimeOfTransmission);
+                        Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
+                        Inputs.InputEvent.Set();
+                        Console.Write("Принят скан от сканера  ");
+                        Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
-                    res = lms.ScanContinious();
-                    if (oldscannumber!=res.ScanCounter){ 
-                        Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                    }
-                    if (res.ScanCounter == null){
-                        oldscannumber++;
-                    }else{
-                        oldscannumber = (int)res.ScanCounter+1;
-                    }
-                    /*if(oldscannumber%1000 == 0){
-                        Console.WriteLine("Тысячный скан");
-                    }*/
-                    Scan.time = DateTime.Now;
-                    Scan.pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res)));
-                    //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
-                    //Console.WriteLine(res.TimeSinceStartup);
-                    //Console.WriteLine(res.TimeOfTransmission);
-                    Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
-                    Inputs.InputEvent.Set();
-                    Console.Write("Принят скан от сканера  ");
-                    Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                 }
-            }
-            catch{
-                Inputs.ErrorEvent.Set();
-                Inputs.InputEvent.Set();
+                catch{
+                    Inputs.ErrorEvent.Set();
+                    Inputs.InputEvent.Set();
+                }
             }
         }
         private static void InputTask1(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
