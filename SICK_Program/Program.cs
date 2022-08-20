@@ -110,66 +110,17 @@ namespace Sick_test
             StreamWriter Myfyle = new StreamWriter(writepath, true);
             Myfyle.WriteLine(@"{""PointsXY"":[" + String.Join(", ", mass.Select(n => PointsToString(n))) + "]}");
         }
-        static void Main1(){
-            for(int p = 0; p<10; p++){
-
-                // Read the stream as a string, and write the string to the console.
-            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
-
-            //var InputEvent = new ManualResetEvent(false);
-                var ExitEvent = new ManualResetEvent(false);
-                var RoadEvent = new ManualResetEvent(false);
-
-                var ReadFile = File.ReadAllText("config.json");
-                //Console.WriteLine(ReadFile);
-                config config = JsonSerializer.Deserialize<config>(ReadFile);
-                var Scaners = config.Scanners.ToArray();
-                var InputEvent = new ManualResetEvent[Scaners.Length];
-                for(var i = 0; i < Scaners.Length; i++){
-                    InputEvent[i] = new ManualResetEvent(false);
-                }
-
-                var ErrorEvent = new ManualResetEvent[Scaners.Length];
-                for(var i = 0; i < Scaners.Length; i++){
-                    ErrorEvent[i] = new ManualResetEvent(false);
-                }
-                var MyConcurrentQueue = new CircularBuffer<Scanint>[Scaners.Length];
-                for(var i = 0; i < Scaners.Length; i++){
-                    MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
-                }
-                var LaneConcurrentQueue = new CircularBuffer<Scanint>[config.RoadSettings.Lanes.Length];
-                for(var i = 0; i < config.RoadSettings.Lanes.Length; i++){
-                    LaneConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
-                }
-                ExitEvent.Reset();
-                var InputT1 = Task.Run(() => InputTask(Scaners[0], MyConcurrentQueue[0], InputEvent[0], ErrorEvent[0], ExitEvent));
-                var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
-                var InputT3 = Task.Run(() => InputTask(Scaners[2], MyConcurrentQueue[2], InputEvent[2], ErrorEvent[0], ExitEvent));
-                var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, InputEvent, ErrorEvent, ExitEvent));
-                //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
-                //Console.ReadLine();
-                Thread.Sleep(600000);
-                ExitEvent.Set();
-                Task.WaitAll( MainT, InputT1, InputT2, InputT3);
-            }
-            Console.WriteLine("Завершено");
-            return;
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-           // Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-        }
 
 
-        static void Main(){
+
+        /*static void Main1(){
 
                 // Read the stream as a string, and write the string to the console.
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
 
             //var InputEvent = new ManualResetEvent(false);
             var ExitEvent = new ManualResetEvent(false);
-            var RoadEvent = new ManualResetEvent(false);
+            //var RoadEvent = new ManualResetEvent(false);
 
             var ReadFile = File.ReadAllText("config.json");
             //Console.WriteLine(ReadFile);
@@ -189,11 +140,11 @@ namespace Sick_test
                 MyConcurrentQueue[i] = new CircularBuffer<Scanint>(1);
             }
 
-            var InputT = new Task[Scaners.Length];
-            for(int y = 0; y<Scaners.Length; y++){
-            InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
+            var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent))).ToArray();
+            //for(int y = 0; y<Scaners.Length; y++){
+            //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
-            }
+            //}
             var MainT = Task.Run(() => TMainT(config, MyConcurrentQueue, InputEvent, ErrorEvent, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
@@ -206,6 +157,41 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+        }*/
+        static void Main(){
+
+                // Read the stream as a string, and write the string to the console.
+            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
+
+            //var InputEvent = new ManualResetEvent(false);
+            var ExitEvent = new ManualResetEvent(false);
+            //var RoadEvent = new ManualResetEvent(false);
+
+            var ReadFile = File.ReadAllText("config.json");
+            //Console.WriteLine(ReadFile);
+            config config = JsonSerializer.Deserialize<config>(ReadFile);
+            var Scaners = config.Scanners.ToArray();
+
+            var Inputs = new InputClass(config);
+
+
+            var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+            //for(int y = 0; y<Scaners.Length; y++){
+            //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
+            //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
+            //}
+            var MainT = Task.Run(() => TMainT(config, Inputs, ExitEvent));
+            //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
+            Console.ReadLine();
+            ExitEvent.Set();
+            Task.WaitAll(InputT.Concat(new [] {MainT}).ToArray());
+            Console.WriteLine("Завершено");
+            return;
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
         static void TLaneT(config config, CircularBuffer<Scanint> LaneConcurrentQueue, ManualResetEvent RoadEvent, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
@@ -228,14 +214,14 @@ namespace Sick_test
             }
         }
 
-        static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
-            var WorkScanners = new bool[MyConcurrentQueue.Length];
-            for(int i = 0; i<MyConcurrentQueue.Length; i++){
+        static void TMainT(config config, InputClass Inputs, ManualResetEvent ExitEvent){
+            var WorkScanners = new bool[Inputs.inputClass.Length];
+            for(int i = 0; i<Inputs.inputClass.Length; i++){
                 WorkScanners[i] = true;
             }
             //var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             Scanint RoadScan;// = new Scanint(0);
-            WaitHandle.WaitAll(InputEvent);
+            WaitHandle.WaitAll(Inputs.InputEvent);
             var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
 
 
@@ -289,24 +275,24 @@ namespace Sick_test
                     
                     return;
                 }
-                if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
-                    for(int i = 0; i<MyConcurrentQueue.Length; i++){
-                        if(ErrorEvent[i].WaitOne(0)){
+                if(WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0) {
+                    for(int i = 0; i<Inputs.ErrorEvent.Length; i++){
+                        if(Inputs.ErrorEvent[i].WaitOne(0)){
                             WorkScanners[i] = false;
                         }
                     }
                 }
                 RoadScan = new Scanint(0);
-                WaitHandle.WaitAny(InputEvent);
-                WaitHandle.WaitAll(InputEvent, 50);
-                for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                WaitHandle.WaitAny(Inputs.InputEvent);
+                WaitHandle.WaitAll(Inputs.InputEvent, 50);
+                for(int i = 0; i<Inputs.InputEvent.Length; i++){
                     /*if(InputEvent[i].WaitOne(0)){
                     }else{
                         Console.Write("Пропал скан ");
                         Console.WriteLine(i+1);
                     }*/
-                    var res = MyConcurrentQueue[i].ZeroPoint();
-                    InputEvent[i].Reset();
+                    var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
+                    Inputs.InputEvent[i].Reset();
                     if(RoadScan.pointsArray.Length == 0){
                         RoadScan.time = res.time;
                     }
@@ -676,14 +662,14 @@ namespace Sick_test
                 //}
             }
         }
-        private static void InputTask(Scanner scaner, CircularBuffer<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ErrorEvent, ManualResetEvent ExitEvent){
+        private static void InputTask(inputClass Inputs, ManualResetEvent ExitEvent){
             try{
-                var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
+                var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                 //step = 286;
-                var lms = new LMS1XX(scaner.Connection.ScannerAddres, scaner.Connection.ScannerPort, 5000, 5000);
-                var Conv = new SpetialConvertorint(-5 + scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, step);
+                var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
+                var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                 lms.Connect();
-                var translator = new translator(new PointXYint(){X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
+                var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
                 var accessResult = lms.SetAccessMode();
                 var sss = lms.Stop();
                 var startResult = lms.Start();
@@ -717,15 +703,15 @@ namespace Sick_test
                     //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                     //Console.WriteLine(res.TimeSinceStartup);
                     //Console.WriteLine(res.TimeOfTransmission);
-                    MyConcurrentQueue.AddZeroPoint(Scan);
-                    InputEvent.Set();
+                    Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
+                    Inputs.InputEvent.Set();
                     Console.Write("Принят скан от сканера  ");
-                    //Console.WriteLine(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1));
+                    Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                 }
             }
             catch{
-                ErrorEvent.Set();
-                InputEvent.Set();
+                Inputs.ErrorEvent.Set();
+                Inputs.InputEvent.Set();
             }
         }
         private static void InputTask1(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
