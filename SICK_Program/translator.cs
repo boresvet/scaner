@@ -1,3 +1,16 @@
+using BSICK.Sensors.LMS1xx;
+using System;
+using static System.Math;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Drawing;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace Sick_test
 {
     class translator
@@ -13,23 +26,21 @@ namespace Sick_test
         {
             ZeroPointint = zeropoint;
         }
+        public PointXY translate(PointXY input){
+            input.X = input.X + ZeroPoint.X;
+            input.Y = input.Y + ZeroPoint.Y;
+            return input;
+        }
+        public PointXYint translate(PointXYint input){
+            input.X = input.X + ZeroPointint.X;
+            input.Y = input.Y + ZeroPointint.Y;
+            return input;
+        }
         public PointXY[] Translate(PointXY[] oldArray){
-            var newScan = new PointXY[oldArray.Length];
-            oldArray.CopyTo(newScan, 0);
-            for(int i = 0; i<newScan.Length; i++){
-                newScan[i].X = newScan[i].X + ZeroPoint.X;
-                newScan[i].Y = newScan[i].Y + ZeroPoint.Y;
-            }
-            return newScan;
+            return oldArray.Select(n => translate(n)).ToArray();
         }
         public PointXYint[] Translate(PointXYint[] oldArray){
-            var newScan = new PointXYint[oldArray.Length];
-            oldArray.CopyTo(newScan, 0);
-            for(int i = 0; i<newScan.Length; i++){
-                newScan[i].X = newScan[i].X + ZeroPointint.X;
-                newScan[i].Y = newScan[i].Y + ZeroPointint.Y;
-            }
-            return newScan;
+            return oldArray.Select(n => translate(n)).ToArray();
         }
     }
 }

@@ -656,7 +656,7 @@ namespace Sick_test
                             Console.WriteLine("Тысячный скан");
                         }*/
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X==0)&(point.Y==0)));
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);
