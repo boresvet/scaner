@@ -503,10 +503,9 @@ namespace Sick_test
                 Assert.Pass("Усёхорошо");
             }*/
         }
-        public static int[] AddLineIsland(Span<int> Input){
-            var start = Input[0];
-            var end = Input[Input.Length-1];
-            var input = new int[Input.Length-1];
+        public static int[] AddLineIsland(int[] input){
+            var start = input[0];
+            var end = input[input.Length-1];
             if((start == -1)&(end == 0)){
                 for(int i = 0; i < input.Length; i++){
                     input[i] = 0;
@@ -533,12 +532,12 @@ namespace Sick_test
                 }
             }
             if((start == 0)&(end > 0)){
-                for(int i = 1; i < input.Length; i++){
-                    input[i] = Input[i];
+                for(int i = 1; i < input.Length-1; i++){
+                    input[i] = start;
                 }
             }
             if((start > 0)&(end == 0)){
-                for(int i = 1; i < input.Length; i++){
+                for(int i = 1; i < input.Length-1; i++){
                     input[i] = start;
                 }
             }
@@ -558,9 +557,14 @@ namespace Sick_test
             var start = 0;
             for(int i = 0; i < input.Length; i++){
                 if((input[i]>=0)|(i==input.Length-1)){
-                    AddLineIsland(input.AsSpan().Slice(start,i));
+                    var rat = AddLineIsland(input[start..(i+1)]);
+                    for(int j = start; j<=i; j++){
+                        input[j] = rat[j-start];
+                    }
                     start = i;
+
                 }
+
             }
             return input.ToArray();
         }
