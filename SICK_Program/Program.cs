@@ -265,6 +265,7 @@ namespace Sick_test
                     j++;
                 }
                 var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
+                var CarArray = AddAllIslandLane(FilteredPoints);
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
@@ -502,9 +503,70 @@ namespace Sick_test
                 Assert.Pass("Усёхорошо");
             }*/
         }
+        public static int[] AddLineIsland(Span<int> Input){
+            var start = Input[0];
+            var end = Input[Input.Length-1];
+            var input = new int[Input.Length-1];
+            if((start == -1)&(end == 0)){
+                for(int i = 0; i < input.Length; i++){
+                    input[i] = 0;
+                }
+            }
+            if((start == -1)&(end > 0)){
+                for(int i = 0; i < input.Length-1; i++){
+                    input[i] = 0;
+                }
+            }
+            if((start == -1)&(end == -1)){
+                for(int i = 0; i < input.Length; i++){
+                    input[i] = 0;
+                }
+            }
+            if((start == 0)&(end == -1)){
+                for(int i = 0; i < input.Length; i++){
+                    input[i] = 0;
+                }
+            }
+            if((start == 0)&(end == 0)){
+                for(int i = 0; i < input.Length; i++){
+                    input[i] = 0;
+                }
+            }
+            if((start == 0)&(end > 0)){
+                for(int i = 1; i < input.Length; i++){
+                    input[i] = Input[i];
+                }
+            }
+            if((start > 0)&(end == 0)){
+                for(int i = 1; i < input.Length; i++){
+                    input[i] = start;
+                }
+            }
+            if((start > 0)&(end > 0)){
+                for(int i = 0; i < input.Length; i++){
+                    input[i] = start + ((end-start)/input.Length*i);
+                }
+            }
+            if((start > 0)&(end == -1)){
+                for(int i = 1; i < input.Length; i++){
+                    input[i] = 0;
+                }
+            }
+            return input;
+        }
+        private static int[] AddAllIslandLane(int[] input){
+            var start = 0;
+            for(int i = 0; i < input.Length; i++){
+                if((input[i]>=0)|(i==input.Length-1)){
+                    AddLineIsland(input.AsSpan().Slice(start,i));
+                    start = i;
+                }
+            }
+            return input.ToArray();
+        }
 
         private static void MainTask1(ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
-        {   
+        {
             var trigger = true;
             var mycarleanth = 0;
             //string writepath = @"/home/dan/Рабочиqwerй стол/12345/Sick-test/test.txt";
