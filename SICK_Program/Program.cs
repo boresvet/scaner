@@ -126,7 +126,7 @@ namespace Sick_test
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
 
-            var Inputs = new InputClass(config);
+            var Inputs = new AllInput(config);
 
 
             var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
@@ -168,8 +168,10 @@ namespace Sick_test
             }
         }
 
-        static void TMainT(config config, InputClass Inputs, ManualResetEvent ExitEvent){
+        static void TMainT(config config, AllInput Inputs, ManualResetEvent ExitEvent){
             var WorkScanners = new bool[Inputs.inputClass.Length];
+            //Объявление массива с датчиками рабочести сканеров. 
+            
             for(int i = 0; i<Inputs.inputClass.Length; i++){
                 WorkScanners[i] = true;
             }
@@ -181,11 +183,14 @@ namespace Sick_test
 
 
 
-                var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
-                for(var i = 0; i < pointsSortTable.Length; i++){
-                    pointsSortTable[i] = new PointXYint[0];
-                }
-
+            var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
+            for(var i = 0; i < pointsSortTable.Length; i++){
+                pointsSortTable[i] = new PointXYint[0];
+            }
+            //Штука, куда складываются все точки дороги. 
+            //Точки распределяются по массивам, как по вертикальным столбцам шириной в "config.RoadSettings.Step"
+            //Это позволяет, вычислив машину в этих вот столбцах, использовать на них стандартный генератор островов. 
+            //Соответственно, достаточно собрать генератор островов, и профит)
 
 
             var trig = false;
@@ -503,66 +508,68 @@ namespace Sick_test
                 Assert.Pass("Усёхорошо");
             }*/
         }
-        public static int[] AddLineIsland(int[] input){
-            var start = input[0];
-            var end = input[input.Length-1];
+        public static int[] AddLineIsland(int[] input, int startpoint, int endpoint){
+
+            /*
+            Тут происходит дозапоолнение массива между двумя точками. 
+            На входе: три варианта значения
+            -1 - в этом столбе нет ни одной точки
+            0 - в этом столбе есть точки, но все они являются "землёй"
+            >0 - в этом столбе есть точка "машины" - даже если есть и другие точки, то сохранена только самая высокая
+
+
+
+            Фишка в том, что такой метод позволит обработать практический любые потери данных. 
+            Если на дороге лужа - то точек в неё не попадает, и так как мы берём ближайшие точки, и "дозаполняем" лужу данными. 
+            Если крыша машины слишком сильно блестит - то то же самое. 
+            Если с одной стороны "провала" есть машина, а с другой её нет, то все точки заполняются "землёй"
+            Если с одной стороны бесконечность(то есть край дороги), то все точки до ближайшей считаются землёй
+            */
+            var start = input[startpoint];
+            var end = input[endpoint];
             if((start == -1)&(end == 0)){
-                for(int i = 0; i < input.Length; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
             }
             if((start == -1)&(end > 0)){
-                for(int i = 0; i < input.Length-1; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
             }
             if((start == -1)&(end == -1)){
-                for(int i = 0; i < input.Length; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint, endpoint-startpoint+1);
             }
             if((start == 0)&(end == -1)){
-                for(int i = 0; i < input.Length; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
             }
             if((start == 0)&(end == 0)){
-                for(int i = 0; i < input.Length; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             if((start == 0)&(end > 0)){
-                for(int i = 1; i < input.Length-1; i++){
-                    input[i] = start;
-                }
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
             }
             if((start > 0)&(end == 0)){
-                for(int i = 1; i < input.Length-1; i++){
-                    input[i] = start;
-                }
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             if((start > 0)&(end > 0)){
-                for(int i = 0; i < input.Length; i++){
+                for(int i = startpoint; i < endpoint; i++){
                     input[i] = start + ((end-start)/input.Length*i);
                 }
             }
             if((start > 0)&(end == -1)){
-                for(int i = 1; i < input.Length; i++){
-                    input[i] = 0;
-                }
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
             }
             return input;
         }
         private static int[] AddAllIslandLane(int[] input){
+            /*
+            Эта штука "дозаполняет" все имеющиеся точки дороги до монолитного результата, удаляя все бесконечности. 
+            То есть с начала - она от левого края идёт до ближайшей точки. Находит точку, и массив до ней дозаполняет по правилам(см. AddLineIsland)
+            Потом - от первой точки до второй, и т.д. 
+            И так до самого конца, чтобы получить полноценную картину распределения точек
+            */
             var start = 0;
             for(int i = 0; i < input.Length; i++){
                 if((input[i]>=0)|(i==input.Length-1)){
-                    var rat = AddLineIsland(input[start..(i+1)]);
-                    for(int j = start; j<=i; j++){
-                        input[j] = rat[j-start];
-                    }
+                    AddLineIsland(input,start,i);
                     start = i;
-
                 }
 
             }
@@ -683,16 +690,22 @@ namespace Sick_test
                 //}
             }
         }
-        private static void InputTask(inputClass Inputs, ManualResetEvent ExitEvent){
+        private static void InputTask(inputTheard Inputs, ManualResetEvent ExitEvent){
             while(true){
                 try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
+                    
                     var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    //объявление конвертера, переводящего координаты из радиальной системы в ХУ
+                    
                     lms.Connect();
                     Inputs.ErrorEvent.Reset();
+
                     var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
+                    //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
+                    
                     var accessResult = lms.SetAccessMode();
                     var sss = lms.Stop();
                     var startResult = lms.Start();
@@ -721,8 +734,20 @@ namespace Sick_test
                         /*if(oldscannumber%1000 == 0){
                             Console.WriteLine("Тысячный скан");
                         }*/
+
+
                         Scan.time = DateTime.Now;
                         Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X==0)&(point.Y==0)));
+                        /*
+                        Эта штука конвертирует скан из радиальных координат в ХУ, 
+                        потом удаляет все "нули" - точки, совпадающие со сканером 
+                        Потом - транслирует все точки в общую систему  координат дороги
+                        */
+
+
+
+
+
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);

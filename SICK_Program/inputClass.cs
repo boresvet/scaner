@@ -13,27 +13,27 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace Sick_test
 {
-    public class inputClass
+    public class inputTheard
     {
         public Scanner scaner;
         public CircularBuffer<Scanint> MyConcurrentQueue;
         public ManualResetEvent InputEvent;
         public ManualResetEvent ErrorEvent;
-        public inputClass(Scanner scanner){
+        public inputTheard(Scanner scanner){
             scaner = scanner;
             InputEvent = new ManualResetEvent(false);
             ErrorEvent = new ManualResetEvent(false);
             MyConcurrentQueue = new CircularBuffer<Scanint>(1);
         }
     }
-    public class InputClass{
-        public inputClass[] inputClass;
+    public class AllInput{
+        public inputTheard[] inputClass;
         public ManualResetEvent[] InputEvent;
         public ManualResetEvent[] ErrorEvent;
-        public InputClass(config config){
-            inputClass = new inputClass[config.Scanners.Length];
+        public AllInput(config config){
+            inputClass = new inputTheard[config.Scanners.Length];
             for(var i = 0; i < config.Scanners.Length; i++){
-                inputClass[i] = new inputClass(config.Scanners[i]);
+                inputClass[i] = new inputTheard(config.Scanners[i]);
             }
             InputEvent = InputClInput();
             ErrorEvent = InputClError();
@@ -44,5 +44,7 @@ namespace Sick_test
         public ManualResetEvent[] InputClError(){
             return(inputClass.Select(n => n.ErrorEvent).ToArray());
         }
+
+        //TaskInput, AllTaskInput
     }
 }
