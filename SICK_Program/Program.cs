@@ -124,17 +124,22 @@ namespace Sick_test
             var ReadFile = File.ReadAllText("config.json");
             //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
-            var Scaners = config.Scanners.ToArray();
+            var Scaners = config.Scanners;
 
-            var Inputs = new InputClass(config);
+            var appCtx = new AppContext(config);
+            // var Inputs = new InputClass(config);
 
+            // var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+            var InputT = Enumerable.Range(0, appCtx.TasksContext.Length)
+                                   .Select(x => Task.Run(() => InputTask0(appCtx.TasksContext[x], ExitEvent)))
+                                   .ToArray();
+            
 
-            var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
-            var MainT = Task.Run(() => TMainT(config, Inputs, ExitEvent));
+            var MainT = Task.Run(() => TMainT(appCtx, appCtx.ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
@@ -168,28 +173,27 @@ namespace Sick_test
             }
         }
 
-        static void TMainT(config config, InputClass Inputs, ManualResetEvent ExitEvent){
-            var WorkScanners = new bool[Inputs.inputClass.Length];
-            for(int i = 0; i<Inputs.inputClass.Length; i++){
-                WorkScanners[i] = true;
-            }
+        static void TMainT( AppContext appCtx, ManualResetEvent ExitEvent){
+            
+            var config = appCtx.Config;
+
+            // var WorkScanners = new bool[ctx.Length];
+            // for(int i = 0; i<ctx.Length; i++){
+            //     WorkScanners[i] = true;
+            // }
+            var WorkScanners = Enumerable.Range(0, appCtx.Config.Scanners.Length).Select(x => true).ToArray();
+            
             //var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             Scanint RoadScan;// = new Scanint(0);
-            WaitHandle.WaitAll(Inputs.InputEvent);
+            WaitHandle.WaitAll(appCtx.InputEvents);
             var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
-
-
-
 
                 var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
                 for(var i = 0; i < pointsSortTable.Length; i++){
                     pointsSortTable[i] = new PointXYint[0];
                 }
 
-
-
             var trig = false;
-
 
             //var res = new Scanint(MyConcurrentQueue.);
             while(true){
@@ -229,33 +233,38 @@ namespace Sick_test
                     
                     return;
                 }
-                if((WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0)|(trig)) {
-                    for(int i = 0; i<Inputs.ErrorEvent.Length; i++){
-                        WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0)==false);
+                if((WaitHandle.WaitAny(appCtx.ErrorEvents, 0)!=0)|(trig)) {
+                    for(int i = 0; i<appCtx.ErrorEvents.Length; i++){
+                        WorkScanners[i] = (appCtx.ErrorEvents[i].WaitOne(0)==false);
                         trig = true;
                     }
                 }
-                RoadScan = new Scanint(0);
-                WaitHandle.WaitAny(Inputs.InputEvent);
-                WaitHandle.WaitAll(Inputs.InputEvent, 50);
-                for(int i = 0; i<Inputs.InputEvent.Length; i++){
+               RoadScan = new Scanint(0);
+                var readyScans = new List<Scanint>(appCtx.TasksContext.Length);
+
+                WaitHandle.WaitAny(appCtx.InputEvents);
+                WaitHandle.WaitAll(appCtx.InputEvents, 50);
+                for(int i = 0; i<appCtx.TasksContext.Length; i++){
                     /*if(InputEvent[i].WaitOne(0)){
                     }else{
                         Console.Write("Пропал скан ");
                         Console.WriteLine(i+1);
                     }*/
                     if(WorkScanners[i]){
-                        var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
-                        Inputs.InputEvent[i].Reset();
-                        if(RoadScan.pointsArray.Length == 0){
-                            RoadScan.time = res.time;
-                        }
-                        RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
+                        var res = appCtx.TasksContext[i].MyConcurrentQueue.ZeroPoint();
+                        appCtx.TasksContext[i].InputEvent.Reset();
+                        // if(RoadScan.pointsArray.Length == 0){
+                        //     RoadScan.time = res.time;
+                        // }
+                        // RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
+                        readyScans.Add(res);
                     }
                 }
+                
+                RoadScan.pointsArray = readyScans.SelectMany(x => x.pointsArray).ToArray();
+                RoadScan.time = readyScans[0].time;
+
                 Sorts.HoareSort(RoadScan.pointsArray);
-
-
 
                 int j = 0;
                 while(j<RoadScan.pointsArray.Length){
@@ -683,6 +692,63 @@ namespace Sick_test
                 //}
             }
         }
+
+        private static void InputTask0(InputTaskContext ctx, ManualResetEvent ExitEvent){
+            while(true){
+                try{
+                    var step = (int)((ctx.scaner.Settings.EndAngle-ctx.scaner.Settings.StartAngle)/ctx.scaner.Settings.Resolution);
+                    //step = 286;
+                    var lms = new LMS1XX(ctx.scaner.Connection.ScannerAddres, ctx.scaner.Connection.ScannerPort, 5000, 5000);
+                    var Conv = new SpetialConvertorint(-5 + ctx.scaner.Transformations.CorrectionAngle, 185+ctx.scaner.Transformations.CorrectionAngle, step);
+                    lms.Connect();
+                    ctx.ErrorEvent.Reset();
+                    var translator = new translator(new PointXYint(){X = ctx.scaner.Transformations.HorisontalOffset, Y = ctx.scaner.Transformations.Height});
+                    var accessResult = lms.SetAccessMode();
+                    var sss = lms.Stop();
+                    var startResult = lms.Start();
+                    var runResult = lms.Run();
+                    var contResult = lms.StartContinuous();
+                    var res = lms.ScanContinious();
+                    var Scan = new Scanint{
+                        pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
+                        time = DateTime.Now
+                    };
+                    var oldscannumber=0;
+                    while(true){
+                        if (ExitEvent.WaitOne(0)) {
+                            lms.Disconnect();
+                            return;
+                        }
+                        res = lms.ScanContinious();
+                        if (oldscannumber!=res.ScanCounter){ 
+                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                        }
+                        if (res.ScanCounter == null){
+                            oldscannumber++;
+                        }else{
+                            oldscannumber = (int)res.ScanCounter+1;
+                        }
+                        /*if(oldscannumber%1000 == 0){
+                            Console.WriteLine("Тысячный скан");
+                        }*/
+                        Scan.time = DateTime.Now;
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X==0)&(point.Y==0)));
+                        //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
+                        //Console.WriteLine(res.TimeSinceStartup);
+                        //Console.WriteLine(res.TimeOfTransmission);
+                        ctx.MyConcurrentQueue.AddZeroPoint(Scan);
+                        ctx.InputEvent.Set();
+                        Console.Write("Принят скан от сканера  ");
+                        Console.WriteLine(ctx.scaner.Connection.ScannerAddres.Substring(ctx.scaner.Connection.ScannerAddres.Length-1));
+                    }
+                }
+                catch{
+                    ctx.ErrorEvent.Set();
+                    ctx.InputEvent.Set();
+                }
+            }
+        }
+
         private static void InputTask(inputClass Inputs, ManualResetEvent ExitEvent){
             while(true){
                 try{
