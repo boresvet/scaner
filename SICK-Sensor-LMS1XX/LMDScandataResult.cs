@@ -69,7 +69,7 @@ namespace BSICK.Sensors.LMS1xx
         public double? StartAngle;
         public double? SizeOfSingleAngularStep;
         public int? AmountOfData;
-        public List<double> DistancesData;
+        public List<int> DistancesData;
 
         public static LMDScandataResult Parse(Stream br)
         {
@@ -126,7 +126,7 @@ namespace BSICK.Sensors.LMS1xx
             result.SizeOfSingleAngularStep = br.ReadUIntAsHex() / 10000.0;
             result.AmountOfData = br.ReadIntAsHex();
 
-            result.DistancesData = br.ReadListAsHex(result.AmountOfData ?? 0, (x) => ((double)x) / 1000.0);
+            result.DistancesData = br.ReadListAsHex(result.AmountOfData ?? 0);
 
             while (br.ReadByte() != EndMark);
             //br.Flush();
@@ -193,7 +193,7 @@ namespace BSICK.Sensors.LMS1xx
             result.SizeOfSingleAngularStep = stream.ReadUIntAsHex() / 10000.0;
             result.AmountOfData = stream.ReadIntAsHex();
 
-            result.DistancesData = stream.ReadListAsHex(result.AmountOfData ?? 0, (x) => ((double)x) / 1000.0);
+            result.DistancesData = stream.ReadListAsHex(result.AmountOfData ?? 0);
 
             var AmountOf8BitData1 = stream.ReadIntAsHex();
             var Position = stream.ReadIntAsHex();
@@ -212,7 +212,7 @@ namespace BSICK.Sensors.LMS1xx
             ErrorException = null;
             RawData = rawData;
             RawDataString = Encoding.ASCII.GetString(rawData).Trim();
-            DistancesData = new List<double>();
+            DistancesData = new List<int>();
             CommandType = String.Empty;
             Command = String.Empty;
             VersionNumber = null;

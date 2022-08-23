@@ -453,7 +453,7 @@ namespace BSICK.Sensors.LMS1xx
                     }
                     else
                     {
-                        result.DistancesData.Add(Convert.ToDouble(int.Parse(dataBloc, System.Globalization.NumberStyles.HexNumber)) / 1000);
+                        result.DistancesData.Add(int.Parse(dataBloc, System.Globalization.NumberStyles.HexNumber));
                         dataBloc = String.Empty;
                         ++dataBlocCounter;
                     }
@@ -540,7 +540,7 @@ namespace BSICK.Sensors.LMS1xx
                     }
                     else
                     {
-                        result.DistancesData.Add(Convert.ToDouble(int.Parse(dataBloc, System.Globalization.NumberStyles.HexNumber)) / 1000);
+                        result.DistancesData.Add(int.Parse(dataBloc, System.Globalization.NumberStyles.HexNumber));
                         dataBloc = String.Empty;
                         ++dataBlocCounter;
                     }

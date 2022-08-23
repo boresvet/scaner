@@ -79,6 +79,17 @@ namespace BSICK.Sensors.LMS1xx
             }
             return result;
         }
+
+        public static List<int> ReadListAsHex(this Stream stream, int count)
+        {
+            var result = new List<int>(count);
+            while (--count >= 0)
+            {
+                var x = stream.ReadIntAsHex();
+                result.Add(x);
+            }
+            return result;
+        }
     }
 
 
