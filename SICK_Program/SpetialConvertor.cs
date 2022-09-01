@@ -2,6 +2,8 @@ using System;
 
 namespace Sick_test
 {
+    ///<summary>Конвертор из радиальной системы координат в ХУ
+    ///</summary>     
     public class SpetialConvertorint{
         public int BeginGrade;//    Углы относительно оси У
         public int EndGrade;
@@ -10,7 +12,11 @@ namespace Sick_test
         public double[] RatioSin;
 
         double[] RatioCos;
-
+        ///<summary>Объявление класса
+        ///<param name = "begingrade">начальный угол в градусах</param>
+        ///<param name = "endgrade">Конечный угол в градусах</param>
+        ///<param name = "step">Количество точек</param>
+        ///</summary>  
         public SpetialConvertorint(int begingrade, int endgrade, int step){
             BeginGrade = begingrade;
             EndGrade = endgrade;
@@ -19,7 +25,7 @@ namespace Sick_test
             RatioCos = RatoiGenCos(BeginGrade, EndGrade, Step);//Массивы с коэффециентами для приведения к нормальному виду координат
         }
         
-        static double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static private double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -27,7 +33,7 @@ namespace Sick_test
             }
             return result;
         }
-        static double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static private double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -35,7 +41,7 @@ namespace Sick_test
             }
             return result;
         }
-        public int[] MakeX(int[] rpos){
+        private int[] MakeX(int[] rpos){
             int[] result;
             result = new int[rpos.Length];
             for (int i=0; i<rpos.Length; i++){
@@ -43,7 +49,7 @@ namespace Sick_test
             }
         return result;
         }
-        public int[] MakeY(int[] rpos){
+        private int[] MakeY(int[] rpos){
             int[] result;
             result = new int[rpos.Length];
             for (int i=0; i<rpos.Length; i++){
@@ -51,19 +57,22 @@ namespace Sick_test
             }
         return result;
         }
-        public int MakeXOne(int rpos, int step){
+        private int MakeXOne(int rpos, int step){
             var result = (int)(((double)(rpos))*RatioCos[step]);
             return result;}
-        public int MakeYOne(int rpos, int step){
+        private int MakeYOne(int rpos, int step){
             var result = (int)(((double)(rpos))*RatioSin[step]);
             return result;
         }
-        public PointXYint MakePointOne(int rpos, int step){
+        private PointXYint MakePointOne(int rpos, int step){
             var result = new PointXYint();
             result.X = MakeXOne(rpos, step);
             result.Y = MakeYOne(rpos, step);
         return result;
         }
+        ///<summary>Перевод из радиальной в ХУ координаты
+        ///<param name = "rpos"></param>
+        ///</summary> 
         public PointXYint[] MakePoint(int[] rpos){
             var result = new PointXYint[Step];
             for (var i= 0; i<Step; i++){
@@ -72,6 +81,8 @@ namespace Sick_test
         return result;
         }
     }
+    ///<summary>Конвертор из радиальной системы координат в ХУ
+    ///</summary>     
     public class SpetialConvertor{
         public int BeginGrade;//    Углы относительно оси У
         public int EndGrade;
@@ -80,7 +91,11 @@ namespace Sick_test
         public double[] RatioSin;
 
         double[] RatioCos;
-
+        ///<summary>Объявление класса
+        ///<param name = "begingrade">начальный угол в градусах</param>
+        ///<param name = "endgrade">Конечный угол в градусах</param>
+        ///<param name = "step">Количество точек</param>
+        ///</summary>  
         public SpetialConvertor(int begingrade, int endgrade, int step){
             BeginGrade = begingrade;
             EndGrade = endgrade;
@@ -89,7 +104,7 @@ namespace Sick_test
             RatioCos = RatoiGenCos(BeginGrade, EndGrade, Step);//Массивы с коэффециентами для приведения к нормальному виду координат
         }
         
-        static double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static private double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -97,7 +112,7 @@ namespace Sick_test
             }
             return result;
         }
-        static double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static private double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -105,7 +120,7 @@ namespace Sick_test
             }
             return result;
         }
-        public double[] MakeX(double[] rpos){
+        private double[] MakeX(double[] rpos){
             double[] result;
             result = new double[rpos.Length];
             for (int i=0; i<rpos.Length; i++){
@@ -113,7 +128,7 @@ namespace Sick_test
             }
         return result;
         }
-        public double[] MakeY(double[] rpos){
+        private double[] MakeY(double[] rpos){
             double[] result;
             result = new double[rpos.Length];
             for (int i=0; i<rpos.Length; i++){
@@ -121,19 +136,22 @@ namespace Sick_test
             }
         return result;
         }
-        public double MakeXOne(double rpos, int step){
+        private double MakeXOne(double rpos, int step){
             var result = rpos*RatioCos[step];
         return result;}
-        public double MakeYOne(double rpos, int step){
+        private double MakeYOne(double rpos, int step){
             var result = rpos*RatioSin[step];
         return result;
         }
-        public PointXY MakePointOne(double rpos, int step){
+        private PointXY MakePointOne(double rpos, int step){
             var result = new PointXY();
             result.X = MakeXOne(rpos, step);
             result.Y = MakeYOne(rpos, step);
         return result;
         }
+        ///<summary>Перевод из радиальной в ХУ координаты
+        ///<param name = "rpos"></param>
+        ///</summary> 
         public PointXY[] MakePoint(double[] rpos){
             var result = new PointXY[Step];
             for (var i= 0; i<Step; i++){

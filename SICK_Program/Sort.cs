@@ -1,7 +1,13 @@
 namespace Sick_test
 {
+	///<summary>Объявляет скан с массивом указанной длинны
+    ///</summary>   
     public class Sorts{
-
+        ///<summary>Сортировка массива точек по оси Х, от начальной и до конечной точки
+        ///<param name = "array">Массив сортируемых точек</param>
+        ///<param name = "start">Начальный индекс</param>
+        ///<param name = "end">Конечный индекс</param>
+        ///</summary>   
         public static void HoareSort(PointXYint[] array, int start, int end)
 		{
 			if (end == start) return;
@@ -22,18 +28,12 @@ namespace Sick_test
 			if (storeIndex > start) HoareSort(array, start, storeIndex - 1);
 			if (storeIndex < end) HoareSort(array, storeIndex + 1, end);
 		}
-
+        ///<summary>Сортировка массива точек по оси Х, от начала и до конца
+        ///<param name = "array">Массив сортируемых точек</param>
+        ///</summary>   
 		public static void HoareSort(PointXYint[] array)
 		{
 			HoareSort(array, 0, array.Length - 1);
 		}
-		/*public static void Main()
-		{
-			int [] array = {3,2,5,7,8,1,9 };
-			HoareSort(array);
-			foreach (var e in array)
-				Console.WriteLine(e);
-			Console.ReadKey();
-		}*/
     }
 }

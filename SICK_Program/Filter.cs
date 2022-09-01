@@ -3,11 +3,17 @@ using System.Collections.Generic;
 
 namespace Sick_test
 {
+    ///<summary>Класс, убирает все точки, находящиеся в слепых зонах дороги. Фильтруются: точки препятствик(отбойники, заграждения, знаки), и точки ошибочные(выходящие за границы дороги)
+    ///</summary>
     public class Filter{
         private int RoadLenght;
         private int[] filterMax;
         private int[] filterMin;
         private RoadSetting Settings;
+        ///<summary>///Формирует массивы граничных значений для каждого Х
+        ///<param name = "roadLenght">Ширина дороги (количество столбцов)</param>
+        ///<param name = "settings">Конфигурация дороги</param>
+        ///</summary>
         public Filter(int roadLenght, RoadSetting settings)
 		{
             RoadLenght = roadLenght;
@@ -27,7 +33,9 @@ namespace Sick_test
             }
             return Settings.DownLimit;
         }
-
+        ///<summary>///Возвращает массив столбцов, фильтруя лишние точки
+        ///<param name = "array">Массив столбцов</param>
+        ///</summary>
 		public PointXYint[][] FilterPoints(PointXYint[][] array){
             var retArray = new PointXYint[array.Length][];
 			for(int i = 0; i<array.Length; i++){
@@ -35,6 +43,9 @@ namespace Sick_test
             }
             return retArray;
 		}
+        ///<summary>///Возвращает массив максимальной высоты машины. 0 - в этой точке находится земля, -1 - в этом столбце точек нет. 
+        ///<param name = "array">Массив столбцов</param>
+        ///</summary>
         public int[] CarPoints(PointXYint[][] array){
             var retArray = new int[array.Length];
 			for(int i = 0; i<array.Length; i++){
@@ -50,6 +61,9 @@ namespace Sick_test
             }
             return retArray;
         }
+        ///<summary>///Возвращает самую верхнюю точкку в столбце
+        ///<param name = "array">Столбуц</param>
+        ///</summary>
         private int maxPoint(PointXYint[] array){
             var retint = 0;
             foreach(PointXYint j in array){

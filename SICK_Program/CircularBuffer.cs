@@ -2,6 +2,8 @@ using System;
 
 namespace Sick_test
 {
+    ///<summary>Примитивнейший круговой буфер
+    ///</summary>  
     public class CircularBuffer<T>{
         public T[] _buffer;
         int _head;
@@ -57,6 +59,8 @@ namespace Sick_test
                     _length++;
             }
         }
+        ///<summary>Функция, выдающая первый элемент буфера
+        ///</summary>  
         public T ZeroPoint(){
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
@@ -66,6 +70,9 @@ namespace Sick_test
                 }
             }
         }
+        ///<summary>Функция, заполняющая первый элемент буфера. Нужна в том случае, если буфер используется как потокобезопасный тип данных
+        ///<param name = "toadd">Значение, отправляемое в буфер</param>
+        ///</summary>  
         public void AddZeroPoint(T toadd){
             lock(_lock){
                 _buffer[0] = toadd;
