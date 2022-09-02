@@ -136,10 +136,10 @@ namespace Sick_test
             }
         return result;
         }
-        private double MakeXOne(double rpos, int step){
+        public double MakeXOne(double rpos, int step){
             var result = rpos*RatioCos[step];
         return result;}
-        private double MakeYOne(double rpos, int step){
+        public double MakeYOne(double rpos, int step){
             var result = rpos*RatioSin[step];
         return result;
         }

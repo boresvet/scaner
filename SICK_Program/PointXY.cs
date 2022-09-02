@@ -15,7 +15,7 @@ namespace Sick_test
         ///<summary>///Возвращает json строку, описыващую точку
         ///<param name = "array">Столбуц</param>
         ///</summary>        
-        public string ToString(){
+        public override string ToString(){
             return (@"{""X"": " + X.ToString() + @", ""Y"": " + Y.ToString()+"}");
         }
         ///<summary>///Возвращает массив длинной 1, содержащий эту точку
@@ -43,7 +43,7 @@ namespace Sick_test
         ///<summary>///Возвращает json строку, описыващую точку
         ///<param name = "array">Столбуц</param>
         ///</summary>      
-        public string ToString(){
+        public override string ToString(){
             return (@"{""X"": " + X.ToString() + @", ""Y"": " + Y.ToString()+"}");
         }
         ///<summary>///Возвращает массив длинной 1, содержащий эту точку
