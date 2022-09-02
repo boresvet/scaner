@@ -11,6 +11,7 @@ namespace Sick_test
             var newScan = new PointXY[oldArray.Length];
             oldArray.CopyTo(newScan, 0);
             return newScan;
+        }
         ///<summary>///Возвращает json строку, описыващую точку
         ///<param name = "array">Столбуц</param>
         ///</summary>        
