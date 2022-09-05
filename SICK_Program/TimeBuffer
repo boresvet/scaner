@@ -116,7 +116,7 @@ namespace Sick_test
         }
         public void SaveSuperScan(SuperScan toadd){
             lock(_lock){
-                if(_buffer._length==0){
+                if(_length==0){
                     _head = NextPosition(_head);
                     _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){toadd}}; 
                     _length++;
