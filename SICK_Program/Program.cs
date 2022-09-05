@@ -113,9 +113,9 @@ namespace Sick_test
 
 
         static void Main(){
-
                 // Read the stream as a string, and write the string to the console.
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
+            TimeBuffer times = new TimeBuffer(300);
 
             //var InputEvent = new ManualResetEvent(false);
             var ExitEvent = new ManualResetEvent(false);
@@ -134,11 +134,12 @@ namespace Sick_test
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
-            var MainT = Task.Run(() => TMainT(config, Inputs, ExitEvent));
+            var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent));
+            var ServerT = Task.Run(() => TServerT(times, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
-            Task.WaitAll(InputT.Concat(new [] {MainT}).ToArray());
+            Task.WaitAll(InputT.Concat(new [] {MainT, ServerT}).ToArray());
             Console.WriteLine("Завершено");
             return;
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
@@ -146,6 +147,27 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
+        }
+        static void TServerT(TimeBuffer times, ManualResetEvent ExitEvent){
+            //var res = new Scanint(MyConcurrentQueue.);
+            var serv = new Server(new string[] {"127.0.0.0", "9000"});
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    return;
+                }
+                try
+                {
+                    serv.ServerLoop();
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    if(serv.response != null)
+                    {
+                        serv.SendErrorResponse(500, "Internal server error");
+                    }
+                }
+            }
         }
         static void TLaneT(config config, CircularBuffer<Scanint> LaneConcurrentQueue, ManualResetEvent RoadEvent, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
@@ -168,7 +190,7 @@ namespace Sick_test
             }
         }
 
-        static void TMainT(config config, AllInput Inputs, ManualResetEvent ExitEvent){
+        static void TMainT(config config, AllInput Inputs, TimeBuffer times, ManualResetEvent ExitEvent){
             var WorkScanners = new bool[Inputs.inputClass.Length];
             //Объявление массива с датчиками рабочести сканеров. 
             
@@ -277,7 +299,7 @@ namespace Sick_test
                     LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
                 }
                 RoadEvent.Set();*/
-
+                times.SaveSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
 
 
 

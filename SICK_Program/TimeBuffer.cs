@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 namespace Sick_test
 {
     ///<summary>Скан с точками машинок, и с структурой для поиска островов
@@ -20,7 +21,9 @@ namespace Sick_test
         public PointXYint[][] ScanArray;
         public DateTime Time;
         ///<summary>Функция, сохраняющая в себе скан
-        ///</summary>  
+        ///</summary>
+        public SuperScan(){
+        }
         public SuperScan(int[] carIslandLanes, PointXYint[][] scanArray, DateTime time){
             CarIslandLanes = carIslandLanes;
             ScanArray = scanArray;
@@ -43,7 +46,11 @@ namespace Sick_test
             secondArray.Add(input);
         }
         public DateTime NowBufferTime(){
-            return secondArray[0].Time;
+            if(secondArray.Count==0){
+                return DateTime.Now;
+            }else{
+                return secondArray[0].Time;
+            }
         }
     }
     ///<summary>Круговой буфер с машинками
@@ -122,7 +129,7 @@ namespace Sick_test
                     _length++;
                 }else{
                     if(_buffer[_head].NowBufferTime().Second==toadd.Time.Second){
-                        _buffer[_head].AddSuperScan(toadd)
+                        _buffer[_head].AddSuperScan(toadd);
                     }else{
                         _head = NextPosition(_head);
                         _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){toadd}}; 
