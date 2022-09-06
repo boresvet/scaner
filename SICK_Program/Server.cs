@@ -39,42 +39,39 @@ namespace Sick_test
 
         }
 
-        public void ServerLoop()
+        public void ServerLoop(TimeBuffer times)
         {
             while(true)
             {
                 var context = listener.GetContext();
-
                 var request = context.Request;
-                response = context.Response;
-                var fileName = request.RawUrl.Substring(1);
-                Console.WriteLine(
-                    "--- Got {0} request for: {1}", 
-                    request.HttpMethod, fileName);
 
-                if (request.HttpMethod.ToUpper() != "GET")
+
+
+
+
+                //Принимает время, в котором нужно искать машинку из post запроса
+                string text;
+                using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
                 {
-                    SendErrorResponse(405, "Method must be GET");
-                    continue;
+                    text = reader.ReadToEnd();
                 }
 
-                var fullFilePath = Path.Combine(baseFilesystemPath, fileName);
-                if(!File.Exists(fullFilePath))
-                {
-                    SendErrorResponse(404, "File not found");
-                    continue;
-                }
 
-                Console.Write("    Sending file...");
-                using (var fileStream = File.OpenRead(fullFilePath))
-                {
-                    response.ContentType = "application/octet-stream";
-                    response.ContentLength64 = (new FileInfo(fullFilePath)).Length;
-                    response.AddHeader(
-                        "Content-Disposition",
-                        "Attachment; filename=\"" + Path.GetFileName(fullFilePath) + "\"");
-                    fileStream.CopyTo(response.OutputStream);
-                }
+                //Принимает время парся текстовую строку
+
+                /*response = context.Response;
+                var TimeData = request.RawUrl.Substring(1);*/
+
+
+                //Тут будет вызов islandSeach, которая вернёт массив машинок
+
+                /*response.ContentType = "application/octet-stream";
+                response.ContentLength64 = (new FileInfo(fullFilePath)).Length;
+                response.AddHeader(
+                    "Content-Disposition",
+                    "Attachment; filename=\"" + TimeData + "\"");
+                fileStream.CopyTo(response.OutputStream);*/
 
                 response.OutputStream.Close();
                 response = null;

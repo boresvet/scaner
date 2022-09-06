@@ -157,7 +157,7 @@ namespace Sick_test
                 }
                 try
                 {
-                    serv.ServerLoop();
+                    serv.ServerLoop(times);
                 }
                 catch(Exception ex)
                 {
