@@ -152,7 +152,9 @@ namespace Sick_test
         }
         public Second[] ReadFullArray(){
             lock(_lock){
-                return _buffer;
+                var ret = new Second[_buffer.Length];
+                ret = _buffer;
+                return ret;
             }
         }
         public void NextPosition(){

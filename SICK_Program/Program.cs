@@ -606,7 +606,7 @@ namespace Sick_test
             //StreamWriter Myfyle = new StreamWriter(writepath, true);
             var GroundScan = new Scan();
             Scan qwer;
-            var Save = new PointSave("1234");
+            //var Save = new PointSave("1234");
             var car = new MyCar(Step);
             var MyCar = new Scan(286);
             var ground = new Ground(Step, -5, 185);
@@ -655,7 +655,7 @@ namespace Sick_test
                             CarCircularBuffer.CleanBuffer();
                             } else {
                                 Console.WriteLine($" Поймана машинка: {MyCircularBuffer.ReadPosition().time}");
-                                Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
+                                //Save.PointSaveToFile(CarCircularBuffer, mycarleanth);
                                 var size = Size.RetCarSize(CarCircularBuffer, ground.GroundScan.copyScan());
                                 Console.WriteLine($" Размеры: Ширина {size.X}, Высота: {size.Y}");
                                 CarCircularBuffer.CleanBuffer();

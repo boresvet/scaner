@@ -2,20 +2,152 @@ using System;
 
 namespace Sick_test
 {
+    public class borderPoint(){
+        int secondIndexInBuffer;
+        int milisecondIndexInSecond;
+        int XpointCoordinate;
+
+        int oldsecondIndexInBuffer;
+        int oldmilisecondIndexInSecond;
+        int oldXpointCoordinate;
+
+        public borderPoint(int _secondIndexInBuffer, int _milisecondIndexInSecond, int _XpointCoordinate){
+            secondIndexInBuffer = _secondIndexInBuffer;
+            milisecondIndexInSecond = _milisecondIndexInSecond;
+            XpointCoordinate = _XpointCoordinate;
+        }
+
+        private void upindex(Second[] input){
+            if(input[secondIndexInBuffer].secondArray.Length>milisecondIndexInSecond+1){
+                milisecondIndexInSecond++;
+            }else{
+                secondIndexInBuffer++;
+                milisecondIndexInSecond = 0;
+            }
+        }
+        private void downindex(Second[] input){
+            if(milisecondIndexInSecond>0){
+                milisecondIndexInSecond--;
+            }else{
+                secondIndexInBuffer--;
+                milisecondIndexInSecond = input[secondIndexInBuffer].secondArray.Length-1;
+            }
+        }
+        private void leftindex(Second[] input){
+            if(XpointCoordinate>0){
+                XpointCoordinate--;
+            }
+        }
+        private void rightindex(Second[] input){
+            if(XpointCoordinate<(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+                XpointCoordinate++;
+            }
+        }
+
+
+
+
+
+
+        private int leftpoint(Second[] input){
+            if(XpointCoordinate==0){
+                return 0;
+            }else{
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes[XpointCoordinate-1];
+            }
+        }
+        private int rightpoint(Second[] input){
+            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+                return 0;
+            }else{
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes[XpointCoordinate+1];
+            }
+        }
+        private int uppoint(Second[] input){
+            if((input[secondIndexInBuffer].secondArray.Length==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+                return 0;
+            }
+            if(input[secondIndexInBuffer].secondArray.Length>(milisecondIndexInSecond+1)){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate];
+            }else{
+                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate];
+            }
+        }
+        private int downpoint(Second[] input){
+            if((milisecondIndexInSecond == 0)&(secondIndexInBuffer == 0)){
+                return 0;
+            }
+            if(milisecondIndexInSecond>0){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate];
+            }else{
+                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Length-1].CarIslandLanes[XpointCoordinate];
+            }
+        }
+        private int leftuppoint(Second[] input){
+            if(XpointCoordinate==0){
+                return 0;
+            }
+            if((input[secondIndexInBuffer].secondArray.Length==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+                return 0;
+            }
+            if(input[secondIndexInBuffer].secondArray.Length>(milisecondIndexInSecond+1)){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate-1];
+            }else{
+                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate-1];
+            }
+        }
+        private int rightuppoint(Second[] input){
+            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+                return 0;
+            }
+            if((input[secondIndexInBuffer].secondArray.Length==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+                return 0;
+            }
+            if(input[secondIndexInBuffer].secondArray.Length>(milisecondIndexInSecond+1)){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate+1];
+            }else{
+                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate+1];
+            }
+        }
+
+
+        public void GoToLeftBorder(Second[] input){
+            while(leftpoint(input) > 0){
+                leftindex(input);
+            }
+        }
+        public void GoToRightBorder(Second[] input){
+            while(rightpoint(input) > 0){
+                rightindex(input);
+            }
+        }
+
+    }
+    public class CarArraySize(){
+        public int leftborder;
+        public int rightborder;
+        public int startborder;
+        public int endborder;
+        public DateTime starttime;
+        public DateTime endtime;
+        public CarArraySize(){
+        }
+    }
     ///<summary>///Описывает один скан, как массив точек и время, ему соответствующее
     ///</summary>
     public class islandborders{
 
         ///<summary>///Находит границы машины по 1й точке
         ///</summary>
-        public islandborders(){
-        }
+        public islandborders(){}
 
-            //Тут пока ничего нет
-                            ///<summary>///Объявляет пустой скан
-                            ///</summary>   
-                            public Scan(){
-                            }
+        ///<summary>///Объявляет пустой скан
+        ///</summary>
+
+
+
+        public CarArraySize CarBorders(Second[] input, PointXYint inputCarPoint){
+        }
                             ///<summary>///Возвращает копию скана
                             ///</summary>   
                             public Scan copyScan(){
@@ -35,7 +167,18 @@ namespace Sick_test
         public IslandSeach(){
         }
 
-
+        public PointXYint CarPoint(DateTime second, Second[] input){
+            for(int i = 0; i<input.Length; i++){
+                if((second.Minute == input[i].Minute)&(second.Second == input[i].Second)){
+                    for(int j = 0; j<input[i].secondArray.Length; j++){
+                        if(Array.FindAll(input[i].secondArray[j].CarIslandLanes, point => (point > 0)) >= 3){
+                            return new PointXYint(){ X = i, Y = j};
+                        }
+                    }
+                }
+            }
+            return null;
+        }
             //Тут пока ничего нет
 
 
