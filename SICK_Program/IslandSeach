@@ -3,19 +3,36 @@ using System;
 namespace Sick_test
 {
     public class borderPoint(){
-        int secondIndexInBuffer;
-        int milisecondIndexInSecond;
-        int XpointCoordinate;
+        public int secondIndexInBuffer;
+        public int milisecondIndexInSecond;
+        public int XpointCoordinate;
 
-        int oldsecondIndexInBuffer;
-        int oldmilisecondIndexInSecond;
-        int oldXpointCoordinate;
+        public int oldsecondIndexInBuffer;
+        public int oldmilisecondIndexInSecond;
+        public int oldXpointCoordinate;
+
+        public int startsecondIndexInBuffer;
+        public int startmilisecondIndexInSecond;
+        public int startXpointCoordinate;
 
         public borderPoint(int _secondIndexInBuffer, int _milisecondIndexInSecond, int _XpointCoordinate){
             secondIndexInBuffer = _secondIndexInBuffer;
             milisecondIndexInSecond = _milisecondIndexInSecond;
             XpointCoordinate = _XpointCoordinate;
+
+            oldsecondIndexInBuffer = _secondIndexInBuffer;
+            oldmilisecondIndexInSecond = _milisecondIndexInSecond;
+            oldXpointCoordinate = _XpointCoordinate;
+
+            startsecondIndexInBuffer = _secondIndexInBuffer;
+            startmilisecondIndexInSecond = _milisecondIndexInSecond;
+            startXpointCoordinate = _XpointCoordinate;            
         }
+
+
+
+
+
 
         private void upindex(Second[] input){
             if(input[secondIndexInBuffer].secondArray.Length>milisecondIndexInSecond+1){
@@ -43,8 +60,6 @@ namespace Sick_test
                 XpointCoordinate++;
             }
         }
-
-
 
 
 
@@ -83,6 +98,9 @@ namespace Sick_test
                 return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Length-1].CarIslandLanes[XpointCoordinate];
             }
         }
+
+
+
         private int leftuppoint(Second[] input){
             if(XpointCoordinate==0){
                 return 0;
@@ -109,6 +127,71 @@ namespace Sick_test
                 return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate+1];
             }
         }
+        private int leftdownpoint(Second[] input){
+            if(XpointCoordinate==0){
+                return 0;
+            }
+            if((milisecondIndexInSecond==0)&(secondIndexInBuffer==0)){
+                return 0;
+            }
+            if(milisecondIndexInSecond>0){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate-1];
+            }else{
+                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Length-1].CarIslandLanes[XpointCoordinate-1];
+            }
+        }
+        private int rightdownpoint(Second[] input){
+            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+                return 0;
+            }
+            if((milisecondIndexInSecond==0)&(secondIndexInBuffer==0)){
+                return 0;
+            }
+            if(milisecondIndexInSecond>0){
+                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate+1];
+            }else{
+                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Length-1].CarIslandLanes[XpointCoordinate+1];
+            }
+        }
+
+        private int whereisoldpoint(){
+            if(oldXpointCoordinate<XpointCoordinate){
+                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                    return 8;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
+                    return 1;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
+                    return 7;
+                }
+            }
+            if(oldXpointCoordinate==XpointCoordinate){
+                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                    return 0;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
+                    return 2;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
+                    return 6;
+                }
+            }
+            if(oldXpointCoordinate>XpointCoordinate){
+                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                    return 4;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
+                    return 3;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
+                    return 5;
+                }
+            }
+        }
+
+
+
 
 
         public void GoToLeftBorder(Second[] input){
@@ -122,6 +205,360 @@ namespace Sick_test
             }
         }
 
+
+
+
+        public void NextPosition(Second[] input){
+            var oldp = whereisoldpoint();
+            switch (oldp)
+            {
+                case == 0:
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+
+                case == 8:
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+
+
+
+                case == 1:
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+
+                case == 2:
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+
+
+                case == 3:
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+
+
+
+                case == 4:
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+
+
+                case == 5:
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+
+                case == 6:
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                case == 7:
+                    if(leftdownpoint(input)){
+                        downindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftpoint(input)){
+                        leftindex(input);
+                        break;
+                    }
+                    if(leftuppoint(input)){
+                        upindex(input);
+                        leftindex(input);
+                        break;
+                    }
+                    if(uppoint(input)){
+                        upindex(input);
+                        break;
+                    }
+                    if(rightuppoint(input)){
+                        upindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightpoint(input)){
+                        rightindex(input);
+                        break;
+                    }
+                    if(rightdownpoint(input)){
+                        downindex(input);
+                        rightindex(input);
+                        break;
+                    }
+                    if(downpoint(input)){
+                        downindex(input);
+                        break;
+                    }
+                default:
+                    //Console.WriteLine($"");
+                    break;
+            }
+        }
     }
     public class CarArraySize(){
         public int leftborder;
@@ -130,6 +567,7 @@ namespace Sick_test
         public int endborder;
         public DateTime starttime;
         public DateTime endtime;
+        public int[][] cararray;
         public CarArraySize(){
         }
     }
@@ -143,10 +581,15 @@ namespace Sick_test
 
         ///<summary>///Объявляет пустой скан
         ///</summary>
-
-
-
         public CarArraySize CarBorders(Second[] input, PointXYint inputCarPoint){
+            for(int i = 0; i<input[inputCarPoint.X].secondArray[inputCarPoint.Y].CarIslandLanes.Length; i++){
+                if(input[inputCarPoint.X].secondArray[inputCarPoint.Y].CarIslandLanes[i]>0){
+                    var BorderPoint = new borderPoint(inputCarPoint.X, inputCarPoint.Y, i);
+                    break;
+                }
+            }
+
+
         }
                             ///<summary>///Возвращает копию скана
                             ///</summary>   
