@@ -46,8 +46,8 @@ namespace Sick_test
                 var context = listener.GetContext();
                 var request = context.Request;
 
-
-
+                var mycarsseach = new IslandSeach();
+                var timesArray = times.ReadFullArray();
 
 
                 //Принимает время, в котором нужно искать машинку из post запроса
@@ -56,15 +56,37 @@ namespace Sick_test
                 {
                     text = reader.ReadToEnd();
                 }
-
-
                 //Принимает время парся текстовую строку
 
                 /*response = context.Response;
                 var TimeData = request.RawUrl.Substring(1);*/
 
 
+
+
+
+
+
+
+
+                //Сделать преобразование времени в формат DataTime!!!
+                var second = new DateTime(){};
+
+
+
+
+
+
+
+
+
+
+
+
                 //Тут будет вызов islandSeach, которая вернёт массив машинок
+                //Она СОЗДАСТ массив машинок
+                //Его можно забрать из класса
+                mycarsseach.CarArrays(second, timesArray);
 
                 /*response.ContentType = "application/octet-stream";
                 response.ContentLength64 = (new FileInfo(fullFilePath)).Length;
