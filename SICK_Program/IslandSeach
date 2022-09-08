@@ -29,9 +29,13 @@ namespace Sick_test
             startXpointCoordinate = _XpointCoordinate;            
         }
 
+        public bool isitstartpoint(){
+            return ((startsecondIndexInBuffer==secondIndexInBuffer)&(startmilisecondIndexInSecond==milisecondIndexInSecond)&(startXpointCoordinate==XpointCoordinate));
+        }
 
-
-
+        public DateTime time(Second[] input){
+            return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].Time;
+        }
 
 
         private void upindex(Second[] input){
@@ -563,8 +567,6 @@ namespace Sick_test
     public class CarArraySize(){
         public int leftborder;
         public int rightborder;
-        public int startborder;
-        public int endborder;
         public DateTime starttime;
         public DateTime endtime;
         public int[][] cararray;
@@ -588,8 +590,29 @@ namespace Sick_test
                     break;
                 }
             }
-
-
+            BorderPoint.GoToLeftBorder(input);
+            var ret = new CarArraySize();
+            ret.starttime = BorderPoint.time(input);
+            ret.leftborder = BorderPoint.XpointCoordinate;
+            ret.rightborder = BorderPoint.XpointCoordinate;
+            BorderPoint.NextPosition();
+            ret.endtime = BorderPoint.time(input);
+            while(BorderPoint.isitstartpoint()==false){
+                BorderPoint.NextPosition();
+                if(BorderPoint.time(input)>ret.endtime){
+                    ret.endtime = BorderPoint.time(input);
+                }
+                if(BorderPoint.time(input)<ret.starttime){
+                    ret.starttime = BorderPoint.time(input);
+                }
+                if(BorderPoint.XpointCoordinate<ret.leftborder){
+                    ret.leftborder = BorderPoint.XpointCoordinate;
+                }
+                if(BorderPoint.XpointCoordinate>ret.rightborder){
+                    ret.rightborder = BorderPoint.XpointCoordinate;
+                }
+            }
+            return ret;
         }
                             ///<summary>///Возвращает копию скана
                             ///</summary>   
