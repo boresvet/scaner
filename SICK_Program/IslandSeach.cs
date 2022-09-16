@@ -592,11 +592,11 @@ namespace Sick_test
         }
     }
     public class CarArraySize{
-        public int leftborder;
-        public int rightborder;
-        public DateTime starttime;
-        public DateTime endtime;
-        public int[][] cararray;
+        public int leftborder { get; set; }
+        public int rightborder { get; set; }
+        public DateTime starttime { get; set; }
+        public DateTime endtime { get; set; }
+        public int[][] cararray { get; set; }
         public CarArraySize(){
         }
     }

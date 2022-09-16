@@ -1,6 +1,20 @@
 using System;
 using System.IO;
 using System.Net;
+using BSICK.Sensors.LMS1xx;
+using System;
+using static System.Math;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Drawing;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Sick_test
 {
     class Server
@@ -31,14 +45,26 @@ namespace Sick_test
             var port = int.Parse(args[1]);
 
             listener = new HttpListener();
-            listener.Prefixes.Add("http://*:" + port + "/");
+            listener.Prefixes.Add("http://127.0.0.1:" + port + "/");
             listener.Start();
 
             Console.WriteLine("--- Server stated, base path is: " + baseFilesystemPath);
             Console.WriteLine("--- Listening, exit with Ctrl-C");
 
         }
-
+        private DateTime addDate(DateTime[] input, int[] second){
+            var ret = new DateTime();
+            if(input[0].Day!=second[0]){
+                ret = DateTime.Now;
+            }else{
+                ret = input[0];
+            }
+            ret.AddDays(second[0]);
+            ret.AddHours(second[1]);
+            ret.AddMinutes(second[2]);
+            ret.AddSeconds(second[3]);
+            return ret;
+        }
         public void ServerLoop(TimeBuffer times)
         {
             while(true)
@@ -48,7 +74,7 @@ namespace Sick_test
 
                 var mycarsseach = new IslandSeach();
                 var timesArray = times.ReadFullArray();
-
+                var time = times.bufferTimes();
 
                 //Принимает время, в котором нужно искать машинку из post запроса
                 string text;
@@ -57,8 +83,8 @@ namespace Sick_test
                     text = reader.ReadToEnd();
                 }
                 //Принимает время парся текстовую строку
-
-                /*response = context.Response;
+                /*
+                response = context.Response;
                 var TimeData = request.RawUrl.Substring(1);*/
 
 
@@ -68,10 +94,10 @@ namespace Sick_test
 
 
 
-
+                //var textarray = text.Split('&');
+                var textarray = text.Split('&').Select(n => Int32.Parse(n.Split('=')[1])).ToArray();
                 //Сделать преобразование времени в формат DataTime!!!
-                var second = new DateTime(){};
-
+                DateTime second = addDate(time, textarray);
 
 
 
@@ -87,14 +113,15 @@ namespace Sick_test
                 //Она СОЗДАСТ массив машинок
                 //Его можно забрать из класса
                 mycarsseach.CarArrays(second, timesArray);
-
+                var cars = mycarsseach.CarsArray;
+                string jsonret = JsonSerializer.Serialize<List<CarArraySize>>(cars);
                 /*response.ContentType = "application/octet-stream";
                 response.ContentLength64 = (new FileInfo(fullFilePath)).Length;
                 response.AddHeader(
                     "Content-Disposition",
                     "Attachment; filename=\"" + TimeData + "\"");
                 fileStream.CopyTo(response.OutputStream);*/
-
+                response.AddHeader("Content-Disposition", jsonret);
                 response.OutputStream.Close();
                 response = null;
                 Console.WriteLine(" Ok!");

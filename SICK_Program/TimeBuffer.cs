@@ -157,6 +157,10 @@ namespace Sick_test
                 return ret;
             }
         }
+        public DateTime[] bufferTimes(){
+            var ret = new DateTime[2]{_buffer[_tail].secondArray[0].Time, _buffer[_head].secondArray[0].Time};
+            return ret;
+        }
         public void NextPosition(){
             lock(_lock){
                 _head = NextPosition(_head);
