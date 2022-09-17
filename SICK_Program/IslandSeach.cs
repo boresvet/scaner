@@ -689,6 +689,7 @@ namespace Sick_test
             var carpoint = CarPoint(second, input);
             var island = new islandborders();
             while(carpoint.X!=-1){
+                carpoint = CarPoint(second, input);
                 CarsArray.Add(island.CarBorders(input, carpoint));
                 island.ClearCar(input, CarsArray[CarsArray.Count-1]);
             }

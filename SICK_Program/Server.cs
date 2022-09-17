@@ -2,11 +2,9 @@ using System;
 using System.IO;
 using System.Net;
 using BSICK.Sensors.LMS1xx;
-using System;
 using static System.Math;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -114,14 +112,15 @@ namespace Sick_test
                 //Его можно забрать из класса
                 mycarsseach.CarArrays(second, timesArray);
                 var cars = mycarsseach.CarsArray;
-                string jsonret = JsonSerializer.Serialize<List<CarArraySize>>(cars);
-                /*response.ContentType = "application/octet-stream";
-                response.ContentLength64 = (new FileInfo(fullFilePath)).Length;
-                response.AddHeader(
-                    "Content-Disposition",
-                    "Attachment; filename=\"" + TimeData + "\"");
-                fileStream.CopyTo(response.OutputStream);*/
-                response.AddHeader("Content-Disposition", jsonret);
+                var jsonret = JsonSerializer.Serialize<List<CarArraySize>>(cars);
+                
+                
+                response.Headers.Set("Content-Type", "text/plain");
+                byte[] buffer = Encoding.UTF8.GetBytes(jsonret);
+                response.ContentLength64 = buffer.Length;
+                using Stream ros = response.OutputStream;
+                ros.Write(buffer, 0, buffer.Length);
+
                 response.OutputStream.Close();
                 response = null;
                 Console.WriteLine(" Ok!");
