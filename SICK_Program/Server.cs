@@ -63,7 +63,26 @@ namespace Sick_test
             ret.AddSeconds(second[3]);
             return ret;
         }
-        public void ServerLoop(TimeBuffer times)
+        private string SerializeCars(List<CarArraySize> cars){
+            return JsonSerializer.Serialize<List<CarArraySize>>(cars);
+        }
+        private string SerializeCarsFromId(int linesID, List<CarArraySize> cars, config config){          
+            foreach(CarArraySize i in cars){
+                if((i.leftborder)>(config.RoadSettings.Lanes[linesID].Offset+config.RoadSettings.Lanes[linesID].Width)|(i.rightborder)<(config.RoadSettings.Lanes[linesID].Offset)){
+                    cars.Remove(i);
+                }
+            }
+            return JsonSerializer.Serialize<List<CarArraySize>>(cars);
+        }
+        private string SerializeCarsFromCoordinate(int linesPoint, List<CarArraySize> cars){
+            foreach(CarArraySize i in cars){
+                if((((i.leftborder)>linesPoint)|(i.rightborder<linesPoint))){
+                    cars.Remove(i);
+                }
+            }
+            return JsonSerializer.Serialize<List<CarArraySize>>(cars);
+        }
+        public void ServerLoop(TimeBuffer times, config config)
         {
             while(true)
             {
@@ -90,10 +109,13 @@ namespace Sick_test
 
 
 
-
-
+                //Содержит номер типа запроса
+                var functionType = Int32.Parse(text.Split('&')[0].Split('=')[1]);
                 //var textarray = text.Split('&');
-                var textarray = text.Split('&').Select(n => Int32.Parse(n.Split('=')[1])).ToArray();
+                //Содержит остальные данные времени
+                var textarray = new ArraySegment<int>(text.Split('&').Select(n => Int32.Parse(n.Split('=')[1])).ToArray(), 1, 4).ToArray();
+                var functionData = text.Split('&').Select(n => Int32.Parse(n.Split('=')[1])).ToArray().Skip(4).ToArray();
+                
                 //Сделать преобразование времени в формат DataTime!!!
                 DateTime second = addDate(time, textarray);
 
@@ -112,7 +134,26 @@ namespace Sick_test
                 //Его можно забрать из класса
                 mycarsseach.CarArrays(second, timesArray);
                 var cars = mycarsseach.CarsArray;
-                var jsonret = JsonSerializer.Serialize<List<CarArraySize>>(cars);
+                var jsonret = new string("");
+
+
+
+                //Для каждого типа запроса создаёт свой JSON объект данных
+                switch (functionType)
+                {
+                    case 0:
+                        jsonret = SerializeCars(cars);
+                        break;
+                    case 1:
+                        jsonret = SerializeCarsFromId(functionData[0], cars, config);
+                        break;
+                    case 2:
+                        jsonret = SerializeCarsFromCoordinate(functionData[0], cars);
+                        break;
+                    default:
+                        jsonret = SerializeCars(cars);
+                        break;
+                }
                 
                 
                 response.Headers.Set("Content-Type", "text/plain");

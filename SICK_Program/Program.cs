@@ -135,7 +135,7 @@ namespace Sick_test
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
             var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent));
-            var ServerT = Task.Run(() => TServerT(times, ExitEvent));
+            var ServerT = Task.Run(() => TServerT(times, config, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
@@ -148,7 +148,7 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
-        static void TServerT(TimeBuffer times, ManualResetEvent ExitEvent){
+        static void TServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
             var serv = new Server(new string[] {"127.0.0.0", "9000"});
             while(true){
@@ -157,7 +157,7 @@ namespace Sick_test
                 }
                 try
                 {
-                    serv.ServerLoop(times);
+                    serv.ServerLoop(times, config);
                 }
                 catch(Exception ex)
                 {
