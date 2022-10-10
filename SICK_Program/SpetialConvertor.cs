@@ -25,7 +25,7 @@ namespace Sick_test
             RatioCos = RatoiGenCos(BeginGrade, EndGrade, Step);//Массивы с коэффециентами для приведения к нормальному виду координат
         }
         
-        static private double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static public double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -33,7 +33,7 @@ namespace Sick_test
             }
             return result;
         }
-        static private double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static public double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
