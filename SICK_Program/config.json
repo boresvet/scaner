@@ -9,7 +9,7 @@
 	
     "Lanes": 
 	[
-		{"ID":0, "Offset":-100, "Width":2500}
+		{"ID":0, "Offset":-100, "Width":2500, "Height":100}
 	], 
     "Blinds": 
 	[

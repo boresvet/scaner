@@ -6,19 +6,73 @@ namespace Sick_test
     {
         public double A,B;
         public PointXY StartPoint;
+        public PointXYint StartPointint;
+        bool X,Y;
         public PointXY EndPoint;
+        public PointXYint EndPointint;
+
+        public static line CreateLine(PointXY startpoint, double Angle){
+            var ret = new line();
+            ret.StartPoint = new PointXY();
+            ret.StartPoint = startpoint;
+            var endpoint = new PointXY();
+            endpoint.X = startpoint.X + Math.Cos((Angle)*Math.PI/180);
+            endpoint.Y = startpoint.Y + Math.Sin((Angle)*Math.PI/180);
+            ret.createLine(startpoint, endpoint);
+            return ret;
+        }
         //line: y = A*x + B
         public void createLine(PointXY firstPoint, PointXY secondPoint){
+            StartPoint = firstPoint;
+            EndPoint = secondPoint;
             A = (firstPoint.Y-secondPoint.Y)/(firstPoint.X-secondPoint.Y);
             B = (firstPoint.X*A) - firstPoint.Y;
+            X = ((secondPoint.X-firstPoint.X)>=0);
+            Y = ((secondPoint.Y-firstPoint.Y)>=0);
         }
         public void createLine(PointXY firstPoint, float Angle){
-            
-
-            var secondPoint = new PointXY(){X = firstPoint.X + 1000*Math.Cos(Angle*Math.PI/180), Y = firstPoint.X + 1000*Math.Sin(Angle*Math.PI/180)};
+            StartPoint = new PointXY();
+            StartPoint = firstPoint;
+            var endpoint = new PointXY();
+            endpoint.X = firstPoint.X + Math.Cos((Angle)*Math.PI/180);
+            endpoint.Y = firstPoint.Y + Math.Sin((Angle)*Math.PI/180);
+            createLine(firstPoint, endpoint);
+            /*var secondPoint = new PointXY(){X = firstPoint.X + 1000*Math.Cos(Angle*Math.PI/180), Y = firstPoint.X + 1000*Math.Sin(Angle*Math.PI/180)};
             A = (firstPoint.Y-secondPoint.Y)/(firstPoint.X-secondPoint.Y);
-            B = (firstPoint.X*A) - firstPoint.Y;
+            B = (firstPoint.X*A) - firstPoint.Y;*/
         }
+
+        public static line CreateLine(PointXYint startpoint, double Angle){
+            var ret = new line();
+            ret.StartPointint = new PointXYint();
+            ret.StartPointint = startpoint;
+            var endpoint = new PointXYint();
+            endpoint.X = (int)(startpoint.X + 1000*Math.Cos((Angle)*Math.PI/180));
+            endpoint.Y = (int)(startpoint.Y + 1000*Math.Sin((Angle)*Math.PI/180));
+            ret.createLine(startpoint, endpoint);
+            return ret;
+        }
+        //line: y = A*x + B
+        public void createLine(PointXYint firstPoint, PointXYint secondPoint){
+            StartPointint = firstPoint;
+            EndPointint = secondPoint;
+            A = ((double)(firstPoint.Y-secondPoint.Y))/((double)(firstPoint.X-secondPoint.Y));
+            B = (firstPoint.X*A) - firstPoint.Y;
+            X = ((secondPoint.X-firstPoint.X)>=0);
+            Y = ((secondPoint.Y-firstPoint.Y)>=0);
+        }
+        public void createLine(PointXYint firstPoint, float Angle){
+            StartPointint = new PointXYint();
+            StartPointint = firstPoint;
+            var endpoint = new PointXYint();
+            endpoint.X = (int)(firstPoint.X + 1000*Math.Cos((Angle)*Math.PI/180));
+            endpoint.Y = (int)(firstPoint.Y + 1000*Math.Sin((Angle)*Math.PI/180));
+            createLine(firstPoint, endpoint);
+            /*var secondPoint = new PointXY(){X = firstPoint.X + 1000*Math.Cos(Angle*Math.PI/180), Y = firstPoint.X + 1000*Math.Sin(Angle*Math.PI/180)};
+            A = (firstPoint.Y-secondPoint.Y)/(firstPoint.X-secondPoint.Y);
+            B = (firstPoint.X*A) - firstPoint.Y;*/
+        }
+
         public void additionLines(line newline, int ratio){ //добавляет к структуре часть линии в размере 1/коэффециент
             A = A + (newline.A/ratio);
             B = B + (newline.B/ratio);
@@ -87,6 +141,9 @@ namespace Sick_test
                 return null;
             }else{
                 var endpoint = pointIntersection(Laser, TexturesLines);
+                if(((endpoint.X-startpoint.X)>=0 == Laser.X)&((endpoint.Y-startpoint.Y)>=0 == Laser.Y)){
+
+                }
                 ret = Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
                 return ret;
             }

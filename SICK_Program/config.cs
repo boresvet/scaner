@@ -7,6 +7,7 @@
         public int Offset { get; set; }
         ///<summary>Ширина полосы</summary>
         public int Width { get; set; }
+        public int Height { get; set; }
     }
     ///<summary>Информация о неровности(отбойник, бетонное заграждение, прочие препятствия и мусор, не являющиеся машинами)
     ///</summary>
