@@ -128,8 +128,11 @@ namespace Sick_test
 
             var Inputs = new AllInput(config);
 
-
-            var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+            if(config.Test){
+                var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+            }else{
+                var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+            }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
@@ -366,41 +369,7 @@ namespace Sick_test
             }
             return retArray;
         }
-        static void TestInputT(Scanner scaner, ConcurrentQueue<Scanint> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent, ManualResetEvent ErrorEvent)
-        {
-            try{
-            var step = (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution);
-            var res = new int[step];            
-            var translator = new translator(new PointXYint{X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height});
-            var testgen = new TestGenerator(step,  5, -5, 10, -5+scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle);
-            var Conv = new SpetialConvertorint(-5+scaner.Transformations.CorrectionAngle, 185+scaner.Transformations.CorrectionAngle, Step);
-            var Scan = new Scanint{
-                pointsArray = translator.Translate(Conv.MakePoint(res)),
-                time = DateTime.Now
-            };
-            while(true){
-                if (ExitEvent.WaitOne(0)) {
-                    //lms.Disconnect();
-                    return;
-                }
-                res = testgen.RawScanIntGen();
 
-                /*if(oldscannumber%1000 == 0){
-                    Console.WriteLine("Тысячный скан");
-                }*/
-                Scan.time = DateTime.Now;
-                Scan.pointsArray = Conv.MakePoint(res);
-                //Console.WriteLine(Scan.time);
-                MyConcurrentQueue.Enqueue(Scan);
-                InputEvent.Set();
-                }
-            }
-
-            catch{
-                ErrorEvent.Set();
-                return;
-            }
-        }
         private static bool EmptyBuffer(CircularBuffer<Scanint>[] MyConcurrentQueue){
             var ret = true;
             foreach (CircularBuffer<Scanint> i in MyConcurrentQueue){
@@ -482,54 +451,6 @@ namespace Sick_test
             Console.WriteLine();*/
         }
 
-        static void Main12()
-        {
-            var yutu = new Scan(546);
-            var TestGen = new TestGenerator(286, 5, -5, 10, -5, 185);
-            var RawScan = TestGen.RawScanGen();
-            int Step = 286;
-            var Conv = new SpetialConvertor(-5, 185, Step);
-            var car = new MyCar(286);
-            var ground = new Ground(Step, -5, 185);
-            var Scan = new Scan{
-                pointsArray = Conv.MakePoint(RawScan),
-                time = DateTime.Now
-            };
-            ground.InitGround(RawScan);
-            var reterror = false;
-            for(int i = 0; i<10000000; i++){
-                RawScan = TestGen.RawScanGen();
-                /*if (oldscannumber!RawScanGene($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                }
-                if (res.ScanCounter == null){
-                    oldscannumber++;
-                }else{
-                    oldscannumber = (int)res.ScanCounter+1;
-                }*/
-                /*if(oldscannumber%1000 == 0){
-                    Console.WriteLine("Тысячный скан");
-                }*/
-                Scan.time = DateTime.Now;
-                Scan.pointsArray = Conv.MakePoint(RawScan);
-                var MyCar = car.CreatCarScan(Scan.pointsArray, ground.MyGround());
-                ground.UpdateGround(Scan.pointsArray, MyCar);
-                var mycar = car.SeeCar(MyCar);
-                var testcar = (Scan.pointsArray[159].Y <= 8.5);
-                if(mycar != testcar){
-                    reterror = true;
-                    Console.WriteLine($"Номер скана:{i}, полученное значение:{mycar}, значение 159й точки:{ground.MyGround()[159].Y}");
-                }
-                if(mycar){
-                    //reterror = true;
-                    Console.WriteLine($"Номер скана:{i}, полученное значение:{mycar}, значение 159й точки:{ground.MyGround()[159].Y}");
-                }
-            }
-            /*if(reterror){
-                Assert.Fail("Усёплохо");
-            }else{
-                Assert.Pass("Усёхорошо");
-            }*/
-        }
         public static int[] AddLineIsland(int[] input, int startpoint, int endpoint){
 
             /*
@@ -783,51 +704,6 @@ namespace Sick_test
                     Inputs.ErrorEvent.Set();
                     Inputs.InputEvent.Set();
                 }
-            }
-        }
-        private static void InputTask1(string addr, ConcurrentQueue<Scan> MyConcurrentQueue, ManualResetEvent InputEvent, ManualResetEvent ExitEvent)
-        {
-            var endgrade = 185;
-            var begingrade = -5;
-            /*var lms = new LMS1XX(addr, 2111, 5000, 5000);*/
-            //Conv = new SpetialConvertor(-5, 185, Step);
-            /*lms.Connect();
-            var accessResult = lms.SetAccessMode();
-            var sss = lms.Stop();
-            var startResult = lms.Start();
-            var runResult = lms.Run();
-            var contResult = lms.StartContinuous();*/
-            var TestGen = new TestGenerator(Step, 5, -5, 10, begingrade, endgrade);
-            var RawScan = TestGen.RawScanGen();
-            Thread.Sleep(10);
-            var Conv = new SpetialConvertor(begingrade, endgrade, Step);
-            //NewGround.InitGround(ConnectionResultDistanceData(res));
-            var Scan = new Scan{
-                pointsArray = Conv.MakePoint(RawScan),
-                time = DateTime.Now
-            };
-            while(true){
-                if (ExitEvent.WaitOne(0)) {
-                    //lms.Disconnect();
-                    return;
-                }
-                RawScan = TestGen.RawScanGen();
-                /*if (oldscannumber!=res.ScanCounter){ 
-                    Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                }
-                if (res.ScanCounter == null){
-                    oldscannumber++;
-                }else{
-                    oldscannumber = (int)res.ScanCounter+1;
-                }*/
-                /*if(oldscannumber%1000 == 0){
-                    Console.WriteLine("Тысячный скан");
-                }*/
-                Scan.time = DateTime.Now;
-                Thread.Sleep(10);
-                Scan.pointsArray = Conv.MakePoint(RawScan);
-                MyConcurrentQueue.Enqueue(Scan.copyScan());
-                InputEvent.Set();
             }
         }
     }

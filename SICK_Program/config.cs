@@ -24,6 +24,7 @@
     ///<summary>Информация о всех сканерфх, дороге, полосах и различных неровностях
     ///</summary>
     public class config{
+        public bool Test { get; set; }
         ///<summary>позволяет описать все особенности дороги</summary>
         public RoadSetting RoadSettings { get; set; }
         ///<summary>описывает все сканеры(их настройки)</summary>

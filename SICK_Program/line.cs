@@ -83,6 +83,12 @@ namespace Sick_test
             ret.Y = (ret.X*firstline.A+firstline.B);
             return ret;
         }
+        public PointXYint pointIntersectionint(line firstline, line secondline){
+            var ret = new PointXYint();
+            ret.X = (int)((secondline.B-firstline.B)/(firstline.A-secondline.A)*1000);
+            ret.Y = (int)((ret.X*firstline.A+firstline.B)*1000);
+            return ret;
+        }
         public PointXY firstPointIntersectionSegment(PointXY startpoint, line Laser, line[] AllTexturesLines){
             var ret = new PointXY();
             int i = 0;
@@ -90,13 +96,31 @@ namespace Sick_test
                 i++;
             }
             if(DistancetopointSegment(startpoint, Laser, AllTexturesLines[i])==null){
-                return new PointXY(){X=0.0, Y=0.0};
+                return startpoint;
             }
             double distance = (double)DistancetopointSegment(startpoint, Laser, AllTexturesLines[i]);
             ret = pointIntersection(Laser, AllTexturesLines[0]);
             foreach(line j in AllTexturesLines){
                 if(distance>Distancetopoint(startpoint, Laser, j)){
                     ret = pointIntersection(Laser, j);
+                }
+            }
+            return ret;
+        }
+        public PointXYint firstPointIntersectionSegment(PointXYint startpoint, line Laser, line[] AllTexturesLines){
+            var ret = new PointXYint();
+            int i = 0;
+            while((DistancetopointSegment(startpoint, Laser, AllTexturesLines[i])==null)&(i<AllTexturesLines.Length)){
+                i++;
+            }
+            if(DistancetopointSegment(startpoint, Laser, AllTexturesLines[i])==null){
+                return startpoint;
+            }
+            double distance = (double)DistancetopointSegment(startpoint, Laser, AllTexturesLines[i]);
+            ret = pointIntersectionint(Laser, AllTexturesLines[0]);
+            foreach(line j in AllTexturesLines){
+                if(distance>Distancetopoint(startpoint, Laser, j)){
+                    ret = pointIntersectionint(Laser, j);
                 }
             }
             return ret;
@@ -134,6 +158,21 @@ namespace Sick_test
                 return null;
             }
         }
+        public int? DistancetopointSegment(PointXYint startpoint, line Laser, line TexturesLines){
+            var ret = new int();
+            ret = 0;
+            if((Laser.A==TexturesLines.A)&(Laser.B==TexturesLines.B)){
+                return 0;
+            }else{
+                PointXYint endpoint = pointIntersectionint(Laser, TexturesLines);
+                ret = (int)Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
+                if((endpoint.X<=TexturesLines.EndPoint.X)&(endpoint.X>=TexturesLines.StartPoint.X)){
+                    return ret;
+                }
+                
+                return null;
+            }
+        }
         public double? Distancetopoint(PointXY startpoint, line Laser, line TexturesLines){
             var ret = new double();
             ret = 0.0;
@@ -142,10 +181,29 @@ namespace Sick_test
             }else{
                 var endpoint = pointIntersection(Laser, TexturesLines);
                 if(((endpoint.X-startpoint.X)>=0 == Laser.X)&((endpoint.Y-startpoint.Y)>=0 == Laser.Y)){
-
+                    ret = Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
+                    return ret;
+                }else{
+                    return null;
                 }
-                ret = Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
-                return ret;
+
+            }
+        }
+
+        public int? Distancetopoint(PointXYint startpoint, line Laser, line TexturesLines){
+            var ret = new int();
+            ret = 0;
+            if((Laser.A==TexturesLines.A)&(Laser.B==TexturesLines.B)){
+                return null;
+            }else{
+                PointXYint endpoint = pointIntersectionint(Laser, TexturesLines);
+                if(((endpoint.X-startpoint.X)>=0 == Laser.X)&((endpoint.Y-startpoint.Y)>=0 == Laser.Y)){
+                    ret = (int)Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
+                    return ret;
+                }else{
+                    return null;
+                }
+
             }
         }
     }
