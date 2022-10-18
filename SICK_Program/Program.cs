@@ -127,11 +127,11 @@ namespace Sick_test
             var Scaners = config.Scanners.ToArray();
 
             var Inputs = new AllInput(config);
-
+            Task[] InputT;
             if(config.Test){
-                var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.inputClass[y], ExitEvent, y))).ToArray();
             }else{
-                var InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
             }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
@@ -694,6 +694,65 @@ namespace Sick_test
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);
+                        Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
+                        Inputs.InputEvent.Set();
+                        Console.Write("Принят скан от сканера  ");
+                        Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
+                    }
+                }
+                catch{
+                    Inputs.ErrorEvent.Set();
+                    Inputs.InputEvent.Set();
+                }
+            }
+        }
+
+        private static void TestInputTask(config config, inputTheard Inputs, ManualResetEvent ExitEvent, int scannumber){
+            while(true){
+                try{
+                    var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
+                    //step = 286;
+                    var lms = new TestGenerator(config, scannumber); 
+                    var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    //объявление конвертера, переводящего координаты из радиальной системы в ХУ
+                    
+                    Inputs.ErrorEvent.Reset();
+
+                    var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
+                    //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
+                    
+                    var res = lms.createscan();
+                    var Scan = new Scanint{
+                        pointsArray = translator.Translate(Conv.MakePoint(res)),
+                        time = DateTime.Now
+                    };
+                    var oldscannumber=0;
+                    while(true){
+                        if (ExitEvent.WaitOne(0)) {
+                            return;
+                        }
+                        res = lms.createscan();
+                        /*if (oldscannumber!=res.ScanCounter){ 
+                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                        }
+                        if (res.ScanCounter == null){
+                            oldscannumber++;
+                        }else{
+                            oldscannumber = (int)res.ScanCounter+1;
+                        }*/
+                        /*if(oldscannumber%1000 == 0){
+                            Console.WriteLine("Тысячный скан");
+                        }*/
+
+
+                        Scan.time = DateTime.Now;
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X==0)&(point.Y==0)));
+                        /*
+                        Эта штука конвертирует скан из радиальных координат в ХУ, 
+                        потом удаляет все "нули" - точки, совпадающие со сканером 
+                        Потом - транслирует все точки в общую систему  координат дороги
+                        */
+
                         Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
                         Inputs.InputEvent.Set();
                         Console.Write("Принят скан от сканера  ");
