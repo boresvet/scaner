@@ -58,12 +58,20 @@ namespace Sick_test
 
 
             road = RoadGenerator(config);
-            
-            for(int i = 0; i<Config.RoadSettings.Lanes.Length; i++){
+            RoadPoints = new PointXYint[ray.Length];
+            for(int i = 0; i<ray.Length; i++){
                 RoadPoints[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], road);
             }
-            for(int i = 0; i<Config.RoadSettings.Lanes.Length; i++){
-                RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], (new List<line>(_cars)).Concat(road).ToArray());
+            var cararray = new line[_cars.Length+road.Length];
+            Array.Copy(_cars, cararray, _cars.Length);
+            Array.Copy(road, 0, cararray, _cars.Length, road.Length);
+            for(int i = 0; i<ray.Length; i++){
+                RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
+                if((RoadPointWithCars[i].X==2500)&(RoadPointWithCars[i].Y==1500)){
+
+                }else{
+                    Console.WriteLine(i);
+                }
             }
 
 
@@ -90,7 +98,7 @@ namespace Sick_test
         private line[] RoadGenerator(config config){
             var ret = new line[config.RoadSettings.Lanes.Length+1+config.RoadSettings.Blinds.Length*3];
             ret[0] = new line();
-            ret[0].createLine(new PointXYint{X = config.RoadSettings.LeftLimit, Y = config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.RightLimit, Y = config.RoadSettings.RightLimit});
+            ret[0].createLine(new PointXYint{X = config.RoadSettings.LeftLimit, Y = config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.RightLimit, Y = config.RoadSettings.DownLimit});
             for(int i = 0; i<config.RoadSettings.Lanes.Length; i++){
                 ret[i+1] = new line();
                 ret[i+1].createLine(new PointXYint{X = config.RoadSettings.Lanes[i].Offset, Y = config.RoadSettings.Lanes[i].Height}, new PointXYint{X = (config.RoadSettings.Lanes[i].Offset+config.RoadSettings.Lanes[i].Width), Y = config.RoadSettings.Lanes[i].Height});
@@ -98,14 +106,14 @@ namespace Sick_test
 
 
             for(int i = 0; i<config.RoadSettings.Blinds.Length; i+=3){
-                ret[i+config.RoadSettings.Lanes.Length] = new line();
-                ret[i+config.RoadSettings.Lanes.Length].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit});
+                ret[i+config.RoadSettings.Lanes.Length+1] = new line();
+                ret[i+config.RoadSettings.Lanes.Length+1].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit});
 
-                ret[i+config.RoadSettings.Lanes.Length] = new line();
-                ret[i+config.RoadSettings.Lanes.Length].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit});
+                ret[i+config.RoadSettings.Lanes.Length+2] = new line();
+                ret[i+config.RoadSettings.Lanes.Length+2].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit});
 
-                ret[i+config.RoadSettings.Lanes.Length] = new line();
-                ret[i+config.RoadSettings.Lanes.Length].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.DownLimit});
+                ret[i+config.RoadSettings.Lanes.Length+3] = new line();
+                ret[i+config.RoadSettings.Lanes.Length+3].createLine(new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.Blinds[i].Height+config.RoadSettings.DownLimit}, new PointXYint{X = config.RoadSettings.Blinds[i].Offset+config.RoadSettings.Blinds[i].Width, Y = config.RoadSettings.DownLimit});
             }//Генерирует препятствия в 3 линии
             return ret;
         }
@@ -142,17 +150,17 @@ namespace Sick_test
         }
         private line[] testCarGenerator(config config){
             var ret = new line[config.RoadSettings.Lanes.Length*3];
-            for(int i = 0; i<ret.Length; i++){
+            for(int i = 0; i<config.RoadSettings.Lanes.Length; i++){
                 if(config.RoadSettings.Lanes[i].Width>=2200){
                     var middlepoint = config.RoadSettings.Lanes[i].Offset + (int)(config.RoadSettings.Lanes[i].Width/2);
                     ret[i] = new line();
-                    ret[i].createLine(new PointXYint{X = middlepoint-1000, Y = config.RoadSettings.Lanes[i].Height}, new PointXYint{X = middlepoint-1000, Y = config.RoadSettings.Lanes[i].Height+carheight});
+                    ret[i].createLine(new PointXYint{X = middlepoint-1000, Y = config.RoadSettings.Lanes[i].Height}, new PointXYint{X = middlepoint-1000+100, Y = config.RoadSettings.Lanes[i].Height+carheight});
 
                     ret[i+1] = new line();
-                    ret[i+1].createLine(new PointXYint{X = middlepoint-1000, Y = config.RoadSettings.Lanes[i].Height+carheight}, new PointXYint{X = middlepoint+1000, Y = config.RoadSettings.Lanes[i].Height+carheight});
+                    ret[i+1].createLine(new PointXYint{X = middlepoint-1000+100, Y = config.RoadSettings.Lanes[i].Height+carheight}, new PointXYint{X = middlepoint+1000-100, Y = config.RoadSettings.Lanes[i].Height+carheight});
 
                     ret[i+2] = new line();
-                    ret[i+2].createLine(new PointXYint{X = middlepoint+1000, Y = config.RoadSettings.Lanes[i].Height+carheight}, new PointXYint{X = middlepoint+1000, Y = config.RoadSettings.Lanes[i].Height});
+                    ret[i+2].createLine(new PointXYint{X = middlepoint+1000-100, Y = config.RoadSettings.Lanes[i].Height+carheight}, new PointXYint{X = middlepoint+1000, Y = config.RoadSettings.Lanes[i].Height});
 
                     //Тут создаются текстурные линии машинок
                 }else{
