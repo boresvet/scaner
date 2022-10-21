@@ -65,23 +65,25 @@ namespace Sick_test
             var cararray = new line[_cars.Length+road.Length];
             Array.Copy(_cars, cararray, _cars.Length);
             Array.Copy(road, 0, cararray, _cars.Length, road.Length);
+            RoadPointWithCars = new PointXYint[ray.Length];
             for(int i = 0; i<ray.Length; i++){
                 RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
                 if((RoadPointWithCars[i].X==2500)&(RoadPointWithCars[i].Y==1500)){
-
+                    
                 }else{
-                    Console.WriteLine(i);
+                    //Console.WriteLine(i);
                 }
             }
 
 
 
 
-
+            RoadDistanceWithCars = new int[RoadPointWithCars.Length];
             for(int i=0;i<RoadPointWithCars.Length; i++){
                 RoadDistanceWithCars[i] = (int)Math.Sqrt(((RoadPointWithCars[i].X-scanerpoint.X)*(RoadPointWithCars[i].X-scanerpoint.X))+((RoadPointWithCars[i].Y-scanerpoint.Y)*(RoadPointWithCars[i].Y-scanerpoint.Y)));
             }
-            for(int i=0;i<RoadPointWithCars.Length; i++){
+            RoadDistance = new int[RoadPoints.Length];
+            for(int i=0;i<RoadPoints.Length; i++){
                 RoadDistance[i] = (int)Math.Sqrt(((RoadPoints[i].X-scanerpoint.X)*(RoadPoints[i].X-scanerpoint.X))+((RoadPoints[i].Y-scanerpoint.Y)*(RoadPoints[i].Y-scanerpoint.Y)));
             }
 

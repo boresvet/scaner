@@ -122,7 +122,10 @@ namespace Sick_test
             double distance = (double)DistancetopointSegment(startpoint, Laser, AllTexturesLines[i]);
             ret = pointIntersectionint(Laser, AllTexturesLines[i]);
             foreach(line j in AllTexturesLines){
-                if((distance>Distancetopoint(startpoint, Laser, j))&(Distancetopoint(startpoint, Laser, j)!=0)){
+                if((distance == 0)&(DistancetopointSegment(startpoint, Laser, j)>0)){
+                    distance = (double)DistancetopointSegment(startpoint, Laser, j);
+                }
+                if((distance>Distancetopoint(startpoint, Laser, j))&(Distancetopoint(startpoint, Laser, j)>=0)){
                     ret = pointIntersectionint(Laser, j);
                     distance = (double)Distancetopoint(startpoint, Laser, j);
                 }

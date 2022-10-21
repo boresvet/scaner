@@ -728,7 +728,7 @@ namespace Sick_test
                     };
                     var oldscannumber=0;
                     while(true){
-                        if (ExitEvent.WaitOne(0)) {
+                        if (ExitEvent.WaitOne(100)) {
                             return;
                         }
                         res = lms.createscan();
