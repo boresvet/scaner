@@ -169,7 +169,16 @@ namespace Sick_test
                 return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Count-1].CarIslandLanes[XpointCoordinate+1];
             }
         }
-
+        /*
+        Матрица направления на старую точку: 
+        Х-координата (чем больше, тем выше)
+        ^
+        |    123
+        |    804
+        |    765
+        +------------>  Время(Если время больше, то значение правее)
+        Соответственно индексу 5 соответствует точка позднее и с бОльшим Х
+        */
         private int whereisoldpoint(){
             if(oldXpointCoordinate<XpointCoordinate){
                 if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
@@ -231,360 +240,327 @@ namespace Sick_test
 
 
 
+        /*
+            Смещение круговое для каждой из точек            
+        */
+
+
+        /*
+            Стартовая точка, ноль
+            Просто идёт в рандомную сторону
+        */
+        private void InThisPoint(Second[] input){
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+        }
+
+
+        private void InLeftPoint(Second[] input){
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+        }
+
+        private void InLeftUpPoint(Second[] input){
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+        }
+
+
+        private void InUpPoint(Second[] input){
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+        }
+
+        private void InRightUpPoint(Second[] input){
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+        }
+
+        private void InRightPoint(Second[] input){
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+        }
+
+        private void InRightDownPoint(Second[] input){
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+        }
+
+        private void InDownPoint(Second[] input){
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+        }
+
+        private void InLeftDownPoint(Second[] input){
+            if(leftpoint(input)>0){
+                leftindex(input);
+            }
+            if(leftuppoint(input)>0){
+                upindex(input);
+                leftindex(input);
+            }
+            if(uppoint(input)>0){
+                upindex(input);
+            }
+            if(rightuppoint(input)>0){
+                upindex(input);
+                rightindex(input);
+            }
+            if(rightpoint(input)>0){
+                rightindex(input);
+            }
+            if(rightdownpoint(input)>0){
+                downindex(input);
+                rightindex(input);
+            }
+            if(downpoint(input)>0){
+                downindex(input);
+            }
+            if(leftdownpoint(input)>0){
+                downindex(input);
+                leftindex(input);
+            }
+        }
 
         public void NextPosition(Second[] input){
             var oldp = whereisoldpoint();
             switch (oldp)
             {
                 case 0:
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
+                    InThisPoint(input);
                     break;
                 case 8:
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
+                    InLeftPoint(input);
                     break;
-
-
                 case 1:
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
+                    InLeftUpPoint(input);
                     break;
                 case 2:
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
+                    InUpPoint(input);
                     break;
-
                 case 3:
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
+                    InRightUpPoint(input);
                     break;
-
-
-
                 case 4:
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
+                    InRightPoint(input);
                     break;
-
-
                 case 5:
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
+                    InRightDownPoint(input);
                     break;
-
                 case 6:
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
+                    InDownPoint(input);
                     break;
-
                 case 7:
-                    if(leftdownpoint(input)>0){
-                        downindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftpoint(input)>0){
-                        leftindex(input);
-                        break;
-                    }
-                    if(leftuppoint(input)>0){
-                        upindex(input);
-                        leftindex(input);
-                        break;
-                    }
-                    if(uppoint(input)>0){
-                        upindex(input);
-                        break;
-                    }
-                    if(rightuppoint(input)>0){
-                        upindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightpoint(input)>0){
-                        rightindex(input);
-                        break;
-                    }
-                    if(rightdownpoint(input)>0){
-                        downindex(input);
-                        rightindex(input);
-                        break;
-                    }
-                    if(downpoint(input)>0){
-                        downindex(input);
-                        break;
-                    }
+                    InLeftDownPoint(input);
                     break;
-
                 default:
                     //Console.WriteLine($"");
                     break;
