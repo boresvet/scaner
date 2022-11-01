@@ -1,4 +1,3 @@
-using BSICK.Sensors.LMS1xx;
 using System;
 using static System.Math;
 using System.Collections.Generic;
@@ -14,6 +13,32 @@ using System.Text.Json.Serialization;
 
 namespace Sick_test
 {
+    /// <summary>
+        /// <br>Матрица направления на старую точку: </br>
+        /// <br>Х-координата (чем больше, тем выше)</br>
+        /// <br>^</br>
+        /// <br>|    123</br>
+        /// <br>|    804</br>
+        /// <br>|    765</br>
+        /// <br>+------------>  Время(Если время больше, то значение правее)</br>
+        /// <br>Соответственно индексу 5 соответствует точка позднее и с бОльшим Х</br>
+        /// </summary>
+    public enum Directions{
+
+
+    Error = -1,
+    ThisPoint = 0,
+    UpLeft = 1, 
+    Up = 2, 
+    UpRight = 3,
+    Right = 4, 
+    DownRight = 5,
+    Down = 6,
+    DownLeft = 7,
+    Left = 8
+
+
+    }
     public class borderPoint{
         public int secondIndexInBuffer;
         public int milisecondIndexInSecond;
@@ -179,48 +204,61 @@ namespace Sick_test
         +------------>  Время(Если время больше, то значение правее)
         Соответственно индексу 5 соответствует точка позднее и с бОльшим Х
         */
-        private int whereisoldpoint(){
-            if(oldXpointCoordinate<XpointCoordinate){
-                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
-                    return 8;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
-                    return 1;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
-                    return 7;
-                }
-                return-1;
+        public Directions LeftsPoints(){
+            if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                return Directions.Left;
             }
+
+            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+                return Directions.UpLeft;
+            }
+
+            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+                return Directions.DownLeft;
+            }
+            
+            return Directions.Error;
+        }
+        public Directions MediumsPoint(){
+            if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                return Directions.ThisPoint;
+            }
+            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+                return Directions.Up;
+            }
+            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+                return Directions.Down;
+            }
+            return Directions.Error;
+        }
+
+
+        public Directions RightsPoints(){
+                if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                    return Directions.Right;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+                    return Directions.UpRight;
+                }
+                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+                    return Directions.DownRight;
+                }
+
+                return Directions.Error;
+        }
+        private Directions whereisoldpoint(){
+            if(oldXpointCoordinate<XpointCoordinate){
+                return LeftsPoints();
+            }
+        
             if(oldXpointCoordinate==XpointCoordinate){
-                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
-                    return 0;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
-                    return 2;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
-                    return 6;
-                }
-
-                return -1;
-
+                return MediumsPoint();
             }
 
             if(oldXpointCoordinate>XpointCoordinate){
-                if((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
-                    return 4;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&(secondIndexInBuffer==0))){
-                    return 3;
-                }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&(oldsecondIndexInBuffer==0))){
-                    return 5;
-                }
-
-                return -1;
+                return RightsPoints();
             }
-            return -1;
+            return Directions.Error;
         }
 
 
@@ -534,31 +572,31 @@ namespace Sick_test
             var oldp = whereisoldpoint();
             switch (oldp)
             {
-                case 0:
+                case Directions.ThisPoint:
                     InThisPoint(input);
                     break;
-                case 8:
+                case Directions.Left:
                     InLeftPoint(input);
                     break;
-                case 1:
+                case Directions.UpLeft:
                     InLeftUpPoint(input);
                     break;
-                case 2:
+                case Directions.Up:
                     InUpPoint(input);
                     break;
-                case 3:
+                case Directions.UpRight:
                     InRightUpPoint(input);
                     break;
-                case 4:
+                case Directions.Right:
                     InRightPoint(input);
                     break;
-                case 5:
+                case Directions.DownRight:
                     InRightDownPoint(input);
                     break;
-                case 6:
+                case Directions.Down:
                     InDownPoint(input);
                     break;
-                case 7:
+                case Directions.DownLeft:
                     InLeftDownPoint(input);
                     break;
                 default:
