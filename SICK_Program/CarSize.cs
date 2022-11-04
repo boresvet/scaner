@@ -109,19 +109,6 @@ namespace Sick_test
 
 
 
-        public PointXY ProectionPointOnLine(PointXY point, line line){
-            var retPoint = new PointXY();
-            retPoint.X = (point.X+(line.A*point.X)-(line.A*line.B))/((line.A*line.A)+1);
-            retPoint.Y = line.A*retPoint.X + line.B;
-            return retPoint;
-        }
-
-        public double DistansFromPointToLine(PointXY point, line line){
-            var retDistans = new double();
-            retDistans = (Abs(point.X*line.A + ((-1)*point.Y)+line.B))/(Sqrt((line.A*line.A)+(line.B*line.B)));
-            return retDistans;
-        }
-
         public PointXY CarScanSize(Scan arrayPoints, line groudLine, Scan ground){
             var retPoint = new PointXY();// X = ширина машины в скане, Y = высота максимальная
             var trig = true;
@@ -132,22 +119,22 @@ namespace Sick_test
             for(int i = 0; i<arrayPoints.pointsArray.Length; i++){
                 if((arrayPoints.pointsArray[i].Y>=0)&trig){
                     var nPoint = new PointXY{X = (ground.pointsArray[i].X) - arrayPoints.pointsArray[i].X,  Y = (ground.pointsArray[i].Y - arrayPoints.pointsArray[i].Y)};
-                    xMin = ProectionPointOnLine(nPoint,groudLine).X;
-                    xMax = ProectionPointOnLine(nPoint,groudLine).X;
-                    yMax = ProectionPointOnLine(nPoint,groudLine).Y;
+                    xMin = groudLine.ProectionPointOnLine(nPoint,groudLine).X;
+                    xMax = groudLine.ProectionPointOnLine(nPoint,groudLine).X;
+                    yMax = groudLine.ProectionPointOnLine(nPoint,groudLine).Y;
                     trig = false;
                 }
                 if((arrayPoints.pointsArray[i].Y>=0)&(!trig)){
                     var nPoint = new PointXY{X = (ground.pointsArray[i].X) - arrayPoints.pointsArray[i].X,  Y = (ground.pointsArray[i].Y - arrayPoints.pointsArray[i].Y)};
-                    if(ProectionPointOnLine(nPoint,groudLine).X<xMin){
-                        xMin = ProectionPointOnLine(nPoint,groudLine).X;
+                    if(groudLine.ProectionPointOnLine(nPoint,groudLine).X<xMin){
+                        xMin = groudLine.ProectionPointOnLine(nPoint,groudLine).X;
                     }
 
-                    if(ProectionPointOnLine(nPoint,groudLine).X>xMax){
-                        xMax = ProectionPointOnLine(nPoint,groudLine).X;
+                    if(groudLine.ProectionPointOnLine(nPoint,groudLine).X>xMax){
+                        xMax = groudLine.ProectionPointOnLine(nPoint,groudLine).X;
                     }
-                    if(ProectionPointOnLine(nPoint,groudLine).Y>yMax){
-                        yMax = ProectionPointOnLine(nPoint,groudLine).Y;
+                    if(groudLine.ProectionPointOnLine(nPoint,groudLine).Y>yMax){
+                        yMax = groudLine.ProectionPointOnLine(nPoint,groudLine).Y;
                     }
                 }
             }
