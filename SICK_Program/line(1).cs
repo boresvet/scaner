@@ -96,19 +96,83 @@ namespace Sick_test
                 EndPoint.Y = EndPoint.Y + (newline.EndPoint.Y/ratio);
             }
         }
+
+        private double ordinate(double input){
+            var ret = 0.0;
+            ret = (Qy*(input - StartPoint.X))/Qx + StartPoint.Y;
+            return ret;
+        }
+        private int ordinate(int input){
+            var ret = 0;
+            ret = (Qyint*(input - StartPointint.X))/Qxint + StartPointint.Y;
+            return ret;
+        }
         public PointXY pointIntersection(line firstline, line secondline){
             var ret = new PointXY();
-            ret.X = ((secondline.B-firstline.B)/(firstline.A-secondline.A));
-            ret.Y = (ret.X*firstline.A+firstline.B);
+                if((((firstline.Qx == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer))&&(((secondline.Qx == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer))){
+                    if(firstline.StartPoint.X==secondline.StartPoint.X){
+                        //В случае, когда обе линии вертикальны, и совпадают - возвращается начальная точка ВТОРОЙ линии
+                        ret = secondline.StartPoint;
+                        return ret;
+                    }else{
+                        //Случаев, когда линии вертикальны и не совпадают - стоит не допускать
+                    }
+                }
+
+
+                //Когда только одна из линий - вертикальна
+                if(((firstline.Qx == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer)){
+                    ret.X = firstline.StartPoint.X;
+                    ret.Y = (secondline.Qx*(firstline.StartPoint.X-firstline.StartPoint.X))/secondline.Qy + secondline.StartPoint.Y;
+                    return ret;
+                }
+                if(((secondline.Qx == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer)){
+                    ret.X = secondline.StartPoint.X;
+                    ret.Y = (firstline.Qx*(secondline.StartPoint.X-secondline.StartPoint.X))/firstline.Qy + firstline.StartPoint.Y;
+                    return ret;
+                }
+
+
+
+                //Когда ни одна из линий не вертикальна:
+                
+                var K = ((firstline.Qy*secondline.Qx)-(secondline.Qy*firstline.Qx))/(firstline.Qx*secondline.Qx);
+                ret.X = (K*firstline.StartPoint.X + secondline.StartPoint.Y - firstline.StartPoint.Y)/K;
+                ret.Y = ordinate(ret.X);
             return ret;
         }
         public PointXYint pointIntersectionint(line firstline, line secondline){
             var ret = new PointXYint();
-            ret.X = (int)((secondline.B*1000-firstline.B*1000)/(firstline.A*1000-secondline.A*1000)*1000);
-            ret.Y = (int)((ret.X*firstline.A*1000+firstline.B*1000));
-            if((ret.Y-((ret.X*secondline.A*1000+secondline.B*1000)))>=1000){
-                Console.WriteLine("Косяк");
-            }
+                if((((firstline.Qx == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer))&&(((secondline.Qx == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer))){
+                    if(firstline.StartPoint.X==secondline.StartPoint.X){
+                        //В случае, когда обе линии вертикальны, и совпадают - возвращается начальная точка ВТОРОЙ линии
+                        ret = secondline.StartPointint;
+                        return ret;
+                    }else{
+                        //Случаев, когда линии вертикальны и не совпадают - стоит не допускать
+                    }
+                }
+
+
+                //Когда только одна из линий - вертикальна
+                if(((firstline.Qx == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer)){
+                    ret.X = firstline.StartPointint.X;
+                    ret.Y = (secondline.Qxint*(firstline.StartPointint.X-firstline.StartPointint.X))/secondline.Qyint + secondline.StartPointint.Y;
+                    return ret;
+                }
+                if(((secondline.Qx == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer)){
+                    ret.X = secondline.StartPointint.X;
+                    ret.Y = (firstline.Qxint*(secondline.StartPointint.X-secondline.StartPointint.X))/firstline.Qyint + firstline.StartPointint.Y;
+                    return ret;
+                }
+
+
+
+                //Когда ни одна из линий не вертикальна:
+                
+                var K = ((firstline.Qyint*secondline.Qxint)-(secondline.Qyint*firstline.Qxint))/(firstline.Qxint*secondline.Qxint);
+                ret.X = (K*firstline.StartPointint.X + secondline.StartPointint.Y - firstline.StartPointint.Y)/K;
+                ret.Y = ordinate(ret.X);
             return ret;
         }
         public PointXY firstPointIntersectionSegment(PointXY startpoint, line Laser, line[] AllTexturesLines){
@@ -129,6 +193,8 @@ namespace Sick_test
             }
             return ret;
         }
+
+
         public PointXYint firstPointIntersectionSegment(PointXYint startpoint, line Laser, line[] AllTexturesLines){
             var ret = new PointXYint();
             int i = 0;
@@ -172,7 +238,7 @@ namespace Sick_test
         public double? DistancetopointSegment(PointXY startpoint, line Laser, line TexturesLines){
             var ret = new double();
             ret = 0.0;
-            if((Laser.A==TexturesLines.A)&(Laser.B==TexturesLines.B)){
+            if(paralleles(TexturesLines, Laser)){
                 return null;
             }else{
                 var endpoint = pointIntersection(Laser, TexturesLines);
@@ -187,7 +253,7 @@ namespace Sick_test
         public int? DistancetopointSegment(PointXYint startpoint, line Laser, line TexturesLines){
             var ret = new int();
             ret = 0;
-            if((Laser.A==TexturesLines.A)){
+            if(parallelesint(TexturesLines, Laser)){
                 return null;
             }else{
                 PointXYint endpoint = pointIntersectionint(Laser, TexturesLines);
@@ -199,29 +265,102 @@ namespace Sick_test
                 return null;
             }
         }
+        private bool paralleles(line firstlane, line secondlane){
+            //Если прямые совпадают - выдаёт нет
+            //Если прямые пересекаются (хотя бы в бесконечности) - выдаёт нет
+            //Если прямые параллельны - выдаёт да
+            if((firstlane.Qx == secondlane.Qx)&(firstlane.Qy==secondlane.Qy)){
+                if((firstlane.ordinate(secondlane.StartPoint.X)==secondlane.StartPoint.Y)&&(secondlane.ordinate(firstlane.StartPoint.X)==firstlane.StartPoint.Y)){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+
+
+            //Проверка, чтобы не было различий в нулях функций
+            if(((firstlane.Qx==0)&&(secondlane.Qx!=0))|((firstlane.Qx!=0)&&(secondlane.Qx==0))){
+                return false;
+            }
+            if(((firstlane.Qy==0)&&(secondlane.Qy!=0))|((firstlane.Qy!=0)&&(secondlane.Qy==0))){
+                return false;
+            }
+            //Если обе линии параллельны оси абсцисс/ординат, то они параллельны между собой
+            if((firstlane.Qx==0.0)|(firstlane.Qy==0.0)){
+                return true;
+            }
+
+
+            //Если у функций аналогичны вектора, то эти функции параллельны
+            if(firstlane.Qy/firstlane.Qx == secondlane.Qy/secondlane.Qx){
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool parallelesint(line firstlane, line secondlane){
+            //Если прямые совпадают - выдаёт нет
+            //Если прямые пересекаются (хотя бы в бесконечности) - выдаёт нет
+            //Если прямые параллельны - выдаёт да
+            if((firstlane.Qxint == secondlane.Qxint)&(firstlane.Qyint==secondlane.Qyint)){
+                if((firstlane.ordinate(secondlane.StartPoint.X)==secondlane.StartPoint.Y)&&(secondlane.ordinate(firstlane.StartPoint.X)==firstlane.StartPoint.Y)){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+
+
+            //Проверка, чтобы не было различий в нулях функций
+            if(((firstlane.Qxint==0)&&(secondlane.Qxint!=0))|((firstlane.Qxint!=0)&&(secondlane.Qxint==0))){
+                return false;
+            }
+            if(((firstlane.Qyint==0)&&(secondlane.Qyint!=0))|((firstlane.Qyint!=0)&&(secondlane.Qyint==0))){
+                return false;
+            }
+            //Если обе линии параллельны оси абсцисс/ординат, то они параллельны между собой
+            if((firstlane.Qxint==0.0)|(firstlane.Qyint==0.0)){
+                return true;
+            }
+
+
+            //Если у функций аналогичны вектора, то эти функции параллельны
+            if(firstlane.Qyint/firstlane.Qxint == secondlane.Qyint/secondlane.Qxint){
+                return true;
+            }
+
+            return false;
+        }
         public double? Distancetopoint(PointXY startpoint, line Laser, line TexturesLines){
             var ret = new double();
             ret = 0.0;
-            if((Laser.A==TexturesLines.A)&(Laser.B==TexturesLines.B)){
+            if(paralleles(TexturesLines, Laser)){
                 return null;
             }else{
                 var endpoint = pointIntersection(Laser, TexturesLines);
-
-
+                ret = Math.Sqrt(endpoint.X*endpoint.X + endpoint.Y*endpoint.Y);
             }
+            return ret;
         }
+
+
+
+
 
         public int? Distancetopoint(PointXYint startpoint, line Laser, line TexturesLines){
             var ret = new int();
             ret = 0;
-            if((Laser.A-TexturesLines.A)<=0.1){
+            if(parallelesint(TexturesLines, Laser)){
                 return null;
             }else{
                 PointXYint endpoint = pointIntersectionint(Laser, TexturesLines);
-
-
+                ret = (int)Math.Sqrt(endpoint.X*endpoint.X + endpoint.Y*endpoint.Y);
             }
+            return ret;
         }
+
+
 
         public PointXY ProectionPointOnLine(PointXY point, line line){
             var retPoint = new PointXY();
@@ -232,7 +371,7 @@ namespace Sick_test
 
         public double DistansFromPointToLine(PointXY point, line line){
             var retDistans = new double();
-            retDistans = (Abs(point.X*line.A + ((-1)*point.Y)+line.B))/(Sqrt((line.A*line.A)+(line.B*line.B)));
+            retDistans = (Math.Abs(point.X*line.A + ((-1)*point.Y)+line.B))/(Sqrt((line.A*line.A)+(line.B*line.B)));
             return retDistans;
         }
     }
