@@ -169,9 +169,8 @@ namespace Sick_test
 
 
                 //Когда ни одна из линий не вертикальна:
-                
-                var K = ((firstline.Qyint*secondline.Qxint)-(secondline.Qyint*firstline.Qxint))/(firstline.Qxint*secondline.Qxint);
-                ret.X = (K*firstline.StartPointint.X + secondline.StartPointint.Y - firstline.StartPointint.Y)/K;
+                double K = (double)((firstline.Qyint*secondline.Qxint)-(secondline.Qyint*firstline.Qxint))/(double)(firstline.Qxint*secondline.Qxint);
+                ret.X = (int)((K*(double)firstline.StartPointint.X + (double)secondline.StartPointint.Y - (double)firstline.StartPointint.Y)/K);
                 ret.Y = ordinate(ret.X);
             return ret;
         }
@@ -364,14 +363,42 @@ namespace Sick_test
 
         public PointXY ProectionPointOnLine(PointXY point, line line){
             var retPoint = new PointXY();
-            retPoint.X = (point.X+(line.A*point.X)-(line.A*line.B))/((line.A*line.A)+1);
-            retPoint.Y = line.A*retPoint.X + line.B;
+            var vert = new line();
+            vert.Qx = line.Qy;
+            vert.Qy = line.Qx;
+            vert.StartPoint = point;
+            vert.EndPoint = point;
+            vert.EndPoint.X = vert.StartPoint.X+vert.Qx;
+            vert.EndPoint.Y = vert.StartPoint.Y+vert.Qy;
+            retPoint = pointIntersection(line, vert);
             return retPoint;
         }
 
+        public PointXYint ProectionPointOnLine(PointXYint point, line line){
+            var retPoint = new PointXYint();
+            var vert = new line();
+            vert.Qxint = line.Qyint;
+            vert.Qyint = line.Qxint;
+            vert.StartPointint = point;
+            vert.EndPointint = point;
+            vert.EndPointint.X = vert.StartPointint.X+vert.Qxint;
+            vert.EndPointint.Y = vert.StartPointint.Y+vert.Qyint;
+            retPoint = pointIntersectionint(line, vert);
+            return retPoint;
+        }
+
+
         public double DistansFromPointToLine(PointXY point, line line){
             var retDistans = new double();
-            retDistans = (Math.Abs(point.X*line.A + ((-1)*point.Y)+line.B))/(Sqrt((line.A*line.A)+(line.B*line.B)));
+            var pointproection = ProectionPointOnLine(point, line);
+            retDistans = (Math.Abs(((point.X-pointproection.X)*(point.X-pointproection.X)))+((point.Y-pointproection.Y)*(point.Y-pointproection.Y)));
+            return retDistans;
+        }
+
+        public int DistansFromPointToLine(PointXYint point, line line){
+            var retDistans = new int();
+            var pointproection = ProectionPointOnLine(point, line);
+            retDistans = (int)Math.Abs((((point.X-pointproection.X)*(point.X-pointproection.X)))+((point.Y-pointproection.Y)*(point.Y-pointproection.Y)));
             return retDistans;
         }
     }

@@ -114,8 +114,6 @@ namespace Sick_test
 
         static void Main(){
                 // Read the stream as a string, and write the string to the console.
-
-
             var line1 = new line();
             line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
             var ray2 = new line();
