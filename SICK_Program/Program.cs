@@ -113,12 +113,16 @@ namespace Sick_test
 
 
         static void Main(){
+
+                /*var line1 = new line();
+                line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
+                var ray3 = new line();
+                ray3.createLine(new PointXY(){X = 0, Y = 0}, new PointXY(){X = 10, Y = 20});
+                Console.WriteLine(line1.DistancetopointSegment(new PointXY(){X = 0, Y = 0}, ray3, line1));
+                
+                Тесты для линий если усё пропало
+                */
                 // Read the stream as a string, and write the string to the console.
-            var line1 = new line();
-            line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
-            var ray2 = new line();
-            ray2.createLine(new PointXYint(){X = 0, Y = 0}, new PointXYint(){X = 20, Y = 10});
-            Console.WriteLine(line1.DistancetopointSegment(new PointXYint(){X = 0, Y = 0}, ray2, line1));
             CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             TimeBuffer times = new TimeBuffer(300);
 
