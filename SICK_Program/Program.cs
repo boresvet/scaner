@@ -188,7 +188,8 @@ namespace Sick_test
                     return;
                 }
                 RoadEvent.WaitOne();
-/*                 for(int i = 0; i<MyConcurrentQueue.Length; i++){
+                    /*
+                    for(int i = 0; i<MyConcurrentQueue.Length; i++){
                     RoadScan = new Scanint(0);
                     MyConcurrentQueue[i].TryDequeue(out var res);
                     InputEvent[i].Reset();

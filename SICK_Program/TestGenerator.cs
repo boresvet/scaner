@@ -29,8 +29,8 @@ namespace Sick_test
         public int[] RoadDistanceWithCars;
         public int[] RoadDistance;
 
-        int iter;
-        int period;
+        public int iter;
+        public int period = 3000;
         public PointXYint[] RoadPoints;
         public PointXYint[] RoadPointWithCars;
 
@@ -89,9 +89,17 @@ namespace Sick_test
 
             iter = 0;
         }
+        private void nextPosition(){
+            if(iter >= period-1){
+                iter = 0;
+            }else{
+                iter++;
+            }
+        }
 
         public int[] createscan(){
-            if(period>= iter*2){
+            nextPosition();
+            if(period >= iter*2){
                 return RoadDistanceWithCars;
             }else{
                 return RoadDistance;

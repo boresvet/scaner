@@ -15,14 +15,14 @@ namespace Sick_test
 {
     ///<summary>Перевод начала координат в точку ХУ
     ///</summary>   
-    class translator
+    public class translator
     {
         PointXY ZeroPoint;
         PointXYint ZeroPointint;
         ///<summary>Объявление точки, в которую переносится система координат
         ///<param name = "zeropoint">Точка, в которую переносится начало координат</param>
         ///</summary>   
-        public translator(PointXY zeropoint)
+        translator(PointXY zeropoint)
         {
             ZeroPoint = zeropoint;
         }
