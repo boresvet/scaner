@@ -77,6 +77,7 @@ public class Tests
 
                     while(i < 10000){
                         res = lms.createscan();
+                        MyINTConcurrentQueue.Enqueue(res);
                         /*if (oldscannumber!=res.ScanCounter){ 
                             Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
                         }
@@ -97,7 +98,6 @@ public class Tests
                         потом удаляет все "нули" - точки, совпадающие со сканером 
                         Потом - транслирует все точки в общую систему  координат дороги
                         */
-                        MyINTConcurrentQueue.Enqueue(res);
                         MyConcurrentQueue.Enqueue(Scan);
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
@@ -152,6 +152,15 @@ public class Tests
     {
         Assert.IsTrue(MyConcurrentQueue.IsFull);
     } 
+    //Проверяет концептуальное наличие машинок, 
+    private bool Cars(){
+        for(int i = 0; i < MyINTConcurrentQueue._buffer.Length; i++){
+            if(MyINTConcurrentQueue._buffer[i].Sum() > 0){
+                return true;
+            }
+        }
+        return false;
+    }
     private bool CarsInArray(){
         int oldsum = MyINTConcurrentQueue._buffer[0].Sum();
         for(int i = 0; i < MyINTConcurrentQueue._buffer.Length; i++){
@@ -161,6 +170,11 @@ public class Tests
         }
         return false;
     }
+    [Test]
+    public void CreatedCars()
+    {
+        Assert.IsTrue(Cars());
+    } 
     [Test]
     public void ISCarsInBuferTRUE()
     {
