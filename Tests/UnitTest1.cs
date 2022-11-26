@@ -18,6 +18,8 @@ public class Tests
     IslandSeach scans;
     int? point1, point2;
     double? point3, point4;
+    line[] testlinestexture;
+    line[] scanerrays;
     CircularBuffer<Scanint> MyConcurrentQueue;
     CircularBuffer<int[]> MyINTConcurrentQueue;
 
@@ -26,7 +28,6 @@ public class Tests
     {
 
         //Тесты математики(типовое пересечение линий)
-        scans = new IslandSeach();
         var line1 = new line();
         line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
         var line2 = new line();
@@ -45,6 +46,7 @@ public class Tests
         point4 = line2.DistancetopointSegment(new PointXY(){X = 0.0, Y = 0.0}, ray4, line2);
         //Console.WriteLine(point2);
 
+        //Тест на первое пересечение
 
 
         //Тесты логики(генерации машинок)
@@ -55,7 +57,7 @@ public class Tests
                     config config = JsonSerializer.Deserialize<config>(ReadFile);
                     var Inputs = new AllInput(config).inputClass[0];
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
-                    var lms = new TestGenerator(config, 1); 
+                    var lms = new TestGenerator(config, 0); 
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
@@ -78,26 +80,16 @@ public class Tests
                     while(i < 10000){
                         res = lms.createscan();
                         MyINTConcurrentQueue.Enqueue(res);
-                        /*if (oldscannumber!=res.ScanCounter){ 
-                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                        }
-                        if (res.ScanCounter == null){
-                            oldscannumber++;
-                        }else{
-                            oldscannumber = (int)res.ScanCounter+1;
-                        }*/
-                        /*if(oldscannumber%1000 == 0){
-                            Console.WriteLine("Тысячный скан");
-                        }*/
 
 
                         Scan.time = DateTime.Now;
                         Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X==0)&(point.Y==0)));
-                        /*
-                        Эта штука конвертирует скан из радиальных координат в ХУ, 
-                        потом удаляет все "нули" - точки, совпадающие со сканером 
-                        Потом - транслирует все точки в общую систему  координат дороги
-                        */
+                        
+                        
+                        //Эта штука конвертирует скан из радиальных координат в ХУ, 
+                        //потом удаляет все "нули" - точки, совпадающие со сканером 
+                        //Потом - транслирует все точки в общую систему  координат дороги
+                        
                         MyConcurrentQueue.Enqueue(Scan);
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
@@ -121,7 +113,17 @@ public class Tests
     {
         Assert.IsTrue(scans.CarsArray.Count>=0);
     }
+
+
+
+
     [Test]
+    public void Maths()
+    {
+        Assert.IsTrue((point1==11)&&(point2==null)&&((point3>=11.18)&&(point3<=11.1804))&&(point4==null));
+    }
+    //Тесты математики. Предыдущий - кооперация всех этих в один большой, чтобы галочка была только одна
+    /*[Test]
     public void INTLaserLinesInsertion_INSERTION()
     {
         Assert.IsTrue(point1!=null);
@@ -141,17 +143,21 @@ public class Tests
     public void LaserLinesInsertion_NOINSERTION()
     {
         Assert.IsTrue(point4==null);
-    }
-    //[Test]
-    /*public void CarGen()
+    }*/
+
+
+
+
+    [Test]
+    public void CarGen()
     {
         Assert.IsTrue(scans.CarsArray.Count>=0);
-    }*/
+    }
     [Test]
     public void addbufer()
     {
         Assert.IsTrue(MyConcurrentQueue.IsFull);
-    } 
+    }
     //Проверяет концептуальное наличие машинок, 
     private bool Cars(){
         for(int i = 0; i < MyINTConcurrentQueue._buffer.Length; i++){
@@ -170,14 +176,31 @@ public class Tests
         }
         return false;
     }
+
+
     [Test]
-    public void CreatedCars()
+    public void TRUEisfirstPointIntersectionSegmentZERO()
     {
         Assert.IsTrue(Cars());
     } 
     [Test]
+    public void TRUEisfirstPointIntersectionSegmentNOZERO()
+    {
+        Assert.IsTrue(Cars());
+    }
+
+
+
+
+
+    [Test]
+    public void CreatedCars()
+    {
+        Assert.IsTrue(Cars());
+    }
+    [Test]
     public void ISCarsInBuferTRUE()
     {
         Assert.IsTrue(CarsInArray());
-    } 
+    }
 }

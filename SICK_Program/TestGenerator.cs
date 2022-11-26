@@ -44,7 +44,7 @@ namespace Sick_test
             ray = new line[(int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution)];
             for(int i = 0; i < (int)((scaner.Settings.EndAngle-scaner.Settings.StartAngle)/scaner.Settings.Resolution); i++){
                 ray[i] = new line();
-                ray[i].createLine(new PointXYint(){X = scaner.Transformations.HorisontalOffset, Y = scaner.Transformations.Height}, scaner.Transformations.CorrectionAngle);
+                ray[i].createLine(scanerpoint, (scaner.Transformations.CorrectionAngle-(scaner.Settings.Resolution*i)));
             }//Создание "лучей" сканера
 
 
@@ -68,11 +68,6 @@ namespace Sick_test
             RoadPointWithCars = new PointXYint[ray.Length];
             for(int i = 0; i<ray.Length; i++){
                 RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
-                if((RoadPointWithCars[i].X==2500)&(RoadPointWithCars[i].Y==1500)){
-                    
-                }else{
-                    //Console.WriteLine(i);
-                }
             }
 
 
@@ -84,7 +79,7 @@ namespace Sick_test
             }
             RoadDistance = new int[RoadPoints.Length];
             for(int i=0;i<RoadPoints.Length; i++){
-                RoadDistance[i] = (int)Math.Sqrt(((RoadPoints[i].X-scanerpoint.X)*(RoadPoints[i].X-scanerpoint.X))+((RoadPoints[i].Y-scanerpoint.Y)*(RoadPoints[i].Y-scanerpoint.Y)));
+                RoadDistance[i] = (int)Math.Sqrt(((RoadPoints[i].X-scanerpoint.X)^2)+((RoadPoints[i].Y-scanerpoint.Y)^2));
             }
 
             iter = 0;
@@ -99,7 +94,7 @@ namespace Sick_test
 
         public int[] createscan(){
             nextPosition();
-            if(period >= iter*2){
+            if(period <= iter*2){
                 return RoadDistanceWithCars;
             }else{
                 return RoadDistance;

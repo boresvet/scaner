@@ -123,7 +123,6 @@ namespace Sick_test
                 Тесты для линий если усё пропало
                 */
                 // Read the stream as a string, and write the string to the console.
-            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
             TimeBuffer times = new TimeBuffer(300);
 
             //var InputEvent = new ManualResetEvent(false);
@@ -393,7 +392,6 @@ namespace Sick_test
 
             
             var GroundScan = new Scan();
-            Scanint qwer;
             var ScansArray = new Scanint[MyConcurrentQueue.Length];
             for(var i = 0; i<MyConcurrentQueue.Length; i++){
                 ScansArray[i] = new Scanint(286);
@@ -718,8 +716,8 @@ namespace Sick_test
         }
 
         private static void TestInputTask(config config, inputTheard Inputs, ManualResetEvent ExitEvent, int scannumber){
-            while(true){
-                try{
+            //while(true){
+                //try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
                     var lms = new TestGenerator(config, scannumber); 
@@ -768,12 +766,12 @@ namespace Sick_test
                         Console.Write("Принят скан от сканера  ");
                         Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
-                }
-                catch{
+                //}
+                /*catch{
                     Inputs.ErrorEvent.Set();
                     Inputs.InputEvent.Set();
-                }
-            }
+                }*/
+            //}
         }
     }
 }
