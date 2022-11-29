@@ -167,5 +167,10 @@ namespace Sick_test
                 _tail = NextPosition(_tail);
             }
         }
+
+        //Тестовая штука, проверяет, чтобы случайно время во всех сканах не было одним и тем же
+        public bool istimesgood(){
+            return(_buffer[_head].secondArray[0].Time == _buffer[_tail].secondArray[0].Time);
+        }
     }
 }

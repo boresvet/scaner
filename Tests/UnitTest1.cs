@@ -20,6 +20,8 @@ public class Tests
     double? point3, point4;
     line[] testlinestexture;
     line[] scanerrays;
+    TimeBuffer times;
+
     CircularBuffer<Scanint> MyConcurrentQueue;
     CircularBuffer<int[]> MyINTConcurrentQueue;
 
@@ -95,7 +97,110 @@ public class Tests
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                         i++;
                     }
+
+
+
+
+        //Обработка дороги для поиска машинок
+
+
+            times = new TimeBuffer(10000);
+
+
+            var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
+            for(int p = 0; p < pointsSortTable.Length; p++){
+                pointsSortTable[p] = new PointXYint[0];
+            }    
+            var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
+            var scans = new Scanint[MyConcurrentQueue._buffer.Length];
+            scans = MyConcurrentQueue._buffer;
+            foreach(Scanint RoadScan in scans){
+                var j = 0;
+                while(j<RoadScan.pointsArray.Length){
+                    if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
+                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
+                    }
+                    j++;
+                }
+                var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
+                var CarArray = AddAllIslandLane(FilteredPoints);
+                times.SaveSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
+            }
+
+            times.bufferTimes()[0] = DateTime.Now;
+            times.bufferTimes()[1] = DateTime.Today;
     }
+
+
+
+        public static int[] AddLineIsland(int[] input, int startpoint, int endpoint){
+
+            /*
+            Тут происходит дозапоолнение массива между двумя точками. 
+            На входе: три варианта значения
+            -1 - в этом столбе нет ни одной точки
+            0 - в этом столбе есть точки, но все они являются "землёй"
+            >0 - в этом столбе есть точка "машины" - даже если есть и другие точки, то сохранена только самая высокая
+
+
+
+            Фишка в том, что такой метод позволит обработать практический любые потери данных. 
+            Если на дороге лужа - то точек в неё не попадает, и так как мы берём ближайшие точки, и "дозаполняем" лужу данными. 
+            Если крыша машины слишком сильно блестит - то то же самое. 
+            Если с одной стороны "провала" есть машина, а с другой её нет, то все точки заполняются "землёй"
+            Если с одной стороны бесконечность(то есть край дороги), то все точки до ближайшей считаются землёй
+            */
+            var start = input[startpoint];
+            var end = input[endpoint];
+            if((start == -1)&(end == 0)){
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
+            }
+            if((start == -1)&(end > 0)){
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
+            }
+            if((start == -1)&(end == -1)){
+                Array.Fill(input, 0, startpoint, endpoint-startpoint+1);
+            }
+            if((start == 0)&(end == -1)){
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+            }
+            if((start == 0)&(end == 0)){
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
+            }
+            if((start == 0)&(end > 0)){
+                Array.Fill(input, 0, startpoint, endpoint-startpoint);
+            }
+            if((start > 0)&(end == 0)){
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
+            }
+            if((start > 0)&(end > 0)){
+                for(int i = startpoint; i < endpoint; i++){
+                    input[i] = start + ((end-start)/input.Length*i);
+                }
+            }
+            if((start > 0)&(end == -1)){
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+            }
+            return input;
+        }
+        private static int[] AddAllIslandLane(int[] input){
+            /*
+            Эта штука "дозаполняет" все имеющиеся точки дороги до монолитного результата, удаляя все бесконечности. 
+            То есть с начала - она от левого края идёт до ближайшей точки. Находит точку, и массив до ней дозаполняет по правилам(см. AddLineIsland)
+            Потом - от первой точки до второй, и т.д. 
+            И так до самого конца, чтобы получить полноценную картину распределения точек
+            */
+            var start = 0;
+            for(int i = 0; i < input.Length; i++){
+                if((input[i]>=0)|(i==input.Length-1)){
+                    AddLineIsland(input,start,i);
+                    start = i;
+                }
+
+            }
+            return input.ToArray();
+        }
+
 
     [Test]
     public void TRUE()
@@ -151,7 +256,7 @@ public class Tests
     [Test]
     public void CarGen()
     {
-        Assert.IsTrue(scans.CarsArray.Count>=0);
+        Assert.IsTrue(MyConcurrentQueue.IsFull);
     }
     [Test]
     public void addbufer()
@@ -203,4 +308,19 @@ public class Tests
     {
         Assert.IsTrue(CarsInArray());
     }
+
+
+
+//Проверяет заполненность буфера времени
+    [Test]
+    public void Timebuffercreated()
+    {
+        Assert.IsTrue(times.MyLeanth>=0);
+    }
+    [Test]
+    public void buffertimes()
+    {
+        Assert.IsFalse(times.istimesgood());
+    }
+    
 }

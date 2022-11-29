@@ -268,6 +268,10 @@ namespace Sick_test
                     
                     return;
                 }
+
+                WaitHandle.WaitAny(Inputs.InputEvent);
+                WaitHandle.WaitAll(Inputs.InputEvent, 50);
+
                 if((WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0)|(trig)) {
                     for(int i = 0; i<Inputs.ErrorEvent.Length; i++){
                         WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0)==false);
@@ -275,8 +279,6 @@ namespace Sick_test
                     }
                 }
                 RoadScan = new Scanint(0);
-                WaitHandle.WaitAny(Inputs.InputEvent);
-                WaitHandle.WaitAll(Inputs.InputEvent, 50);
                 for(int i = 0; i<Inputs.InputEvent.Length; i++){
                     /*if(InputEvent[i].WaitOne(0)){
                     }else{

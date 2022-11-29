@@ -94,6 +94,7 @@ namespace Sick_test
 
         public int[] createscan(){
             nextPosition();
+            Thread.Sleep(3);
             if(period <= iter*2){
                 return RoadDistanceWithCars;
             }else{
