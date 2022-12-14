@@ -10,28 +10,30 @@ namespace Sick_test
         private int[] filterMax;
         private int[] filterMin;
         private RoadSetting Settings;
+        private int FilteredHeight;
         ///<summary>///Формирует массивы граничных значений для каждого Х
         ///<param name = "roadLenght">Ширина дороги (количество столбцов)</param>
         ///<param name = "settings">Конфигурация дороги</param>
         ///</summary>
-        public Filter(int roadLenght, RoadSetting settings)
+        public Filter(int roadLenght, config settings)
 		{
+            FilteredHeight = settings.FilteredHeight;
             RoadLenght = roadLenght;
-            Settings = settings;
+            Settings = settings.RoadSettings;
             filterMax = new int[RoadLenght];
             filterMin = new int[RoadLenght];
             for(int i = 0; i<RoadLenght; i++){
-                filterMax[i] = settings.UpLimit;
+                filterMax[i] = settings.RoadSettings.UpLimit;
                 filterMin[i] = minFilter(i);
             }
 		}
         private int minFilter(int indexofrange){
             foreach(Blind j in Settings.Blinds){
                 if(((Settings.LeftLimit+(((Settings.RightLimit-Settings.LeftLimit)/RoadLenght)*indexofrange))>j.Offset)&((Settings.LeftLimit+(((Settings.RightLimit-Settings.LeftLimit)/RoadLenght)*indexofrange))<(j.Offset+j.Width))){
-                    return j.Height;
+                    return j.Height + FilteredHeight;
                 }
             }
-            return Settings.DownLimit;
+            return Settings.DownLimit + FilteredHeight;
         }
         ///<summary>///Возвращает массив столбцов, фильтруя лишние точки
         ///<param name = "array">Массив столбцов</param>

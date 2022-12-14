@@ -212,7 +212,7 @@ namespace Sick_test
             //var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             Scanint RoadScan;// = new Scanint(0);
             WaitHandle.WaitAll(Inputs.InputEvent);
-            var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config.RoadSettings);
+            var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config);
 
 
 
@@ -313,7 +313,7 @@ namespace Sick_test
                     LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
                 }
                 RoadEvent.Set();*/
-                times.SaveSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
+                times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
 
 
 

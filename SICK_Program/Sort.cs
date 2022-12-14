@@ -33,6 +33,9 @@ namespace Sick_test
         ///</summary>   
 		public static void HoareSort(PointXYint[] array)
 		{
+			if (array.Length == 0){
+				return;
+			}
 			HoareSort(array, 0, array.Length - 1);
 		}
     }

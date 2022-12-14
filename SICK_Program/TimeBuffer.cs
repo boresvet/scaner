@@ -43,7 +43,9 @@ namespace Sick_test
             secondArray = new List<SuperScan>();
         }
         public void AddSuperScan(SuperScan input){
-            secondArray.Add(input);
+            SuperScan _input = new SuperScan();
+            _input = input;
+            secondArray.Add(_input);
         }
         public DateTime NowBufferTime(){
             if(secondArray.Count==0){
@@ -55,7 +57,7 @@ namespace Sick_test
     }
     ///<summary>Круговой буфер с машинками
     ///</summary>  
-    public class TimeBuffer{
+    public class TimeBuffer1{
         public Second[] _buffer;
         int _head;
         int _tail;
@@ -63,7 +65,7 @@ namespace Sick_test
         int _buffersize;
         Object _lock = new object ();
 
-        public TimeBuffer(int timesize){
+        public TimeBuffer1(int timesize){
             _length = 0;
             _buffer = new Second[timesize];
             _buffersize = timesize;
@@ -132,7 +134,9 @@ namespace Sick_test
                         _buffer[_head].AddSuperScan(toadd);
                     }else{
                         _head = NextPosition(_head);
-                        _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){toadd}}; 
+                        SuperScan _toadd = new SuperScan();
+                        _toadd = toadd;
+                        _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){_toadd}}; 
                         if(IsFull)
                             _tail = NextPosition(_tail);
                         else 

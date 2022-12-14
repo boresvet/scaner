@@ -25,6 +25,8 @@
     ///</summary>
     public class config{
         public bool Test { get; set; }
+        ///<summary> Высота от полотна дороги, по которой будет определяться машина>
+        public int FilteredHeight { get; set; }
         ///<summary>позволяет описать все особенности дороги</summary>
         public RoadSetting RoadSettings { get; set; }
         ///<summary>описывает все сканеры(их настройки)</summary>
