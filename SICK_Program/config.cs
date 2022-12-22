@@ -24,8 +24,13 @@
     ///<summary>Информация о всех сканерфх, дороге, полосах и различных неровностях
     ///</summary>
     public class config{
+        ///<summary> Вкл/Выкл тестовый режим(режим генерации псевдоданных со сканеров по введённой дороге)</summary>
         public bool Test { get; set; }
-        ///<summary> Высота от полотна дороги, по которой будет определяться машина>
+        ///<summary> Глобальный метод поиска машинок(обработки границ и т.д.)</summary>
+        public string Method { get; set; }
+        ///<summary> Задаёт минимальные размеры машинок (необходимо для фильтрации птичек/веточек/идиотов с дроном и прочих неприятностей)</summary>
+        public SortSettings SortSettings { get; set; }
+        ///<summary> Высота от полотна дороги, по которой будет определяться машина</summary>
         public int FilteredHeight { get; set; }
         ///<summary>позволяет описать все особенности дороги</summary>
         public RoadSetting RoadSettings { get; set; }
@@ -92,4 +97,10 @@
         public int HorisontalOffset { get; set; }
         ///<summary>угол отклонения от горизонтали</summary>
         public int CorrectionAngle { get; set; }
+    }
+    public class SortSettings{
+        ///<summary>Минимальная ширина машины</summary>
+        public int MinWigdh { get; set; }
+        ///<summary>Минимальная длинна машины</summary>
+        public int MinLength { get; set; }
     }

@@ -213,6 +213,7 @@ namespace Sick_test
             for(int i = 0; i<points.Length; i++){
                 points[i] = DistancetopointSegment(startpoint, Laser, AllTexturesLines[i]);
             }
+
             var nonullpoints = Array.FindAll(points, point => (point!=null));
             if(nonullpoints.Length>0){
                 var distance = mindistance(nonullpoints);
@@ -297,8 +298,7 @@ namespace Sick_test
             }else{
                 PointXYint endpoint = pointIntersectionint(Laser, TexturesLines);
                 ret = (int)Math.Sqrt(((startpoint.X-endpoint.X)*(startpoint.X-endpoint.X))+((startpoint.Y-endpoint.Y)*(startpoint.Y-endpoint.Y)));
-                if((endpoint.X<=TexturesLines.EndPointint.X)&(endpoint.X>=TexturesLines.StartPointint.X)){
-                    
+                if(((endpoint.X<TexturesLines.EndPointint.X)&(endpoint.X>TexturesLines.StartPointint.X))){
                     return ret;
                 }
                 

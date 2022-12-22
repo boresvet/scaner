@@ -38,7 +38,7 @@ namespace Sick_test
         ///</summary>   
         public PointXY translate(PointXY input){
             input.X = input.X + ZeroPoint.X;
-            input.Y = input.Y + ZeroPoint.Y;
+            input.Y = ZeroPoint.Y - input.Y;
             return input;
         }
         ///<summary>Перенос точки в новую систему
@@ -46,7 +46,7 @@ namespace Sick_test
         ///</summary>  
         public PointXYint translate(PointXYint input){
             input.X = input.X + ZeroPointint.X;
-            input.Y = input.Y + ZeroPointint.Y;
+            input.Y = ZeroPointint.Y - input.Y;
             return input;
         }
         ///<summary>Перенос массива точек в новую систему

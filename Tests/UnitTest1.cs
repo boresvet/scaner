@@ -15,15 +15,19 @@ namespace Sick_test;
 
 public class Tests
 {
+    int[] CarArray;
+    config config;
     IslandSeach scans;
     int? point1, point2;
     double? point3, point4;
     line[] testlinestexture;
     line[] scanerrays;
     TimeBuffer times;
+    TimeBuffer times1;
 
     CircularBuffer<Scanint> MyConcurrentQueue;
-    CircularBuffer<int[]> MyINTConcurrentQueue;
+    CircularBuffer<Scanint> MyConcurrentQueue1;
+    //CircularBuffer<int[]> MyINTConcurrentQueue;
 
     [SetUp]
     public void Setup()
@@ -53,13 +57,15 @@ public class Tests
 
         //Тесты логики(генерации машинок)
         //Создание тестовой машинки
-                    var ReadFile = File.ReadAllText("../../../../SICK_Program/config.json");
+                    var ReadFile= File.ReadAllText("../../../../SICK_Program/config.json");
 
                     //Console.WriteLine(ReadFile);
-                    config config = JsonSerializer.Deserialize<config>(ReadFile);
+                    config = JsonSerializer.Deserialize<config>(ReadFile);
                     var Inputs = new AllInput(config).inputClass[0];
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
-                    var lms = new TestGenerator(config, 0); 
+                    var lms = new TestGenerator(config, 0, 30); 
+                    var lms1 = new TestGenerator(config, 0, 3000); //На маленьком промежутке не создаст машин
+
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
@@ -69,23 +75,31 @@ public class Tests
                     //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
                     
                     var res = lms.createscan();
+                    var res1 = lms1.createscan();
+
                     PointXYint[] y123 = new PointXYint[step];
                     y123 = translator.Translate(Conv.MakePoint(res));
                     var Scan = new Scanint{
                         pointsArray = y123,
                         time = DateTime.Now
                     };
+                    var Scan1 = new Scanint{
+                        pointsArray = new PointXYint[step],
+                        time = DateTime.Now
+                    };
                     int i = 0;
-                    MyConcurrentQueue = new CircularBuffer<Scanint>(10000);
-                    MyINTConcurrentQueue = new CircularBuffer<int[]>(10000);
+                    MyConcurrentQueue = new CircularBuffer<Scanint>(100);
+                    MyConcurrentQueue1 = new CircularBuffer<Scanint>(100);
+                    //MyINTConcurrentQueue = new CircularBuffer<int[]>(100);
 
-                    while(i < 10000){
+                    while(i < 100){
                         res = lms.createscan();
-                        MyINTConcurrentQueue.Enqueue(res);
+                        res1 = lms1.createscan();
+                        //MyINTConcurrentQueue.Enqueue(res);
 
 
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X==0)&(point.Y==0)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X!=0)|(point.Y!=0)));
                         
                         
                         //Эта штука конвертирует скан из радиальных координат в ХУ, 
@@ -93,6 +107,9 @@ public class Tests
                         //Потом - транслирует все точки в общую систему  координат дороги
                         
                         MyConcurrentQueue.Enqueue(Scan);
+                        Scan1.time = DateTime.Now;
+                        Scan1.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res1), point => (point.X!=0)|(point.Y!=0)));
+                        MyConcurrentQueue1.Enqueue(Scan1);
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                         i++;
@@ -104,21 +121,23 @@ public class Tests
         //Обработка дороги для поиска машинок
 
 
-            times = new TimeBuffer(10000);
+            times = new TimeBuffer(100);
 
-
-            /*var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
+            var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
             for(int p = 0; p < pointsSortTable.Length; p++){
                 pointsSortTable[p] = new PointXYint[0];
-            }    
+            }
             var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config);
             var scans = new Scanint[MyConcurrentQueue._buffer.Length];
             scans = MyConcurrentQueue._buffer;
             foreach(Scanint RoadScan in scans){
                 var j = 0;
-                while(j<RoadScan.pointsArray.Length){
-                    if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
-                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
+                var rest = new Scanint(0);
+                rest.pointsArray = rest.pointsArray.Concat(RoadScan.pointsArray).ToArray();
+                rest.time = RoadScan.time;
+                while(j<rest.pointsArray.Length){
+                    if((rest.pointsArray[j].X>config.RoadSettings.LeftLimit)&(rest.pointsArray[j].X<config.RoadSettings.RightLimit)){
+                        pointsSortTable[(int)((rest.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable[(int)((rest.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(rest.pointsArray[j].ToArray()).ToArray();//Навернуть логику
                     }
                     j++;
                 }
@@ -127,8 +146,32 @@ public class Tests
                 times.SaveSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
             }
 
-            times.bufferTimes()[0] = DateTime.Now;
-            times.bufferTimes()[1] = DateTime.Today;*/
+
+
+
+
+            times1 = new TimeBuffer(100);
+            var pointsSortTable1 = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
+            for(int p = 0; p < pointsSortTable1.Length; p++){
+                pointsSortTable1[p] = new PointXYint[0];
+            }    
+            var scans1 = new Scanint[MyConcurrentQueue._buffer.Length];
+            scans1 = MyConcurrentQueue._buffer;
+            foreach(Scanint RoadScan in scans1){
+                var j = 0;
+                var rest = new Scanint(0);
+                rest.pointsArray = rest.pointsArray.Concat(RoadScan.pointsArray).ToArray();
+                rest.time = RoadScan.time;
+                while(j<rest.pointsArray.Length){
+                    if((rest.pointsArray[j].X>config.RoadSettings.LeftLimit)&(rest.pointsArray[j].X<config.RoadSettings.RightLimit)){
+                        pointsSortTable1[(int)((rest.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable1[(int)((rest.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(rest.pointsArray[j].ToArray()).ToArray();//Навернуть логику
+                    }
+                    j++;
+                }
+                var FilteredPoints = pointsfilter.CarPoints(pointsSortTable1);
+                var CarArray = AddAllIslandLane(FilteredPoints);
+                times1.SaveSuperScan(new SuperScan(CarArray, pointsSortTable1, rest.time));
+            }
     }
 
 
@@ -162,7 +205,7 @@ public class Tests
                 Array.Fill(input, 0, startpoint, endpoint-startpoint+1);
             }
             if((start == 0)&(end == -1)){
-                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             if((start == 0)&(end == 0)){
                 Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
@@ -179,7 +222,7 @@ public class Tests
                 }
             }
             if((start > 0)&(end == -1)){
-                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             return input;
         }
@@ -254,7 +297,7 @@ public class Tests
 
 
 
-
+/*
     [Test]
     public void CarGen()
     {
@@ -265,8 +308,8 @@ public class Tests
     {
         Assert.IsTrue(MyConcurrentQueue.IsFull);
     }
-    //Проверяет концептуальное наличие машинок, 
-    private bool Cars(){
+    //Проверяет концептуальное наличие машинок от генератора
+    /*private bool Cars(){
         for(int i = 0; i < MyINTConcurrentQueue._buffer.Length; i++){
             if(MyINTConcurrentQueue._buffer[i].Sum() > 0){
                 return true;
@@ -282,10 +325,10 @@ public class Tests
             }
         }
         return false;
-    }
+    }*/
 
 
-    [Test]
+/*    [Test]
     public void TRUEisfirstPointIntersectionSegmentZERO()
     {
         Assert.IsTrue(Cars());
@@ -294,13 +337,13 @@ public class Tests
     public void TRUEisfirstPointIntersectionSegmentNOZERO()
     {
         Assert.IsTrue(Cars());
-    }
+    }*/
 
 
 
 
 
-    [Test]
+/*    [Test]
     public void CreatedCars()
     {
         Assert.IsTrue(Cars());
@@ -309,7 +352,7 @@ public class Tests
     public void ISCarsInBuferTRUE()
     {
         Assert.IsTrue(CarsInArray());
-    }
+    }*/
 
 
 
@@ -319,10 +362,68 @@ public class Tests
     {
         Assert.IsTrue(times.MyLeanth>=0);
     }
-    [Test]
+    /*[Test]
     public void buffertimes()
     {
         Assert.IsFalse(times.istimesgood());
+    }*/
+    private bool CarsInTimeBuffer(){
+        SuperScan[] buffer = new SuperScan[times._buffer.Length];
+        buffer = times._buffer;
+        var oldsum = buffer[0].CarIslandLanes.Sum();
+        for(int i = 0; i < times._buffer.Length; i++){
+            if(buffer[i].CarIslandLanes.Sum() != oldsum){
+                return true;
+            }
+        }
+        return false;
     }
-    
+    private bool CarsInTime1Buffer(){
+        SuperScan[] buffer = new SuperScan[times1._buffer.Length];
+        buffer = times1._buffer;
+        var oldsum = buffer[0].CarIslandLanes.Sum();
+        for(int i = 0; i < times1._buffer.Length; i++){
+            if(buffer[i].CarIslandLanes.Sum() != oldsum){
+                return true;
+            }
+        }
+        return false;
+    }
+    /*
+    private bool carFromFilter(){
+        SuperScan[] buffer = new SuperScan[times1._buffer.Length];
+        buffer = times1._buffer;
+        var oldsum = buffer[0].CarIslandLanes.Sum();
+        for(int i = 0; i < times1._buffer.Length; i++){
+            if(buffer[i].CarIslandLanes.Sum() != oldsum){
+                return true;
+            }
+        }
+        return false;
+    }
+    private bool carBeforeFilter(){
+        for(int i = 0; i < CarArray.Length; i++){
+            if(MyINTConcurrentQueue._buffer[i].Sum() > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    [Test]
+    public void CarFromFilter()
+    {
+        Assert.IsTrue((carBeforeFilter())==(carFromFilter()));
+    }*/
+    [Test]
+    public void carsInTimeBuffer()
+    {
+        Assert.IsTrue(CarsInTimeBuffer());
+    }
+    [Test]
+    public void carsInTime1Buffer()
+    {
+        Assert.IsFalse(CarsInTime1Buffer());
+    }
 }
+

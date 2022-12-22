@@ -86,10 +86,10 @@ namespace Sick_test
         {
             while(true)
             {
+                var mycarsseach = new IslandSeach(config);
                 var context = listener.GetContext();
                 var request = context.Request;
 
-                var mycarsseach = new IslandSeach(config);
                 var timesArray = times.ReadFullArray();
                 var time = times.bufferTimes();
 
@@ -133,6 +133,7 @@ namespace Sick_test
                 //Она СОЗДАСТ массив машинок
                 //Его можно забрать из класса
                 //mycarsseach.CarArrays(second, timesArray);
+                mycarsseach.Seach(timesArray);
                 var cars = mycarsseach.CarsArray;
                 var jsonret = new string("");
 

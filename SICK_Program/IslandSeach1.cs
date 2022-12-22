@@ -596,6 +596,8 @@ namespace Sick_test
         public DateTime starttime { get; set; }
         public DateTime endtime { get; set; }
         public int[][] cararray { get; set; }
+        public int[] leftindexborders { get; set; }
+        public int[] rightindexborders { get; set; }
         public CarArraySize(){
         }
     }
@@ -681,18 +683,168 @@ namespace Sick_test
         public void remoovecar(SuperScan[] input){
             for(int i = 0; i < (upborder-downborder+1); i++){
                 for(int j = leftindexborders[i]; j < rightindexborders[i]; j++){
-                    input[i].CarIslandLanes[j] = 0;
+                    input[i+downborder].CarIslandLanes[j] = 0;
                 }
             }
         }
+
+
+        public CarArraySize CarBorders(SuperScan[] input){
+            var ret = new CarArraySize();
+            ret.leftborder = leftborder;
+            ret.rightborder = rightborder;
+            ret.starttime = input[starttime].Time;
+            ret.endtime = input[starttime + leftindexborders.Length].Time;
+            ret.leftindexborders = leftindexborders;
+            ret.rightindexborders = rightindexborders;
+            return ret;
+        }
     }
 
-
+    public class carRESULT{
+        ///<summary>Время начала машинки </summary>
+        public DateTime Starttime { get; set; }
+        ///<summary>Время конца машинки</summary>
+        public DateTime Endtime { get; set; }
+        ///<summary>Ширина машинки</summary>
+        public int Width { get; set; }
+        ///<summary>Высота машинки</summary>
+        public int Height { get; set; }
+    }
     public class IslandSeach{
         public List<CarArraySize> CarsArray;
-
+        public string method; //метод поиска машинки, бреётся из конфига
+        public int MinLength;
+        public int MinWigdh;
         public IslandSeach(config config){
             CarsArray = new List<CarArraySize>();
+            method = config.Method;
+            MinLength = config.SortSettings.MinLength;
+            MinWigdh = config.SortSettings.MinWigdh;
+            switch (method)
+            {
+                case "primitive":
+                    Console.WriteLine("Установлен режим поиска 'primitive'");
+                    break;
+                default:
+                    Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                    break;
+            }
+        }
+
+        private PointXYint firstcarpoint(SuperScan[] input){
+            var ret = new PointXYint{X = -1, Y = -1};
+                int i = 0;
+                int j = 0;
+                while(i < input.Length){
+                    j = 0;
+                    while(j < input[i].CarIslandLanes.Length){
+                        if(input[i].CarIslandLanes[j]>0){
+                            return new PointXYint{X = j, Y = i};
+                        }
+                        j++;
+                    }
+                    i++;
+                }
+            return ret;
+        }
+
+        private carRESULT primitivealgoritm(islandborders input, SuperScan[] inputscans){
+            var ret = new carRESULT();
+            var lenthArray = new int[input.leftindexborders.Length];
+            for(int i = 0; i < lenthArray.Length; i++){
+                lenthArray[i] = input.rightindexborders[i] - input.leftindexborders[i];
+            }
+            Array.Sort(lenthArray);//Отсортированный массив ширины машины
+
+
+
+            int index = 0;
+            var HeightArray = new int[lenthArray.Sum()];
+            for(int i = input.downborder; i < input.upborder; i++){
+                for(int j = input.leftindexborders[i]; j < input.rightindexborders[i]; j++){
+                    HeightArray[index] = inputscans[i].CarIslandLanes[j];
+                    index++;
+                }
+            }
+            Array.Sort(HeightArray);//Сортировка массива высот машинки
+
+
+
+            if(lenthArray.Length>MinLength){
+
+
+
+                ret.Starttime = inputscans[input.downborder].Time;
+                ret.Endtime = inputscans[input.upborder].Time;
+                ret.Width = lenthArray[(int)(lenthArray.Length - (lenthArray.Length*0.05))];//ТОЛЬКО В УСЛОВНЫХ ЕДИНИЦАХ(Не миллиметры, а "шаги" деления пространства дороги)
+                ret.Height = HeightArray[(int)(HeightArray.Length - (HeightArray.Length*0.05))];
+                //Отбрасываются максимальные точки, т.к. они скорее всего ошибка(та же антенна, + блики)
+                
+                if(MinWigdh>ret.Width){
+                    ret.Width = -1;
+                    ret.Height = -1;
+                }
+                return ret;
+            }else{
+                /*ret.Starttime;
+                ret.Endtime;*/
+                ret.Width = -1;
+                ret.Height = -1;
+            }
+            return ret;
+
+        }
+        private carRESULT primitive(SuperScan[] input){
+            var ret = new carRESULT();
+            var startpoint = firstcarpoint(input);
+
+            if(startpoint.Y != -1){
+                var borders = new islandborders(startpoint.Y, startpoint.X, input);
+                CarsArray.Add(borders.CarBorders(input));
+                ret = primitivealgoritm(borders, input);
+                borders.remoovecar(input);
+            }else{
+                ret.Height = -1;
+                ret.Width = -1;
+            }
+
+
+
+            return ret;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void Seach(SuperScan[] input){
+            int oldHeight = 0;
+            var car = new carRESULT();
+            while(oldHeight != -1){
+                switch (method)
+                {
+                    case "primitive":
+                        car = primitive(input);
+                        oldHeight = car.Height;
+                        break;
+                    default:
+                        Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                        break;
+                }
+            }
         }
     }
 }

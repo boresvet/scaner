@@ -176,5 +176,10 @@ namespace Sick_test
         public bool istimesgood(){
             return(_buffer[_head].secondArray[0].Time == _buffer[_tail].secondArray[0].Time);
         }
+        public void createtimeisgood(){
+            _buffer[_tail].secondArray[0].Time = DateTime.Now;
+            _buffer[_head].secondArray[0].Time = DateTime.Now;
+            _buffer[_tail].secondArray[0].Time.AddHours(11);
+        }
     }
 }

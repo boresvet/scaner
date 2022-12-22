@@ -30,11 +30,12 @@ namespace Sick_test
         public int[] RoadDistance;
 
         public int iter;
-        public int period = 3000;
+        public int period;
         public PointXYint[] RoadPoints;
         public PointXYint[] RoadPointWithCars;
 
-        public TestGenerator(config config, int _scanernumber){
+        public TestGenerator(config config, int _scanernumber, int _period){
+            period = _period;
             Config = config;
             scanernumber = _scanernumber;
 
@@ -68,18 +69,22 @@ namespace Sick_test
             RoadPointWithCars = new PointXYint[ray.Length];
             for(int i = 0; i<ray.Length; i++){
                 RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
+                if(RoadPointWithCars[i].X == 2131){
+                    Console.WriteLine("Фигня");
+                    ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
+                }
             }
 
 
 
 
             RoadDistanceWithCars = new int[RoadPointWithCars.Length];
-            for(int i=0;i<RoadPointWithCars.Length; i++){
+            for(int i = 0; i < RoadPointWithCars.Length; i++){
                 RoadDistanceWithCars[i] = (int)Math.Sqrt(((RoadPointWithCars[i].X-scanerpoint.X)*(RoadPointWithCars[i].X-scanerpoint.X))+((RoadPointWithCars[i].Y-scanerpoint.Y)*(RoadPointWithCars[i].Y-scanerpoint.Y)));
             }
             RoadDistance = new int[RoadPoints.Length];
-            for(int i=0;i<RoadPoints.Length; i++){
-                RoadDistance[i] = (int)Math.Sqrt(((RoadPoints[i].X-scanerpoint.X)^2)+((RoadPoints[i].Y-scanerpoint.Y)^2));
+            for(int i = 0; i < RoadPoints.Length; i++){
+                RoadDistance[i] = (int)(Math.Sqrt(((RoadPoints[i].X-scanerpoint.X)*(RoadPoints[i].X-scanerpoint.X))+((RoadPoints[i].Y-scanerpoint.Y)*(RoadPoints[i].Y-scanerpoint.Y))));
             }
 
             iter = 0;
@@ -94,7 +99,7 @@ namespace Sick_test
 
         public int[] createscan(){
             nextPosition();
-            Thread.Sleep(3);
+            //Thread.Sleep(3);
             if(period <= iter*2){
                 return RoadDistanceWithCars;
             }else{

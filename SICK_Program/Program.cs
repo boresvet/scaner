@@ -295,7 +295,9 @@ namespace Sick_test
                     }
                 }
                 Sorts.HoareSort(RoadScan.pointsArray);
-
+                for(var i = 0; i < pointsSortTable.Length; i++){
+                    pointsSortTable[i] = new PointXYint[0];
+                }
 
 
                 int j = 0;
@@ -314,10 +316,7 @@ namespace Sick_test
                 }
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-
-
-
-                Console.WriteLine("Обработан скан дороги");
+                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point!=0)).Length} столбцов с машинками");
             }
         }
 
@@ -490,7 +489,7 @@ namespace Sick_test
                 Array.Fill(input, 0, startpoint, endpoint-startpoint+1);
             }
             if((start == 0)&(end == -1)){
-                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             if((start == 0)&(end == 0)){
                 Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
@@ -507,7 +506,7 @@ namespace Sick_test
                 }
             }
             if((start > 0)&(end == -1)){
-                Array.Fill(input, 0, startpoint+1, endpoint-startpoint+1);
+                Array.Fill(input, 0, startpoint+1, endpoint-startpoint);
             }
             return input;
         }
@@ -690,7 +689,7 @@ namespace Sick_test
 
 
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X==0)&(point.Y==0)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X!=0)&(point.Y!=0)));
                         /*
                         Эта штука конвертирует скан из радиальных координат в ХУ, 
                         потом удаляет все "нули" - точки, совпадающие со сканером 
@@ -722,7 +721,7 @@ namespace Sick_test
                 //try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
-                    var lms = new TestGenerator(config, scannumber); 
+                    var lms = new TestGenerator(config, scannumber, 30); 
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
@@ -738,7 +737,7 @@ namespace Sick_test
                     };
                     var oldscannumber=0;
                     while(true){
-                        if (ExitEvent.WaitOne(100)) {
+                        if (ExitEvent.WaitOne(10)) {
                             return;
                         }
                         res = lms.createscan();
@@ -756,7 +755,7 @@ namespace Sick_test
 
 
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X==0)&(point.Y==0)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X!=0)&(point.Y!=0)));
                         /*
                         Эта штука конвертирует скан из радиальных координат в ХУ, 
                         потом удаляет все "нули" - точки, совпадающие со сканером 

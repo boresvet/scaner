@@ -1,6 +1,12 @@
 {
 "Test": true,
-"FilteredHeight": 50,
+"Method": "primitive",
+"FilteredHeight": 300,
+"SortSettings": 
+{
+	"MinWigdh": 1000,
+    "MinLength": 50
+},
 "RoadSettings": 
 {
     "UpLimit": 7000,
