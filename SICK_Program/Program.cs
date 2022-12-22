@@ -159,7 +159,34 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
+
         static void TServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
+            Thread.Sleep(1000);
+
+            //var res = new Scanint(MyConcurrentQueue.);
+            while(true){
+                if (ExitEvent.WaitOne(0)) {
+                    return;
+                }
+                try
+                {
+                    Thread.Sleep(1000);
+                    var _buffer = new SuperScan[times._buffer.Length];
+                    _buffer = times._buffer;
+                    lock (times._lock)
+                    {
+                        var seach = new IslandSeach(config);
+                        seach.Seach(_buffer);
+                        Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+        static void ServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
             var serv = new Server(new string[] {"127.0.0.0", "9000"});
             while(true){
@@ -721,7 +748,7 @@ namespace Sick_test
                 //try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
-                    var lms = new TestGenerator(config, scannumber, 30); 
+                    var lms = new TestGenerator(config, scannumber, 3); 
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     

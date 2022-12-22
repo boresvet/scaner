@@ -44,7 +44,7 @@ namespace Sick_test
         int _tail;
         int _length;
         int _buffersize;
-        Object _lock = new object ();
+        public Object _lock = new object ();
 
         public TimeBuffer(int timesize){
             _length = 0;

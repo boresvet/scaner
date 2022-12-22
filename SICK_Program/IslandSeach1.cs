@@ -276,30 +276,38 @@ namespace Sick_test
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
         }
 
@@ -308,61 +316,77 @@ namespace Sick_test
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
         }
 
         private void InLeftUpPoint(SuperScan[] input){
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
         }
 
@@ -371,61 +395,77 @@ namespace Sick_test
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
         }
 
         private void InRightUpPoint(SuperScan[] input){
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
         }
 
@@ -433,61 +473,77 @@ namespace Sick_test
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
         }
 
         private void InRightDownPoint(SuperScan[] input){
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
         }
 
@@ -495,66 +551,88 @@ namespace Sick_test
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
         }
 
         private void InLeftDownPoint(SuperScan[] input){
             if(leftpoint(input)>0){
                 leftindex(input);
+                return;
             }
             if(leftuppoint(input)>0){
                 upindex(input);
                 leftindex(input);
+                return;
             }
             if(uppoint(input)>0){
                 upindex(input);
+                return;
             }
             if(rightuppoint(input)>0){
                 upindex(input);
                 rightindex(input);
+                return;
             }
             if(rightpoint(input)>0){
                 rightindex(input);
+                return;
             }
             if(rightdownpoint(input)>0){
                 downindex(input);
                 rightindex(input);
+                return;
             }
             if(downpoint(input)>0){
                 downindex(input);
+                return;
             }
             if(leftdownpoint(input)>0){
                 downindex(input);
                 leftindex(input);
+                return;
             }
+        }
+
+        public void installoldp(){
+            oldXpointCoordinate = XpointCoordinate;
+            oldYpointCoordinate = YpointCoordinate;
         }
 
         public void NextPosition(SuperScan[] input){
             var oldp = whereisoldpoint();
+            installoldp();
             switch (oldp)
             {
                 case Directions.ThisPoint:
@@ -660,7 +738,7 @@ namespace Sick_test
             BorderPoint.NextPosition(input);
             installpoint();
 
-            while(BorderPoint.isitstartpoint()!=false){
+            while(BorderPoint.isitstartpoint()==false){
                 BorderPoint.NextPosition(input);
                 installpoint();
             }
@@ -673,7 +751,7 @@ namespace Sick_test
 
             BorderPoint.NextPosition(input);
             installindex(input);
-            while(BorderPoint.isitstartpoint()!=false){
+            while(BorderPoint.isitstartpoint()==false){
                 BorderPoint.NextPosition(input);
                 installindex(input);
             }
@@ -716,7 +794,9 @@ namespace Sick_test
         public string method; //метод поиска машинки, бреётся из конфига
         public int MinLength;
         public int MinWigdh;
+        config _config;
         public IslandSeach(config config){
+            _config = config;
             CarsArray = new List<CarArraySize>();
             method = config.Method;
             MinLength = config.SortSettings.MinLength;
@@ -749,7 +829,7 @@ namespace Sick_test
             return ret;
         }
 
-        private carRESULT primitivealgoritm(islandborders input, SuperScan[] inputscans){
+        private carRESULT primitivealgoritm(islandborders input, SuperScan[] inputscans, config config){
             var ret = new carRESULT();
             var lenthArray = new int[input.leftindexborders.Length];
             for(int i = 0; i < lenthArray.Length; i++){
@@ -782,15 +862,15 @@ namespace Sick_test
                 //Отбрасываются максимальные точки, т.к. они скорее всего ошибка(та же антенна, + блики)
                 
                 if(MinWigdh>ret.Width){
-                    ret.Width = -1;
-                    ret.Height = -1;
+                    ret.Width = 0;
+                    ret.Height = 0;
                 }
                 return ret;
             }else{
                 /*ret.Starttime;
                 ret.Endtime;*/
-                ret.Width = -1;
-                ret.Height = -1;
+                ret.Width = 0;
+                ret.Height = 0;
             }
             return ret;
 
@@ -801,9 +881,13 @@ namespace Sick_test
 
             if(startpoint.Y != -1){
                 var borders = new islandborders(startpoint.Y, startpoint.X, input);
-                CarsArray.Add(borders.CarBorders(input));
-                ret = primitivealgoritm(borders, input);
+                ret = primitivealgoritm(borders, input, _config);
+                if((ret.Height == 0)&(ret.Width == 0)){
+                }else{
+                    CarsArray.Add(borders.CarBorders(input));
+                }
                 borders.remoovecar(input);
+                //CarsArray.Add(borders.CarBorders(input));
             }else{
                 ret.Height = -1;
                 ret.Width = -1;
