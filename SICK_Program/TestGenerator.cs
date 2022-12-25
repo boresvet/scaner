@@ -69,10 +69,6 @@ namespace Sick_test
             RoadPointWithCars = new PointXYint[ray.Length];
             for(int i = 0; i<ray.Length; i++){
                 RoadPointWithCars[i] = ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
-                if(RoadPointWithCars[i].X == 2131){
-                    Console.WriteLine("Фигня");
-                    ray[i].firstPointIntersectionSegment(scanerpoint, ray[i], cararray);
-                }
             }
 
 

@@ -23,7 +23,7 @@ namespace Sick_test
         /// <br>+------------>  Время(Если время больше, то значение правее)</br>
         /// <br>Соответственно индексу 5 соответствует точка позднее и с бОльшим Х</br>
         /// </summary>
-    public enum Directions1{
+    public enum Directions{
 
 
     Error = -1,
@@ -39,65 +39,72 @@ namespace Sick_test
 
 
     }
-    public class borderPoint1{
-        public int secondIndexInBuffer;
-        public int milisecondIndexInSecond;
+    public class borderPoint{
+        public int YpointCoordinate;
         public int XpointCoordinate;
 
-        public int oldsecondIndexInBuffer;
-        public int oldmilisecondIndexInSecond;
+        public int oldYpointCoordinate;
         public int oldXpointCoordinate;
 
-        public int startsecondIndexInBuffer;
-        public int startmilisecondIndexInSecond;
+        public int startYpointCoordinate;
         public int startXpointCoordinate;
 
-        public borderPoint1(int _secondIndexInBuffer, int _milisecondIndexInSecond, int _XpointCoordinate){
-            secondIndexInBuffer = _secondIndexInBuffer;
-            milisecondIndexInSecond = _milisecondIndexInSecond;
+
+        //X - горизонтальное расположение в скане
+        //Y - шкала времени
+        public borderPoint(int _YpointCoordinate, int _XpointCoordinate){
+            YpointCoordinate = _YpointCoordinate;
             XpointCoordinate = _XpointCoordinate;
 
-            oldsecondIndexInBuffer = _secondIndexInBuffer;
-            oldmilisecondIndexInSecond = _milisecondIndexInSecond;
+            oldYpointCoordinate = _YpointCoordinate;
             oldXpointCoordinate = _XpointCoordinate;
 
-            startsecondIndexInBuffer = _secondIndexInBuffer;
-            startmilisecondIndexInSecond = _milisecondIndexInSecond;
+            startYpointCoordinate = _YpointCoordinate;
             startXpointCoordinate = _XpointCoordinate;            
         }
 
+
+
+
+        //Внешняя проверка на то, является ли точка крайней правой
+        public bool ispointright(SuperScan[] input){
+            return rightpoint(input)==0;
+        }
+        //Внешняя проверка на то, является ли точка крайней левой
+        public bool ispointleft(SuperScan[] input){
+            return leftpoint(input)==0;
+        }
+
+
+
+
+
         public bool isitstartpoint(){
-            return ((startsecondIndexInBuffer==secondIndexInBuffer)&(startmilisecondIndexInSecond==milisecondIndexInSecond)&(startXpointCoordinate==XpointCoordinate));
+            return ((startYpointCoordinate == YpointCoordinate)&&(startXpointCoordinate == XpointCoordinate));
         }
 
-        public DateTime time(Second[] input){
-            return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].Time;
+        public DateTime time(SuperScan[] input){
+            return input[YpointCoordinate].Time;
         }
 
 
-        private void upindex(Second[] input){
-            if(input[secondIndexInBuffer].secondArray.Count>milisecondIndexInSecond+1){
-                milisecondIndexInSecond++;
-            }else{
-                secondIndexInBuffer++;
-                milisecondIndexInSecond = 0;
+        private void upindex(SuperScan[] input){
+            if(input.Length-YpointCoordinate>1){
+                YpointCoordinate++;
             }
         }
-        private void downindex(Second[] input){
-            if(milisecondIndexInSecond>0){
-                milisecondIndexInSecond--;
-            }else{
-                secondIndexInBuffer--;
-                milisecondIndexInSecond = input[secondIndexInBuffer].secondArray.Count-1;
+        private void downindex(SuperScan[] input){
+            if(YpointCoordinate>0){
+                YpointCoordinate--;
             }
         }
-        private void leftindex(Second[] input){
+        private void leftindex(SuperScan[] input){
             if(XpointCoordinate>0){
                 XpointCoordinate--;
             }
         }
-        private void rightindex(Second[] input){
-            if(XpointCoordinate<(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+        private void rightindex(SuperScan[] input){
+            if(input[0].CarIslandLanes.Length-XpointCoordinate>1){
                 XpointCoordinate++;
             }
         }
@@ -105,94 +112,72 @@ namespace Sick_test
 
 
 
-        private int leftpoint(Second[] input){
+        private int leftpoint(SuperScan[] input){
             if(XpointCoordinate==0){
                 return 0;
             }else{
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes[XpointCoordinate-1];
+                return input[YpointCoordinate].CarIslandLanes[XpointCoordinate-1];
             }
         }
-        private int rightpoint(Second[] input){
-            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+        private int rightpoint(SuperScan[] input){
+            if(XpointCoordinate==(input[YpointCoordinate].CarIslandLanes.Length-1)){
                 return 0;
             }else{
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes[XpointCoordinate+1];
+                return input[YpointCoordinate].CarIslandLanes[XpointCoordinate+1];
             }
         }
-        private int uppoint(Second[] input){
-            if((input[secondIndexInBuffer].secondArray.Count==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+        private int uppoint(SuperScan[] input){
+            if(YpointCoordinate==(input.Length-1)){
                 return 0;
-            }
-            if(input[secondIndexInBuffer].secondArray.Count>(milisecondIndexInSecond+1)){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate];
             }else{
-                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate];
+                return input[YpointCoordinate+1].CarIslandLanes[XpointCoordinate];
             }
         }
-        private int downpoint(Second[] input){
-            if((milisecondIndexInSecond == 0)&(secondIndexInBuffer == 0)){
+        private int downpoint(SuperScan[] input){
+            if(YpointCoordinate==0){
                 return 0;
-            }
-            if(milisecondIndexInSecond>0){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate];
             }else{
-                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Count-1].CarIslandLanes[XpointCoordinate];
+                return input[YpointCoordinate-1].CarIslandLanes[XpointCoordinate];
             }
         }
 
 
 
-        private int leftuppoint(Second[] input){
+        private int leftuppoint(SuperScan[] input){
             if(XpointCoordinate==0){
                 return 0;
             }
-            if((input[secondIndexInBuffer].secondArray.Count==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+            if(YpointCoordinate==(input.Length-1)){
                 return 0;
             }
-            if(input[secondIndexInBuffer].secondArray.Count>(milisecondIndexInSecond+1)){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate-1];
-            }else{
-                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate-1];
-            }
+            return input[YpointCoordinate+1].CarIslandLanes[XpointCoordinate-1];
         }
-        private int rightuppoint(Second[] input){
-            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+        private int rightuppoint(SuperScan[] input){
+            if(YpointCoordinate==(input.Length-1)){
                 return 0;
             }
-            if((input[secondIndexInBuffer].secondArray.Count==(milisecondIndexInSecond+1))&(input.Length == secondIndexInBuffer+1)){
+            if(XpointCoordinate==(input[YpointCoordinate+1].CarIslandLanes.Length-1)){
                 return 0;
             }
-            if(input[secondIndexInBuffer].secondArray.Count>(milisecondIndexInSecond+1)){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond+1].CarIslandLanes[XpointCoordinate+1];
-            }else{
-                return input[secondIndexInBuffer+1].secondArray[0].CarIslandLanes[XpointCoordinate+1];
-            }
+            return input[YpointCoordinate+1].CarIslandLanes[XpointCoordinate+1];
         }
-        private int leftdownpoint(Second[] input){
+        private int leftdownpoint(SuperScan[] input){
             if(XpointCoordinate==0){
                 return 0;
             }
-            if((milisecondIndexInSecond==0)&(secondIndexInBuffer==0)){
+            if(YpointCoordinate==0){
                 return 0;
             }
-            if(milisecondIndexInSecond>0){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate-1];
-            }else{
-                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Count-1].CarIslandLanes[XpointCoordinate-1];
-            }
+            return input[YpointCoordinate-1].CarIslandLanes[XpointCoordinate-1];
         }
-        private int rightdownpoint(Second[] input){
-            if(XpointCoordinate==(input[secondIndexInBuffer].secondArray[milisecondIndexInSecond].CarIslandLanes.Length-1)){
+        private int rightdownpoint(SuperScan[] input){
+            if(YpointCoordinate==(input.Length-1)){
                 return 0;
             }
-            if((milisecondIndexInSecond==0)&(secondIndexInBuffer==0)){
+            if(YpointCoordinate==0){
                 return 0;
             }
-            if(milisecondIndexInSecond>0){
-                return input[secondIndexInBuffer].secondArray[milisecondIndexInSecond-1].CarIslandLanes[XpointCoordinate+1];
-            }else{
-                return input[secondIndexInBuffer-1].secondArray[input[secondIndexInBuffer-1].secondArray.Count-1].CarIslandLanes[XpointCoordinate+1];
-            }
+            return input[YpointCoordinate-1].CarIslandLanes[XpointCoordinate+1];
         }
         /*
         Матрица направления на старую точку: 
@@ -205,28 +190,28 @@ namespace Sick_test
         Соответственно индексу 5 соответствует точка позднее и с бОльшим Х
         */
         public Directions LeftsPoints(){
-            if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+            if((oldYpointCoordinate == YpointCoordinate)&&(oldXpointCoordinate < XpointCoordinate)){
                 return Directions.Left;
             }
 
-            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+            if((oldYpointCoordinate > YpointCoordinate)&&(oldXpointCoordinate < XpointCoordinate)){
                 return Directions.UpLeft;
             }
 
-            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+            if((oldYpointCoordinate < YpointCoordinate)&&(oldXpointCoordinate < XpointCoordinate)){
                 return Directions.DownLeft;
             }
             
             return Directions.Error;
         }
         public Directions MediumsPoint(){
-            if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+            if((oldYpointCoordinate == YpointCoordinate)&&(oldXpointCoordinate == XpointCoordinate)){
                 return Directions.ThisPoint;
             }
-            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+            if((oldYpointCoordinate > YpointCoordinate)&&(oldXpointCoordinate == XpointCoordinate)){
                 return Directions.Up;
             }
-            if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+            if((oldYpointCoordinate < YpointCoordinate)&&(oldXpointCoordinate == XpointCoordinate)){
                 return Directions.Down;
             }
             return Directions.Error;
@@ -234,13 +219,13 @@ namespace Sick_test
 
 
         public Directions RightsPoints(){
-                if((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond)){
+                if((oldYpointCoordinate == YpointCoordinate)&&(oldXpointCoordinate > XpointCoordinate)){
                     return Directions.Right;
                 }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond+1))|((oldsecondIndexInBuffer+1==secondIndexInBuffer)&&(secondIndexInBuffer==0))){
+                if((oldYpointCoordinate > YpointCoordinate)&&(oldXpointCoordinate > XpointCoordinate)){
                     return Directions.UpRight;
                 }
-                if(((oldsecondIndexInBuffer==secondIndexInBuffer)&&(milisecondIndexInSecond==oldmilisecondIndexInSecond-1))|((oldsecondIndexInBuffer-1==secondIndexInBuffer)&&(oldsecondIndexInBuffer==0))){
+                if((oldYpointCoordinate < YpointCoordinate)&&(oldXpointCoordinate > XpointCoordinate)){
                     return Directions.DownRight;
                 }
 
@@ -264,13 +249,13 @@ namespace Sick_test
 
 
 
-
-        public void GoToLeftBorder(Second[] input){
+        //Переводит указатель к границе МАШИНЫ
+        public void GoToLeftBorder(SuperScan[] input){
             while(leftpoint(input) > 0){
                 leftindex(input);
             }
         }
-        public void GoToRightBorder(Second[] input){
+        public void GoToRightBorder(SuperScan[] input){
             while(rightpoint(input) > 0){
                 rightindex(input);
             }
@@ -287,427 +272,685 @@ namespace Sick_test
             Стартовая точка, ноль
             Просто идёт в рандомную сторону
         */
-        private void InThisPoint(Second[] input){
-            if(leftuppoint(input)>0){
+        private void InThisPoint(SuperScan[] input){
+            if((leftuppoint(input)>0)&&(leftpoint(input) == 0)){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&(leftuppoint(input) == 0)){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&(uppoint(input) == 0)){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&(rightuppoint(input) == 0)){
                 rightindex(input);
+                return;
             }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&(rightdownpoint(input) == 0)){
                 downindex(input);
+                return;
             }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&(downpoint(input) == 0)){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&(leftdownpoint(input) == 0)){
                 leftindex(input);
+                return;
             }
         }
 
 
-        private void InLeftPoint(Second[] input){
-            if(leftuppoint(input)>0){
+        private void InLeftPoint(SuperScan[] input){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
             }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
+                return;
             }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
+            }
+
+
+        }
+
+        private void InLeftUpPoint(SuperScan[] input){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+                upindex(input);
+                return;
+            }
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+                upindex(input);
+                rightindex(input);
+                return;
+            }
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+                rightindex(input);
+                return;
+            }
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+                downindex(input);
+                rightindex(input);
+                return;
+            }
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+                downindex(input);
+                return;
+            }
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+                downindex(input);
+                leftindex(input);
+                return;
+            }
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+                leftindex(input);
+                return;
+            }
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+                upindex(input);
+                leftindex(input);
+                return;
             }
         }
 
-        private void InLeftUpPoint(Second[] input){
-            if(uppoint(input)>0){
-                upindex(input);
-            }
-            if(rightuppoint(input)>0){
+
+        private void InUpPoint(SuperScan[] input){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
             }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
+                return;
             }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
+            }
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+                upindex(input);
+                return;
             }
         }
 
-
-        private void InUpPoint(Second[] input){
-            if(rightuppoint(input)>0){
-                upindex(input);
+        private void InRightUpPoint(SuperScan[] input){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
-                rightindex(input);
-            }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
+                return;
             }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
+            }
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+                upindex(input);
+                rightindex(input);
+                return;
             }
         }
 
-        private void InRightUpPoint(Second[] input){
-            if(rightpoint(input)>0){
-                rightindex(input);
-            }
-            if(rightdownpoint(input)>0){
+        private void InRightPoint(SuperScan[] input){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
+                return;
             }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
+            }
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+                rightindex(input);
+                return;
             }
         }
 
-        private void InRightPoint(Second[] input){
-            if(rightdownpoint(input)>0){
+        private void InRightDownPoint(SuperScan[] input){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
-                rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
-                downindex(input);
-            }
-            if(leftdownpoint(input)>0){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
+            }
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+                downindex(input);
+                rightindex(input);
+                return;
             }
         }
 
-        private void InRightDownPoint(Second[] input){
-            if(downpoint(input)>0){
-                downindex(input);
-            }
-            if(leftdownpoint(input)>0){
+        private void InDownPoint(SuperScan[] input){
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
             }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
+            }
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+                downindex(input);
+                return;
             }
         }
 
-        private void InDownPoint(Second[] input){
-            if(leftdownpoint(input)>0){
-                downindex(input);
+        private void InLeftDownPoint(SuperScan[] input){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
                 leftindex(input);
+                return;
             }
-            if(leftpoint(input)>0){
-                leftindex(input);
-            }
-            if(leftuppoint(input)>0){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
+                return;
             }
-            if(uppoint(input)>0){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
                 upindex(input);
+                return;
             }
-            if(rightuppoint(input)>0){
+            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
+                return;
             }
-            if(rightpoint(input)>0){
+            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
                 rightindex(input);
+                return;
             }
-            if(rightdownpoint(input)>0){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
+                return;
             }
-            if(downpoint(input)>0){
+            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
                 downindex(input);
+                return;
+            }
+            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+                downindex(input);
+                leftindex(input);
+                return;
             }
         }
 
-        private void InLeftDownPoint(Second[] input){
-            if(leftpoint(input)>0){
-                leftindex(input);
-            }
-            if(leftuppoint(input)>0){
-                upindex(input);
-                leftindex(input);
-            }
-            if(uppoint(input)>0){
-                upindex(input);
-            }
-            if(rightuppoint(input)>0){
-                upindex(input);
-                rightindex(input);
-            }
-            if(rightpoint(input)>0){
-                rightindex(input);
-            }
-            if(rightdownpoint(input)>0){
-                downindex(input);
-                rightindex(input);
-            }
-            if(downpoint(input)>0){
-                downindex(input);
-            }
-            if(leftdownpoint(input)>0){
-                downindex(input);
-                leftindex(input);
-            }
+        public void installoldp(){
+            oldXpointCoordinate = XpointCoordinate;
+            oldYpointCoordinate = YpointCoordinate;
         }
 
-        public void NextPosition(Second[] input){
+        public void NextPosition(SuperScan[] input){
             var oldp = whereisoldpoint();
+            installoldp();
             switch (oldp)
             {
                 case Directions.ThisPoint:
                     InThisPoint(input);
+                    //Console.WriteLine("Эта");
                     break;
                 case Directions.Left:
                     InLeftPoint(input);
+                    //Console.WriteLine("Левая");
                     break;
                 case Directions.UpLeft:
                     InLeftUpPoint(input);
+                    //Console.WriteLine("Верхнелевая");
                     break;
                 case Directions.Up:
                     InUpPoint(input);
+                    //Console.WriteLine("Верхняя");
                     break;
                 case Directions.UpRight:
                     InRightUpPoint(input);
+                    //Console.WriteLine("Верхнеправая");
                     break;
                 case Directions.Right:
                     InRightPoint(input);
+                    //Console.WriteLine("Правая");
                     break;
                 case Directions.DownRight:
                     InRightDownPoint(input);
+                    //Console.WriteLine("Нижнеправая");
                     break;
                 case Directions.Down:
                     InDownPoint(input);
+                    //Console.WriteLine("Нижняя");
                     break;
                 case Directions.DownLeft:
                     InLeftDownPoint(input);
+                    //Console.WriteLine("Нижнелевая");
                     break;
                 default:
                     //Console.WriteLine($"");
+                    //Console.WriteLine("дефолт");
                     break;
             }
         }
     }
-    public class CarArraySize1{
+    public class CarArraySize{
         public int leftborder { get; set; }
         public int rightborder { get; set; }
         public DateTime starttime { get; set; }
         public DateTime endtime { get; set; }
         public int[][] cararray { get; set; }
-        public CarArraySize1(){
+        public int[] leftindexborders { get; set; }
+        public int[] rightindexborders { get; set; }
+        public CarArraySize(){
         }
     }
-    ///<summary>///Описывает один скан, как массив точек и время, ему соответствующее
+    ///<summary>///Находит границы (упрощённые, только предельные габариты) машинки по одной точке (номер скана, номер точки)
     ///</summary>
-    public class islandborders1{
-        private borderPoint1 BorderPoint;
+    public class islandborders{
+        private borderPoint BorderPoint;
+        public int starttime, startposition;
+        public int leftborder,rightborder, upborder, downborder;
+        public int[] leftindexborders;
+        public int[] rightindexborders;
         ///<summary>///Находит границы машины по 1й точке
         ///</summary>
-        public islandborders1(){}
+        private void installpoint(){
+            if(BorderPoint.XpointCoordinate > rightborder){
+                rightborder = BorderPoint.XpointCoordinate;
+            }
+            if(BorderPoint.XpointCoordinate < leftborder){
+                leftborder = BorderPoint.XpointCoordinate;
+            }
+            if(BorderPoint.YpointCoordinate > upborder){
+                upborder = BorderPoint.YpointCoordinate;
+            }
+            if(BorderPoint.YpointCoordinate < downborder){
+                downborder = BorderPoint.YpointCoordinate;
+            }
+        }
 
-        ///<summary>///Объявляет пустой скан
-        ///</summary>
-        public CarArraySize CarBorders(Second[] input, PointXYint inputCarPoint){
-            for(int i = 0; i<input[inputCarPoint.X].secondArray[inputCarPoint.Y].CarIslandLanes.Length; i++){
-                if(input[inputCarPoint.X].secondArray[inputCarPoint.Y].CarIslandLanes[i]>0){
-                    BorderPoint = new borderPoint1(inputCarPoint.X, inputCarPoint.Y, i);
-                    break;
+        //Записывает текущую точку в массивы границ машинки
+        private void installindex(SuperScan[] input){
+                if(leftindexborders[BorderPoint.YpointCoordinate - downborder]==0){
+                    leftindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                }
+                if(rightindexborders[BorderPoint.YpointCoordinate - downborder]==0){
+                    rightindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                }
+
+                if(BorderPoint.ispointleft(input)){
+                if(leftindexborders[BorderPoint.YpointCoordinate - downborder]==0){
+                    leftindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                }else{
+                    if(leftindexborders[BorderPoint.YpointCoordinate - downborder] > BorderPoint.XpointCoordinate){
+                        leftindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                    }
                 }
             }
+            if(BorderPoint.ispointright(input)){
+                if(rightindexborders[BorderPoint.YpointCoordinate - downborder]==0){
+                    rightindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                }else{
+                    if(rightindexborders[BorderPoint.YpointCoordinate - downborder] < BorderPoint.XpointCoordinate){
+                        rightindexborders[BorderPoint.YpointCoordinate - downborder] = BorderPoint.XpointCoordinate;
+                    }
+                }
+            }
+        }
+        //При объявлении на автомате находятся граничные значения машины по времени/координатам
+        public islandborders(int time, int position, SuperScan[] input){
+            startposition = position;
+            starttime = time;
+            BorderPoint = new borderPoint(time, position);
+            leftborder = position;
+            rightborder = position;
+            upborder = time; 
+            downborder = time;
             BorderPoint.GoToLeftBorder(input);
-            var ret = new CarArraySize();
-            ret.starttime = BorderPoint.time(input);
-            ret.leftborder = BorderPoint.XpointCoordinate;
-            ret.rightborder = BorderPoint.XpointCoordinate;
             BorderPoint.NextPosition(input);
-            ret.endtime = BorderPoint.time(input);
+            installpoint();
+
             while(BorderPoint.isitstartpoint()==false){
                 BorderPoint.NextPosition(input);
-                if(BorderPoint.time(input)>ret.endtime){
-                    ret.endtime = BorderPoint.time(input);
-                }
-                if(BorderPoint.time(input)<ret.starttime){
-                    ret.starttime = BorderPoint.time(input);
-                }
-                if(BorderPoint.XpointCoordinate<ret.leftborder){
-                    ret.leftborder = BorderPoint.XpointCoordinate;
-                }
-                if(BorderPoint.XpointCoordinate>ret.rightborder){
-                    ret.rightborder = BorderPoint.XpointCoordinate;
+                installpoint();
+            }
+
+
+
+            //Определение границ машинки на сканах
+            leftindexborders = new int[upborder-downborder+1];
+            rightindexborders = new int[upborder-downborder+1];
+
+            BorderPoint.NextPosition(input);
+            installindex(input);
+            while(BorderPoint.isitstartpoint()==false){
+                BorderPoint.NextPosition(input);
+                installindex(input);
+            }
+        }
+
+
+        public void remoovecar(SuperScan[] input){
+            for(int i = 0; i <= (upborder-downborder); i++){
+                for(int j = leftindexborders[i]; j <= rightindexborders[i]; j++){
+                    input[i+downborder].CarIslandLanes[j] = 0;
                 }
             }
+        }
+
+
+        public CarArraySize CarBorders(SuperScan[] input){
+            var ret = new CarArraySize();
+            ret.leftborder = leftborder;
+            ret.rightborder = rightborder;
+            ret.starttime = input[starttime].Time;
+            ret.endtime = input[starttime + leftindexborders.Length].Time;
+            ret.leftindexborders = leftindexborders;
+            ret.rightindexborders = rightindexborders;
+            return ret;
+        }
+    }
+
+    public class carRESULT{
+        ///<summary>Время начала машинки </summary>
+        public DateTime Starttime { get; set; }
+        ///<summary>Время конца машинки</summary>
+        public DateTime Endtime { get; set; }
+        ///<summary>Ширина машинки</summary>
+        public int Width { get; set; }
+        ///<summary>Высота машинки</summary>
+        public int Height { get; set; }
+    }
+    public class IslandSeach{
+        public List<CarArraySize> CarsArray;
+        public string method; //метод поиска машинки, бреётся из конфига
+        public int MinLength;
+        public int MinWigdh;
+        config _config;
+        public IslandSeach(config config){
+            _config = config;
+            CarsArray = new List<CarArraySize>();
+            method = config.Method;
+            MinLength = config.SortSettings.MinLength;
+            MinWigdh = config.SortSettings.MinWigdh;
+            switch (method)
+            {
+                case "primitive":
+                    Console.WriteLine("Установлен режим поиска 'primitive'");
+                    break;
+                default:
+                    Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                    break;
+            }
+        }
+
+        private PointXYint firstcarpoint(SuperScan[] input){
+            var ret = new PointXYint{X = -1, Y = -1};
+                int i = 0;
+                int j = 0;
+                while(i < input.Length){
+                    j = 0;
+                    while(j < input[i].CarIslandLanes.Length){
+                        if(input[i].CarIslandLanes[j]>0){
+                            return new PointXYint{X = j, Y = i};
+                        }
+                        j++;
+                    }
+                    i++;
+                }
             return ret;
         }
 
-        public void AddCar(Second[] input, CarArraySize inputCar){
-            //Тут ничего пока нет
+        private carRESULT primitivealgoritm(islandborders input, SuperScan[] inputscans, config config){
+            var ret = new carRESULT();
+            var lenthArray = new int[input.leftindexborders.Length];
+            for(int i = 0; i < lenthArray.Length; i++){
+                lenthArray[i] = input.rightindexborders[i] - input.leftindexborders[i];
+            }
+            Array.Sort(lenthArray);//Отсортированный массив ширины машины
+
+
+
+            int index = 0;
+            var HeightArray = new int[lenthArray.Sum()];
+            for(int i = input.downborder; i < input.upborder; i++){
+                for(int j = input.leftindexborders[i - input.downborder]; j < input.rightindexborders[i - input.downborder]; j++){
+                    HeightArray[index] = inputscans[i].CarIslandLanes[j];
+                    index++;
+                }
+            }
+            Array.Sort(HeightArray);//Сортировка массива высот машинки
+
+
+
+            if(lenthArray.Length>MinLength){
+
+
+
+                ret.Starttime = inputscans[input.downborder].Time;
+                ret.Endtime = inputscans[input.upborder].Time;
+                ret.Width = (lenthArray[(int)(lenthArray.Length - (lenthArray.Length*0.05))]) * config.RoadSettings.Step;//Уже в миллиметрах
+                ret.Height = HeightArray[(int)(HeightArray.Length - (HeightArray.Length*0.05))];
+                //Отбрасываются максимальные точки, т.к. они скорее всего ошибка(та же антенна, + блики)
+                
+                if(MinWigdh>ret.Width){
+                    ret.Width = 0;
+                    ret.Height = 0;
+                }
+                return ret;
+            }else{
+                /*ret.Starttime;
+                ret.Endtime;*/
+                ret.Width = 0;
+                ret.Height = 0;
+            }
+            return ret;
+
         }
-        public void ClearCar(Second[] input, CarArraySize inputCar){
-            for(int i = 0; i<input.Length; i++){
-                for(int j = 0; j<input[i].secondArray.Count; j++){
-                    if((inputCar.starttime<=input[i].secondArray[j].Time)&(inputCar.endtime>=input[i].secondArray[j].Time)){
-                        Array.Fill(input[i].secondArray[j].CarIslandLanes, 0, inputCar.leftborder, inputCar.rightborder);
-                    }
+        private carRESULT primitive(SuperScan[] input){
+            var ret = new carRESULT();
+            var startpoint = firstcarpoint(input);
+
+            if(startpoint.Y != -1){
+                var borders = new islandborders(startpoint.Y, startpoint.X, input);
+                ret = primitivealgoritm(borders, input, _config);
+                if((ret.Height == 0)&(ret.Width == 0)){
+                    Console.WriteLine("Опять фигня");
+                }else{
+                    Console.WriteLine("Хорошая машинка");
+                    CarsArray.Add(borders.CarBorders(input));
+                }
+                borders.remoovecar(input);
+                //CarsArray.Add(borders.CarBorders(input));
+            }else{
+                Console.WriteLine("Поиск завершён");
+                ret.Height = -1;
+                ret.Width = -1;
+            }
+
+
+
+            return ret;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void Search(SuperScan[] input){
+            int oldHeight = 0;
+            var car = new carRESULT();
+            while(oldHeight != -1){
+                switch (method)
+                {
+                    case "primitive":
+                        car = primitive(input);
+                        oldHeight = car.Height;
+                        break;
+                    default:
+                        Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                        break;
                 }
             }
         }
-
-
-
-    }
-    ///<summary>///Находит все машинки в заданнои промежутке времени
-    ///</summary>
-    public class IslandSeach1{
-        public List<CarArraySize> CarsArray;
-
-        public PointXYint[] pointsArray; 
-        public DateTime time;
-        ///<summary>///Находит все машинки в заданнои промежутке времени
-        ///</summary>    
-        public IslandSeach1(){
-            CarsArray = new List<CarArraySize>();
-        }
-
-        public PointXYint CarPoint(DateTime second, Second[] input){
-            for(int i = 0; i<input.Length; i++){
-                if((second.Minute == input[i].secondArray[0].Time.Minute)&(second.Second == input[i].secondArray[0].Time.Second)){
-                    for(int j = 0; j<input[i].secondArray.Count; j++){
-                        if(Array.FindAll(input[i].secondArray[j].CarIslandLanes, point => (point > 0)).Length >= 3){
-                            return new PointXYint(){ X = i, Y = j};
-                        }
-                    }
-                }
-            }
- 
-            return new PointXYint(){ X = -1, Y = -1};
-        }
-            //Тут пока ничего нет
-        /*public void CarArrays(DateTime second, Second[] input){
-            var carpoint = CarPoint(second, input);
-            var island = new islandborders();
-            while(carpoint.X!=-1){
-                carpoint = CarPoint(second, input);
-                CarsArray.Add(island.CarBorders(input, carpoint));
-                island.ClearCar(input, CarsArray[CarsArray.Count-1]);
-            }
-        }*/
-
     }
 }

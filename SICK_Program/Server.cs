@@ -133,7 +133,7 @@ namespace Sick_test
                 //Она СОЗДАСТ массив машинок
                 //Его можно забрать из класса
                 //mycarsseach.CarArrays(second, timesArray);
-                mycarsseach.Seach(timesArray);
+                mycarsseach.Search(timesArray);
                 var cars = mycarsseach.CarsArray;
                 var jsonret = new string("");
 

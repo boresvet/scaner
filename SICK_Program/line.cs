@@ -181,9 +181,9 @@ namespace Sick_test
 
 
                 //Когда ни одна из линий не вертикальна:
-                double K = (double)((firstline.Qyint*secondline.Qxint)-(secondline.Qyint*firstline.Qxint))/(double)(firstline.Qxint*secondline.Qxint);
-                ret.X = (int)((K*(double)firstline.StartPointint.X + (double)secondline.StartPointint.Y - (double)firstline.StartPointint.Y)/K);
-                ret.Y = ordinate(ret.X);
+                double K = ((double)((firstline.Qxint*secondline.Qyint)-(secondline.Qxint*firstline.Qyint)))/((double)(firstline.Qxint*secondline.Qxint));
+                ret.X = (int)((double)((firstline.StartPointint.Y - secondline.StartPointint.Y)+((double)(secondline.Qyint*secondline.StartPointint.X)/(double)secondline.Qxint)-((double)(firstline.Qyint*firstline.StartPointint.X)/(double)firstline.Qxint))/K);
+                ret.Y = firstline.ordinate(ret.X);
             return ret;
         }
         public PointXY firstPointIntersectionSegment(PointXY startpoint, line Laser, line[] AllTexturesLines){

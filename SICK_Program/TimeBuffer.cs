@@ -14,11 +14,9 @@ using System.Text.Json.Serialization;
 
 namespace Sick_test
 {
-    ///<summary>Скан с точками машинок, и с структурой для поиска островов
-    ///</summary>  
     public class SuperScan{
         public int[] CarIslandLanes;
-        public PointXYint[][] ScanArray;
+        public PointXYint[][] OneSecondScanArray;
         public DateTime Time;
         ///<summary>Функция, сохраняющая в себе скан
         ///</summary>
@@ -26,7 +24,7 @@ namespace Sick_test
         }
         public SuperScan(int[] carIslandLanes, PointXYint[][] scanArray, DateTime time){
             CarIslandLanes = carIslandLanes;
-            ScanArray = scanArray;
+            OneSecondScanArray = scanArray;
             Time = time;
         }
         /*public SuperScan(){
@@ -35,7 +33,9 @@ namespace Sick_test
             Time = time;
         }*/
     }
-    public class Second{
+    ///<summary>Скан с точками машинок, и с структурой для поиска островов
+    ///</summary>  
+    /*public class Second{
         public List<SuperScan> secondArray;
         ///<summary>Функция, сохраняющая в себе скан
         ///</summary>  
@@ -54,22 +54,22 @@ namespace Sick_test
                 return secondArray[0].Time;
             }
         }
-    }
+    }*/
     ///<summary>Круговой буфер с машинками
     ///</summary>  
-    public class TimeBuffer1{
-        public Second[] _buffer;
+    public class TimeBuffer{
+        public SuperScan[] _buffer;
         int _head;
         int _tail;
         int _length;
         int _buffersize;
-        Object _lock = new object ();
+        public Object _lock = new object ();
 
-        public TimeBuffer1(int timesize){
+        public TimeBuffer(int timesize){
             _length = 0;
-            _buffer = new Second[timesize];
             _buffersize = timesize;
-            _head = timesize -1;
+            _buffer = new SuperScan[timesize];
+            _head = timesize - 1;
         }
 
         public bool IsEmpty{
@@ -82,104 +82,47 @@ namespace Sick_test
         public int MyLeanth{
             get { return _length;}
         }
-        public void Dequeue(){
-            lock(_lock){
-                if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
-                _tail = NextPosition(_tail);
-                _length --;
-            }
-        }
-        public Second Dequeue1(){
-            lock(_lock){
-                if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
-                Second dequeved = _buffer[_tail];
-                _tail = NextPosition(_tail);
-                _length --;
-                return dequeved;
-            }
-        }
-
         private int NextPosition(int position){
             return (position + 1) % _buffersize;
         }
-
-        public void Enqueue(Second toadd){
+        public void SaveSuperScan(SuperScan input){
             lock(_lock){
                 _head = NextPosition(_head);
-                _buffer[_head] = toadd;
+                _buffer[_head] = input;
                 if(IsFull)
                     _tail = NextPosition(_tail);
                 else 
                     _length++;
             }
         }
-        public void Enqueue(SuperScan toadd){
-            lock(_lock){
-                _head = NextPosition(_head);
-                _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){toadd}}; 
-                if(IsFull)
-                    _tail = NextPosition(_tail);
-                else 
-                    _length++;
-            }
+        public DateTime[] bufferTimes(){
+            var ret = new DateTime[2]{_buffer[_tail].Time, _buffer[_head].Time};
+            return ret;
         }
-        public void SaveSuperScan(SuperScan toadd){
+        public SuperScan[] ReadFullArray(){
             lock(_lock){
-                if(_length==0){
-                    _head = NextPosition(_head);
-                    _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){toadd}}; 
-                    _length++;
-                }else{
-                    if(_buffer[_head].NowBufferTime().Second==toadd.Time.Second){
-                        _buffer[_head].AddSuperScan(toadd);
-                    }else{
-                        _head = NextPosition(_head);
-                        SuperScan _toadd = new SuperScan();
-                        _toadd = toadd;
-                        _buffer[_head] = new Second(){secondArray = new List<SuperScan>(){_toadd}}; 
-                        if(IsFull)
-                            _tail = NextPosition(_tail);
-                        else 
-                            _length++;
-                    }
-                }
-            }
-        }
-        public Second ReadPosition(){
-            lock(_lock){
-                if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
-                else{
-                    Second dequeved = _buffer[_tail];
-                    return dequeved;
-                }
-            }
-        }
-        public Second[] ReadFullArray(){
-            lock(_lock){
-                var ret = new Second[_buffer.Length];
+                var ret = new SuperScan[_buffer.Length];
                 ret = _buffer;
                 return ret;
             }
         }
-        public DateTime[] bufferTimes(){
-            var ret = new DateTime[2]{_buffer[_tail].secondArray[0].Time, _buffer[_head].secondArray[0].Time};
-            return ret;
-        }
-        public void NextPosition(){
-            lock(_lock){
-                _head = NextPosition(_head);
-                _tail = NextPosition(_tail);
+        //Как SaveSuperScan, только с копированием
+        public void AddSuperScan(SuperScan input){
+            var _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], OneSecondScanArray = new PointXYint[input.OneSecondScanArray.Length][], Time = new DateTime()};
+            _input.CarIslandLanes = input.CarIslandLanes;
+            _input.Time = input.Time;
+            for(int i = 0; i < input.OneSecondScanArray.Length; i++){
+                _input.OneSecondScanArray[i] = input.OneSecondScanArray[i].ToArray();
             }
+            SaveSuperScan(_input);
         }
-
-        //Тестовая штука, проверяет, чтобы случайно время во всех сканах не было одним и тем же
         public bool istimesgood(){
-            return(_buffer[_head].secondArray[0].Time == _buffer[_tail].secondArray[0].Time);
+            return _buffer[_head].Time == _buffer[_tail].Time;
         }
         public void createtimeisgood(){
-            _buffer[_tail].secondArray[0].Time = DateTime.Now;
-            _buffer[_head].secondArray[0].Time = DateTime.Now;
-            _buffer[_tail].secondArray[0].Time.AddHours(11);
+            _buffer[_tail].Time = DateTime.Now;
+            _buffer[_head].Time = DateTime.Now;
+            _buffer[_tail].Time.AddHours(11);
         }
     }
 }

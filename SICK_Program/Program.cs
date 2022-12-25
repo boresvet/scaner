@@ -161,7 +161,7 @@ namespace Sick_test
         }
 
         static void TServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
-            Thread.Sleep(1000);
+            Thread.Sleep(10000);
 
             //var res = new Scanint(MyConcurrentQueue.);
             while(true){
@@ -170,13 +170,15 @@ namespace Sick_test
                 }
                 try
                 {
-                    Thread.Sleep(1000);
+                    while(times.IsFull == false){
+                        Thread.Sleep(1000);
+                    }
                     var _buffer = new SuperScan[times._buffer.Length];
                     _buffer = times._buffer;
                     lock (times._lock)
                     {
                         var seach = new IslandSeach(config);
-                        seach.Seach(_buffer);
+                        seach.Search(_buffer);
                         Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
                     }
                 }
@@ -186,7 +188,7 @@ namespace Sick_test
                 }
             }
         }
-        static void ServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
+        /*static void ServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
             var serv = new Server(new string[] {"127.0.0.0", "9000"});
             while(true){
@@ -206,7 +208,7 @@ namespace Sick_test
                     }
                 }
             }
-        }
+        }*/
         static void TLaneT(config config, CircularBuffer<Scanint> LaneConcurrentQueue, ManualResetEvent RoadEvent, ManualResetEvent ExitEvent){
             //var res = new Scanint(MyConcurrentQueue.);
             while(true){
@@ -243,11 +245,14 @@ namespace Sick_test
 
 
 
-
+            //Создание массива столбцов, каждый столбец - содержит именно точки
             var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
             for(var i = 0; i < pointsSortTable.Length; i++){
                 pointsSortTable[i] = new PointXYint[0];
             }
+
+
+
             //Штука, куда складываются все точки дороги. 
             //Точки распределяются по массивам, как по вертикальным столбцам шириной в "config.RoadSettings.Step"
             //Это позволяет, вычислив машину в этих вот столбцах, использовать на них стандартный генератор островов. 
@@ -258,9 +263,11 @@ namespace Sick_test
 
 
             //var res = new Scanint(MyConcurrentQueue.);
-            while(true){
+            while(true)
+            {
 
-                if (ExitEvent.WaitOne(0)) {
+                if (ExitEvent.WaitOne(0))
+                {
                     /*int o = 0;
                     int len = 0;
                     var groundTable = new PointXYint[pointsSortTable.Length];
@@ -292,48 +299,46 @@ namespace Sick_test
                     Console.WriteLine(o/pointsSortTable.Length);
                     Console.Write("Итого столбцов: ");
                     Console.WriteLine(len);*/
-                    
+
                     return;
                 }
 
                 WaitHandle.WaitAny(Inputs.InputEvent);
                 WaitHandle.WaitAll(Inputs.InputEvent, 50);
 
-                if((WaitHandle.WaitAny(Inputs.ErrorEvent, 0)!=0)|(trig)) {
-                    for(int i = 0; i<Inputs.ErrorEvent.Length; i++){
-                        WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0)==false);
+                if ((WaitHandle.WaitAny(Inputs.ErrorEvent, 0) != 0) | (trig))
+                {
+                    for (int i = 0; i < Inputs.ErrorEvent.Length; i++)
+                    {
+                        WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0) == false);
                         trig = true;
                     }
                 }
                 RoadScan = new Scanint(0);
-                for(int i = 0; i<Inputs.InputEvent.Length; i++){
+                for (int i = 0; i < Inputs.InputEvent.Length; i++)
+                {
                     /*if(InputEvent[i].WaitOne(0)){
                     }else{
                         Console.Write("Пропал скан ");
                         Console.WriteLine(i+1);
                     }*/
-                    if(WorkScanners[i]){
+                    if (WorkScanners[i])
+                    {
                         var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
                         Inputs.InputEvent[i].Reset();
-                        if(RoadScan.pointsArray.Length == 0){
+                        if (RoadScan.pointsArray.Length == 0)
+                        {
                             RoadScan.time = res.time;
                         }
                         RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
                     }
                 }
-                Sorts.HoareSort(RoadScan.pointsArray);
-                for(var i = 0; i < pointsSortTable.Length; i++){
-                    pointsSortTable[i] = new PointXYint[0];
-                }
 
 
-                int j = 0;
-                while(j<RoadScan.pointsArray.Length){
-                    if((RoadScan.pointsArray[j].X>config.RoadSettings.LeftLimit)&(RoadScan.pointsArray[j].X<config.RoadSettings.RightLimit)){
-                        pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X-config.RoadSettings.LeftLimit)/config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
-                    }
-                    j++;
-                }
+                Sorts.HoareSort(RoadScan.pointsArray);//Сортировка точек в скане по ширине дороги
+                SliceByColumns(config, RoadScan, pointsSortTable);
+
+
                 var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
                 var CarArray = AddAllIslandLane(FilteredPoints);
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
@@ -343,9 +348,31 @@ namespace Sick_test
                 }
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point!=0)).Length} столбцов с машинками");
+                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
         }
+
+        private static void SliceByColumns(config config, Scanint RoadScan, PointXYint[][] pointsSortTable)
+        {
+            for (var i = 0; i < pointsSortTable.Length; i++)
+            {
+                pointsSortTable[i] = new PointXYint[0];
+            }
+
+
+            int j = 0;
+            while (j < RoadScan.pointsArray.Length)
+            {
+                if ((RoadScan.pointsArray[j].X > config.RoadSettings.LeftLimit) & (RoadScan.pointsArray[j].X < config.RoadSettings.RightLimit))
+                {
+                    pointsSortTable[(int)((RoadScan.pointsArray[j].X - config.RoadSettings.LeftLimit) / config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X - config.RoadSettings.LeftLimit) / config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
+                }
+                j++;
+            }
+        }
+
+
+
 
         //с разбиением на полосы
         /*static void TMainT(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, CircularBuffer<Scanint>[] LaneConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent){
@@ -748,7 +775,7 @@ namespace Sick_test
                 //try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
-                    var lms = new TestGenerator(config, scannumber, 3); 
+                    var lms = new TestGenerator(config, scannumber, 30); 
                     var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     

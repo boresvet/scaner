@@ -4,8 +4,8 @@
 "FilteredHeight": 300,
 "SortSettings": 
 {
-	"MinWigdh": 1000,
-    "MinLength": 50
+	"MinWigdh": 500,
+    "MinLength": 10
 },
 "RoadSettings": 
 {
