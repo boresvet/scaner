@@ -21,7 +21,7 @@ namespace Sick_test
         ///</summary>   
         public CarBuffer(int size)
         {
-            _buffer = new CarCircularBuffer(100);
+            _buffer = new CarCircularBuffer(size);
         }
 
         public void UpdateCars(List<CarArraySize> input){
