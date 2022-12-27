@@ -103,4 +103,8 @@
         public int MinWigdh { get; set; }
         ///<summary>Минимальная длинна машины</summary>
         public int MinLength { get; set; }
+        ///<summary>Количество буферов, отдаваемых алгоритму поиска машин</summary>
+        public int Buffers { get; set; }
+        ///<summary>Количество машин, сохраняемых в буффере </summary>
+        public int SavedCars { get; set; }
     }

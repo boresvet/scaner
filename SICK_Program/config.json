@@ -4,6 +4,8 @@
 "FilteredHeight": 300,
 "SortSettings": 
 {
+	"SavedCars" : 100,
+	"Buffers" : 5,
 	"MinWigdh": 500,
     "MinLength": 10
 },

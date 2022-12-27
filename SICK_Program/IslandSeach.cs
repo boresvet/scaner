@@ -688,6 +688,11 @@ namespace Sick_test
         public int[][] cararray { get; set; }
         public int[] leftindexborders { get; set; }
         public int[] rightindexborders { get; set; }
+
+        ///<summary>Ширина машинки</summary>
+        public int Width { get; set; }
+        ///<summary>Высота машинки</summary>
+        public int Height { get; set; }
         public CarArraySize(){
         }
     }
@@ -786,14 +791,16 @@ namespace Sick_test
         }
 
 
-        public CarArraySize CarBorders(SuperScan[] input){
+        public CarArraySize CarBorders(SuperScan[] input, carRESULT resulrtCar){
             var ret = new CarArraySize();
             ret.leftborder = leftborder;
             ret.rightborder = rightborder;
             ret.starttime = input[starttime].Time;
-            ret.endtime = input[starttime + leftindexborders.Length].Time;
+            ret.endtime = input[starttime + leftindexborders.Length-1].Time;
             ret.leftindexborders = leftindexborders;
             ret.rightindexborders = rightindexborders;
+            ret.Height = resulrtCar.Height;
+            ret.Width = resulrtCar.Width;
             return ret;
         }
     }
@@ -809,7 +816,7 @@ namespace Sick_test
         public int Height { get; set; }
     }
     public class IslandSeach{
-        public List<CarArraySize> CarsArray;
+        public List<CarArraySize> CarsArray; //Массив всех машинок
         public string method; //метод поиска машинки, бреётся из конфига
         public int MinLength;
         public int MinWigdh;
@@ -902,10 +909,10 @@ namespace Sick_test
                 var borders = new islandborders(startpoint.Y, startpoint.X, input);
                 ret = primitivealgoritm(borders, input, _config);
                 if((ret.Height == 0)&(ret.Width == 0)){
-                    Console.WriteLine("Опять фигня");
+                    //Console.WriteLine("Опять фигня");
                 }else{
-                    Console.WriteLine("Хорошая машинка");
-                    CarsArray.Add(borders.CarBorders(input));
+                    //Console.WriteLine("Хорошая машинка");
+                    CarsArray.Add(borders.CarBorders(input, ret));
                 }
                 borders.remoovecar(input);
                 //CarsArray.Add(borders.CarBorders(input));
@@ -951,6 +958,7 @@ namespace Sick_test
                         break;
                 }
             }
+
         }
     }
 }

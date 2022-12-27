@@ -24,14 +24,26 @@ public class Tests
     line[] scanerrays;
     TimeBuffer times;
     TimeBuffer times1;
-
+    bool reallines;
     CircularBuffer<Scanint> MyConcurrentQueue;
     CircularBuffer<Scanint> MyConcurrentQueue1;
     //CircularBuffer<int[]> MyINTConcurrentQueue;
 
+
     [SetUp]
     public void Setup()
     {
+
+        var laserray = new line();
+        laserray.createLine(new PointXYint(){X = 5500, Y = 4500}, new PointXYint(){X = 4839, Y = 3749});
+        var cartexture = new line();
+        cartexture.createLine(new PointXYint(){X = 2050, Y = 1600}, new PointXYint(){X = 2150, Y = 100});
+        var roadtexture = new line();
+        roadtexture.createLine(new PointXYint(){X = -100, Y = 100}, new PointXYint(){X = 2400, Y = 100});
+        var scannerpoint = new PointXYint(){X = 5500, Y = 4500}; 
+        var tyu = laserray.firstPointIntersectionSegment(scannerpoint, laserray, new line[]{cartexture, roadtexture});
+        reallines = (tyu.Y == 652); 
+
 
         //Тесты математики(типовое пересечение линий)
         var line1 = new line();
@@ -270,7 +282,7 @@ public class Tests
     [Test]
     public void Maths()
     {
-        Assert.IsTrue((point1==11)&&(point2==null)&&((point3>=11.18)&&(point3<=11.1804))&&(point4==null));
+        Assert.IsTrue((point1==11)&&(point2==null)&&((point3>=11.18)&&(point3<=11.1804))&&(point4==null)&&reallines);
     }
     //Тесты математики. Предыдущий - кооперация всех этих в один большой, чтобы галочка была только одна
     /*[Test]

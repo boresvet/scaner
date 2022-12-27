@@ -91,7 +91,7 @@ namespace Sick_test
                 var request = context.Request;
 
                 var timesArray = times.ReadFullArray();
-                var time = times.bufferTimes();
+                //var time = times.bufferTimes();
 
                 //Принимает время, в котором нужно искать машинку из post запроса
                 string text;
@@ -117,7 +117,7 @@ namespace Sick_test
                 var functionData = text.Split('&').Select(n => Int32.Parse(n.Split('=')[1])).ToArray().Skip(4).ToArray();
                 
                 //Сделать преобразование времени в формат DataTime!!!
-                DateTime second = addDate(time, textarray);
+                //DateTime second = addDate(time, textarray);
 
 
 

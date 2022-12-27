@@ -58,53 +58,69 @@ namespace Sick_test
     ///<summary>Круговой буфер с машинками
     ///</summary>  
     public class TimeBuffer{
-        public SuperScan[] _buffer;
+        private CircularBuffer<SuperScan>[] bufferstosearch; 
+
         int _head;
+        int _indexbuffer;
+        int _read_indexbuffer;
+
         int _tail;
         int _length;
         int _buffersize;
         public Object _lock = new object ();
+        public ManualResetEvent ReadEvent;
 
-        public TimeBuffer(int timesize){
+        public TimeBuffer(int timesize, int buffersToSearchLeangth = 5){
             _length = 0;
             _buffersize = timesize;
-            _buffer = new SuperScan[timesize];
             _head = timesize - 1;
+            bufferstosearch = new CircularBuffer<SuperScan>[buffersToSearchLeangth];
+            for(int i = 0; i < bufferstosearch.Length; i++){
+                bufferstosearch[i] = new CircularBuffer<SuperScan>(timesize);
+            }
+            _indexbuffer = 0;
+            ReadEvent = new ManualResetEvent(false);
         }
 
-        public bool IsEmpty{
-            get{return _length == 0;}
+        private void nextbuffer(){
+            _indexbuffer++;
+            if(_indexbuffer >= bufferstosearch.Length){
+                _indexbuffer = 0;
+            }          
+        }
+        private void nextreadbuffer(){
+            _read_indexbuffer++;
+            if(_read_indexbuffer >= bufferstosearch.Length){
+                _read_indexbuffer = 0;
+            }          
         }
 
-        public bool IsFull{
-            get { return _length == _buffersize;}
-        }
         public int MyLeanth{
             get { return _length;}
         }
-        private int NextPosition(int position){
-            return (position + 1) % _buffersize;
-        }
         public void SaveSuperScan(SuperScan input){
             lock(_lock){
-                _head = NextPosition(_head);
-                _buffer[_head] = input;
-                if(IsFull)
-                    _tail = NextPosition(_tail);
-                else 
-                    _length++;
+                if(bufferstosearch[_indexbuffer].IsFull){
+                    var i = bufferstosearch[_indexbuffer]._buffer[bufferstosearch[_indexbuffer]._buffer.Length-1];//Перенос последнего суперскана из старого буффера в новый
+                    nextbuffer();
+                    bufferstosearch[_indexbuffer].Enqueue(i);
+                }
+                if(_indexbuffer != _read_indexbuffer){
+                    ReadEvent.Set();
+                }
+                bufferstosearch[_indexbuffer].Enqueue(input);
             }
-        }
-        public DateTime[] bufferTimes(){
-            var ret = new DateTime[2]{_buffer[_tail].Time, _buffer[_head].Time};
-            return ret;
         }
         public SuperScan[] ReadFullArray(){
             lock(_lock){
-                var ret = new SuperScan[_buffer.Length];
-                ret = _buffer;
+                var ret = bufferstosearch[_read_indexbuffer]._buffer;
                 return ret;
             }
+        }
+        public void RemoveReadArray(){
+            bufferstosearch[_read_indexbuffer].CleanBuffer();
+            nextreadbuffer();
+            ReadEvent.Reset();
         }
         //Как SaveSuperScan, только с копированием
         public void AddSuperScan(SuperScan input){
@@ -116,13 +132,14 @@ namespace Sick_test
             }
             SaveSuperScan(_input);
         }
-        public bool istimesgood(){
-            return _buffer[_head].Time == _buffer[_tail].Time;
-        }
-        public void createtimeisgood(){
-            _buffer[_tail].Time = DateTime.Now;
-            _buffer[_head].Time = DateTime.Now;
-            _buffer[_tail].Time.AddHours(11);
+        public SuperScan CopySuperScan(SuperScan input){
+            var _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], OneSecondScanArray = new PointXYint[input.OneSecondScanArray.Length][], Time = new DateTime()};
+            _input.CarIslandLanes = input.CarIslandLanes;
+            _input.Time = input.Time;
+            for(int i = 0; i < input.OneSecondScanArray.Length; i++){
+                _input.OneSecondScanArray[i] = input.OneSecondScanArray[i].ToArray();
+            }
+            return _input;
         }
     }
 }

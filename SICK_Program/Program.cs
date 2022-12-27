@@ -123,7 +123,6 @@ namespace Sick_test
                 Тесты для линий если усё пропало
                 */
                 // Read the stream as a string, and write the string to the console.
-            TimeBuffer times = new TimeBuffer(300);
 
             //var InputEvent = new ManualResetEvent(false);
             var ExitEvent = new ManualResetEvent(false);
@@ -133,6 +132,8 @@ namespace Sick_test
             //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
+            TimeBuffer times = new TimeBuffer(300, config.SortSettings.Buffers);
+
 
             var Inputs = new AllInput(config);
             Task[] InputT;
@@ -170,17 +171,30 @@ namespace Sick_test
                 }
                 try
                 {
-                    while(times.IsFull == false){
+                    /*while(times.IsFull == false){
                         Thread.Sleep(1000);
+                    }*/
+
+                    var carbuffer = new CarBuffer(config.SortSettings.Buffers);
+                    while(true){
+                    
+
+                    times.ReadEvent.WaitOne();
+
+                    SuperScan[] _buffer = times.ReadFullArray();
+                    var seach = new IslandSeach(config);
+                    seach.Search(_buffer);
+                    var cars = seach.CarsArray;
+                    carbuffer.UpdateCars(cars); //Сохранение маштнок в буффер с машинками
+                    times.RemoveReadArray();
+                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+
+
                     }
-                    var _buffer = new SuperScan[times._buffer.Length];
-                    _buffer = times._buffer;
-                    lock (times._lock)
-                    {
-                        var seach = new IslandSeach(config);
-                        seach.Search(_buffer);
-                        Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
-                    }
+
+
+
+
                 }
                 catch(Exception ex)
                 {
