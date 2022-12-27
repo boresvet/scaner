@@ -25,7 +25,6 @@ namespace Sick_test
         }
 
         public void UpdateCars(List<CarArraySize> input){
-            var oldcar = _buffer;
             if(input.Count == 0){
                 return;
             }
@@ -37,23 +36,24 @@ namespace Sick_test
                     _buffer.AddCar(input[i]);
                     continue;
                 }
-                WriteCarToBuffer(input, i, carbuffer);
+                WriteCarToBuffer(input[i], carbuffer);
             }
         }
 
-        private void WriteCarToBuffer(List<CarArraySize> input, int i, CarArraySize[] carbuffer)
+        private void WriteCarToBuffer(CarArraySize input, CarArraySize[] carbuffer)
         {
             foreach (CarArraySize carfrombuffer in carbuffer)
             {
-                if (IsItThisCar(carfrombuffer, input[i]))
+                if (IsItThisCar(carfrombuffer, input))
                 {
                     return;
                 }
             }
-            _buffer.AddCar(input[i]);
+            _buffer.AddCar(input);
         }
 
         public bool IsItThisCar(CarArraySize CarFromBuffer, CarArraySize NewCar){
+            //Если машина из буфера совпадает с свеженайденой машиной, то границы машинф в буффере расширяются
             if(((CarFromBuffer.leftindexborders[CarFromBuffer.leftindexborders.Length-1]==NewCar.leftindexborders[0])||(CarFromBuffer.rightindexborders[CarFromBuffer.rightindexborders.Length-1]==NewCar.rightindexborders[0]))&&(CarFromBuffer.endtime == NewCar.starttime)){
                 CarFromBuffer.endtime = NewCar.endtime;
                 if(NewCar.Height > CarFromBuffer.Height){
