@@ -107,40 +107,76 @@ namespace Sick_test
             ret = (Qyint*(input - StartPointint.X))/Qxint + StartPointint.Y;
             return ret;
         }
-        public PointXY pointIntersection(line firstline, line secondline){
+        private bool isvertical(line line){
+            return (((line.Qx == 0.0)&&(!line.integer))|((line.Qxint == 0.0)&&line.integer));
+        }
+        public PointXY pointIntersection(line firstline, line secondline)
+        {
             var ret = new PointXY();
-                if((((firstline.Qx == 0.0)&&(!firstline.integer))|((firstline.Qxint == 0.0)&&firstline.integer))&&(((secondline.Qx == 0.0)&&(!secondline.integer))|((secondline.Qxint == 0.0)&&secondline.integer))){
-                    if(firstline.StartPoint.X==secondline.StartPoint.X){
-                        //В случае, когда обе линии вертикальны, и совпадают - возвращается начальная точка ВТОРОЙ линии
-                        ret = secondline.StartPoint;
-                        return ret;
-                    }else{
-                        //Случаев, когда линии вертикальны и не совпадают - стоит не допускать
-                    }
+            if ((isvertical(firstline)) && (isvertical(secondline)))
+            {
+                if (firstline.StartPoint.X == secondline.StartPoint.X)
+                {
+                    //В случае, когда обе линии вертикальны, и совпадают - возвращается начальная точка ВТОРОЙ линии
+                    return VerticalLineIntersection(secondline, out ret);
                 }
-
-
-                //Когда только одна из линий - вертикальна
-                if(((firstline.Qx == 0.0)&&(!firstline.integer))|((firstline.Qxint == 0.0)&&firstline.integer)){
-                    ret.X = firstline.StartPoint.X;
-                    ret.Y = (secondline.Qx*(firstline.StartPoint.X-firstline.StartPoint.X))/secondline.Qy + secondline.StartPoint.Y;
-                    return ret;
+                else
+                {
+                    //Случаев, когда линии вертикальны и не совпадают - стоит не допускать
                 }
-                if(((secondline.Qx == 0.0)&&(!secondline.integer))|((secondline.Qxint == 0.0)&&secondline.integer)){
-                    ret.X = secondline.StartPoint.X;
-                    ret.Y = (firstline.Qx*(secondline.StartPoint.X-secondline.StartPoint.X))/firstline.Qy + firstline.StartPoint.Y;
-                    return ret;
-                }
+            }
+
+
+            //Когда только одна из линий - вертикальна
+            if (((firstline.Qx == 0.0) && (!firstline.integer)) | ((firstline.Qxint == 0.0) && firstline.integer))
+            {
+                ret = OneLineVerticalIntersection(firstline, secondline);
+                return ret;
+            }
+            if (((secondline.Qx == 0.0) && (!secondline.integer)) | ((secondline.Qxint == 0.0) && secondline.integer))
+            {
+                ret = SecondLineVerticalIntersection(firstline, secondline);
+                return ret;
+            }
 
 
 
-                //Когда ни одна из линий не вертикальна:
-                
-                var K = ((firstline.Qy*secondline.Qx)-(secondline.Qy*firstline.Qx))/(firstline.Qx*secondline.Qx);
-                ret.X = (K*firstline.StartPoint.X + secondline.StartPoint.Y - firstline.StartPoint.Y)/K;
-                ret.Y = ordinate(ret.X);
+            //Когда ни одна из линий не вертикальна:
+            ret = NoVerticalLinesIntersection(firstline, secondline);
             return ret;
         }
+
+        private PointXY NoVerticalLinesIntersection(line firstline, line secondline)
+        {
+            PointXY ret;
+            var K = ((firstline.Qy * secondline.Qx) - (secondline.Qy * firstline.Qx)) / (firstline.Qx * secondline.Qx);
+            ret.X = (K * firstline.StartPoint.X + secondline.StartPoint.Y - firstline.StartPoint.Y) / K;
+            ret.Y = ordinate(ret.X);
+            return ret;
+        }
+
+        private static PointXY SecondLineVerticalIntersection(line firstline, line secondline)
+        {
+            PointXY ret;
+            ret.X = secondline.StartPoint.X;
+            ret.Y = (firstline.Qx * (secondline.StartPoint.X - secondline.StartPoint.X)) / firstline.Qy + firstline.StartPoint.Y;
+            return ret;
+        }
+
+        private static PointXY OneLineVerticalIntersection(line firstline, line secondline)
+        {
+            PointXY ret;
+            ret.X = firstline.StartPoint.X;
+            ret.Y = (secondline.Qx * (firstline.StartPoint.X - firstline.StartPoint.X)) / secondline.Qy + secondline.StartPoint.Y;
+            return ret;
+        }
+
+        private static PointXY VerticalLineIntersection(line secondline, out PointXY ret)
+        {
+            ret = secondline.StartPoint;
+            return ret;
+        }
+
         public PointXYint pointIntersectionint(line firstline, line secondline){
             var ret = new PointXYint();
                 if((((firstline.Qxint == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer))&&(((secondline.Qxint == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer))){

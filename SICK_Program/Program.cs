@@ -185,7 +185,7 @@ namespace Sick_test
                     var seach = new IslandSeach(config);
                     seach.Search(_buffer);
                     var cars = seach.CarsArray;
-                    carbuffer.UpdateCars(cars); //Сохранение маштнок в буффер с машинками
+                    carbuffer.UpdateCars(cars); //Сохранение машинок в буффер с машинками
                     times.RemoveReadArray();
                     Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
