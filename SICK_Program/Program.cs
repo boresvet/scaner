@@ -246,6 +246,7 @@ namespace Sick_test
         }
 
         static void TMainT(config config, AllInput Inputs, TimeBuffer times, ManualResetEvent ExitEvent){
+            try{
             var WorkScanners = new bool[Inputs.inputClass.Length];
             //Объявление массива с датчиками рабочести сканеров. 
             
@@ -316,9 +317,10 @@ namespace Sick_test
 
                     return;
                 }
-
+                Console.WriteLine("Ждём");
                 WaitHandle.WaitAny(Inputs.InputEvent);
                 WaitHandle.WaitAll(Inputs.InputEvent, 50);
+                Console.WriteLine("Дождались");
 
                 if ((WaitHandle.WaitAny(Inputs.ErrorEvent, 0) != 0) | (trig))
                 {
@@ -363,6 +365,9 @@ namespace Sick_test
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
                 Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+            }
+            }catch{
+                Console.WriteLine("Ошибка в потоке обработки");
             }
         }
 
@@ -785,8 +790,8 @@ namespace Sick_test
         }
 
         private static void TestInputTask(config config, inputTheard Inputs, ManualResetEvent ExitEvent, int scannumber){
-            //while(true){
-                //try{
+            while(true){
+                try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
                     var lms = new TestGenerator(config, scannumber, 30); 
@@ -835,12 +840,12 @@ namespace Sick_test
                         Console.Write("Принят скан от сканера  ");
                         Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
-                //}
-                /*catch{
+                }
+                catch{
                     Inputs.ErrorEvent.Set();
                     Inputs.InputEvent.Set();
-                }*/
-            //}
+                }
+            }
         }
     }
 }
