@@ -147,7 +147,8 @@ namespace Sick_test
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
             var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent));
-            var ServerT = Task.Run(() => TServerT(times, config, ExitEvent));
+            var carbuffer = new CarBuffer(config.SortSettings.Buffers);
+            var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             Console.ReadLine();
             ExitEvent.Set();
@@ -161,7 +162,7 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
 
-        static void TServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
+        static void TServerT(TimeBuffer times, config config, CarBuffer carbuffer, ManualResetEvent ExitEvent){
             Thread.Sleep(10000);
 
             //var res = new Scanint(MyConcurrentQueue.);
@@ -173,25 +174,22 @@ namespace Sick_test
                 {
                     /*while(times.IsFull == false){
                         Thread.Sleep(1000);
-                    }*/
-
-                    var carbuffer = new CarBuffer(config.SortSettings.Buffers);
-                    while(true){
-                    
+                    }*/                  
 
                     times.ReadEvent.WaitOne();
 
                     SuperScan[] _buffer = times.ReadFullArray();
+                    Console.WriteLine("Считан массив");
                     var seach = new IslandSeach(config);
+                    Console.WriteLine("Созданы острова");
                     seach.Search(_buffer);
+                    Console.WriteLine("Произведён поиск");
                     var cars = seach.CarsArray;
                     carbuffer.UpdateCars(cars); //Сохранение машинок в буффер с машинками
+                    Console.WriteLine("Сохранено");
                     times.RemoveReadArray();
-                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
-
-
-                    }
-
+                    Console.WriteLine("Буффер очищен");
+                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 
@@ -317,10 +315,10 @@ namespace Sick_test
 
                     return;
                 }
-                Console.WriteLine("Ждём");
+                //Console.WriteLine("Ждём");
                 WaitHandle.WaitAny(Inputs.InputEvent);
                 WaitHandle.WaitAll(Inputs.InputEvent, 50);
-                Console.WriteLine("Дождались");
+                //Console.WriteLine("Дождались");
 
                 if ((WaitHandle.WaitAny(Inputs.ErrorEvent, 0) != 0) | (trig))
                 {
@@ -364,7 +362,7 @@ namespace Sick_test
                 }
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+                //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{
                 Console.WriteLine("Ошибка в потоке обработки");
@@ -778,8 +776,8 @@ namespace Sick_test
                         //Console.WriteLine(res.TimeOfTransmission);
                         Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
                         Inputs.InputEvent.Set();
-                        Console.Write("Принят скан от сканера  ");
-                        Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
+                        //Console.Write("Принят скан от сканера  ");
+                        //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
                 }
                 catch{
@@ -837,8 +835,8 @@ namespace Sick_test
 
                         Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
                         Inputs.InputEvent.Set();
-                        Console.Write("Принят скан от сканера  ");
-                        Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
+                        //Console.Write("Принят скан от сканера  ");
+                        //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
                 }
                 catch{

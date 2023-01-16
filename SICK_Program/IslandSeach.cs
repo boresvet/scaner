@@ -63,7 +63,12 @@ namespace Sick_test
             startXpointCoordinate = _XpointCoordinate;            
         }
 
-
+        public void ConsoleLog(SuperScan[] input){
+            Console.WriteLine($"{leftuppoint(input)>0} {uppoint(input)>0} {rightuppoint(input)>0}");
+            Console.WriteLine($"{leftpoint(input)>0} {thispoint(input)>0} {rightpoint(input)>0}");
+            Console.WriteLine($"{leftdownpoint(input)>0} {downpoint(input)>0} {rightdownpoint(input)>0}");
+            Console.WriteLine($"{whereisoldpoint()}");
+        }
 
 
         //Внешняя проверка на то, является ли точка крайней правой
@@ -110,7 +115,9 @@ namespace Sick_test
         }
 
 
-
+        private int thispoint(SuperScan[] input){
+            return input[YpointCoordinate].CarIslandLanes[XpointCoordinate];
+        }
 
         private int leftpoint(SuperScan[] input){
             if(XpointCoordinate==0){
@@ -309,322 +316,329 @@ namespace Sick_test
                 leftindex(input);
                 return;
             }
+            //Console.WriteLine("Ошибка");
         }
 
 
         private void InLeftPoint(SuperScan[] input){
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-
-
+            Console.WriteLine("Ошибка");
         }
 
         private void InLeftUpPoint(SuperScan[] input){
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
 
         private void InUpPoint(SuperScan[] input){
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
         private void InRightUpPoint(SuperScan[] input){
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
         private void InRightPoint(SuperScan[] input){
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
         private void InRightDownPoint(SuperScan[] input){
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
         private void InDownPoint(SuperScan[] input){
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
+            Console.WriteLine("ошибка");
         }
 
         private void InLeftDownPoint(SuperScan[] input){
-            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0)||(leftuppoint(input) == 0))){
+            if((leftpoint(input)>0)&&((leftdownpoint(input) == 0))){
                 leftindex(input);
                 return;
             }
-            if((leftuppoint(input)>0)&&((leftpoint(input) == 0)||(uppoint(input) == 0))){
+            if((leftuppoint(input)>0)&&((leftpoint(input) == 0))){
                 upindex(input);
                 leftindex(input);
                 return;
             }
-            if((uppoint(input)>0)&&((leftuppoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((uppoint(input)>0)&&((leftuppoint(input) == 0))){
                 upindex(input);
                 return;
             }
-            if((rightuppoint(input)>0)&&((rightpoint(input) == 0)||(uppoint(input) == 0))){
+            if((rightuppoint(input)>0)&&((uppoint(input) == 0))){
                 upindex(input);
                 rightindex(input);
                 return;
             }
-            if((rightpoint(input)>0)&&((rightdownpoint(input) == 0)||(rightuppoint(input) == 0))){
+            if((rightpoint(input)>0)&&((rightuppoint(input) == 0))){
                 rightindex(input);
                 return;
             }
-            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0)||(downpoint(input) == 0))){
+            if((rightdownpoint(input)>0)&&((rightpoint(input) == 0))){
                 downindex(input);
                 rightindex(input);
                 return;
             }
-            if((downpoint(input)>0)&&((leftdownpoint(input) == 0)||(rightdownpoint(input) == 0))){
+            if((downpoint(input)>0)&&((rightdownpoint(input) == 0))){
                 downindex(input);
                 return;
             }
-            if((leftdownpoint(input)>0)&&((leftpoint(input) == 0)||(downpoint(input) == 0))){
+            if((leftdownpoint(input)>0)&&((downpoint(input) == 0))){
                 downindex(input);
                 leftindex(input);
                 return;
             }
+            Console.WriteLine("Ошибка");
         }
 
         public void installoldp(){
@@ -633,6 +647,7 @@ namespace Sick_test
         }
 
         public void NextPosition(SuperScan[] input){
+            //ConsoleLog(input);
             var oldp = whereisoldpoint();
             installoldp();
             switch (oldp)
@@ -671,7 +686,7 @@ namespace Sick_test
                     break;
                 case Directions.DownLeft:
                     InLeftDownPoint(input);
-                    //Console.WriteLine("Нижнелевая");
+                    //Consolereturn;.WriteLine("Нижнелевая");
                     break;
                 default:
                     //Console.WriteLine($"");
@@ -761,11 +776,14 @@ namespace Sick_test
             BorderPoint.GoToLeftBorder(input);
             BorderPoint.NextPosition(input);
             installpoint();
-
+            Console.WriteLine("Начальная пара точек");
             while(BorderPoint.isitstartpoint()==false){
+                Console.WriteLine("Следующая точка");
                 BorderPoint.NextPosition(input);
+                Console.WriteLine("Установка границ");
                 installpoint();
             }
+            Console.WriteLine("Пробежка по точкам закончена");
 
 
 
@@ -773,6 +791,7 @@ namespace Sick_test
             leftindexborders = new int[upborder-downborder+1];
             rightindexborders = new int[upborder-downborder+1];
 
+            Console.WriteLine("Пробежка по точкам 2");
             BorderPoint.NextPosition(input);
             installindex(input);
             while(BorderPoint.isitstartpoint()==false){
@@ -904,15 +923,19 @@ namespace Sick_test
         private carRESULT primitive(SuperScan[] input){
             var ret = new carRESULT();
             var startpoint = firstcarpoint(input);
-
+            Console.WriteLine("Установка начальной точки");
             if(startpoint.Y != -1){
+                Console.WriteLine("Пройдена проверка");
                 var borders = new islandborders(startpoint.Y, startpoint.X, input);
+                Console.WriteLine("Установка границ");
                 ret = primitivealgoritm(borders, input, _config);
+                Console.WriteLine("Получение размеров машины");
                 if((ret.Height == 0)&(ret.Width == 0)){
                     //Console.WriteLine("Опять фигня");
                 }else{
                     //Console.WriteLine("Хорошая машинка");
                     CarsArray.Add(borders.CarBorders(input, ret));
+                    Console.WriteLine("Сохранение машины");
                 }
                 borders.remoovecar(input);
                 //CarsArray.Add(borders.CarBorders(input));

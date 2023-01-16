@@ -83,12 +83,14 @@ namespace Sick_test
         }
 
         private void nextbuffer(){
+            Console.WriteLine("Буффер записан");
             _indexbuffer++;
             if(_indexbuffer >= bufferstosearch.Length){
                 _indexbuffer = 0;
             }          
         }
         private void nextreadbuffer(){
+            Console.WriteLine("Буффер считан");
             _read_indexbuffer++;
             if(_read_indexbuffer >= bufferstosearch.Length){
                 _read_indexbuffer = 0;
