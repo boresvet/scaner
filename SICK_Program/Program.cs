@@ -189,7 +189,7 @@ namespace Sick_test
                     Console.WriteLine("Сохранено");
                     times.RemoveReadArray();
                     Console.WriteLine("Буффер очищен");
-                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 

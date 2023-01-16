@@ -776,14 +776,14 @@ namespace Sick_test
             BorderPoint.GoToLeftBorder(input);
             BorderPoint.NextPosition(input);
             installpoint();
-            Console.WriteLine("Начальная пара точек");
+            //Console.WriteLine("Начальная пара точек");
             while(BorderPoint.isitstartpoint()==false){
-                Console.WriteLine("Следующая точка");
+                //Console.WriteLine("Следующая точка");
                 BorderPoint.NextPosition(input);
-                Console.WriteLine("Установка границ");
+                //Console.WriteLine("Установка границ");
                 installpoint();
             }
-            Console.WriteLine("Пробежка по точкам закончена");
+            //Console.WriteLine("Пробежка по точкам закончена");
 
 
 
@@ -791,7 +791,7 @@ namespace Sick_test
             leftindexborders = new int[upborder-downborder+1];
             rightindexborders = new int[upborder-downborder+1];
 
-            Console.WriteLine("Пробежка по точкам 2");
+            //Console.WriteLine("Пробежка по точкам 2");
             BorderPoint.NextPosition(input);
             installindex(input);
             while(BorderPoint.isitstartpoint()==false){
@@ -923,19 +923,19 @@ namespace Sick_test
         private carRESULT primitive(SuperScan[] input){
             var ret = new carRESULT();
             var startpoint = firstcarpoint(input);
-            Console.WriteLine("Установка начальной точки");
+            //Console.WriteLine("Установка начальной точки");
             if(startpoint.Y != -1){
-                Console.WriteLine("Пройдена проверка");
+                //Console.WriteLine("Пройдена проверка");
                 var borders = new islandborders(startpoint.Y, startpoint.X, input);
-                Console.WriteLine("Установка границ");
+                //Console.WriteLine("Установка границ");
                 ret = primitivealgoritm(borders, input, _config);
-                Console.WriteLine("Получение размеров машины");
+                //Console.WriteLine("Получение размеров машины");
                 if((ret.Height == 0)&(ret.Width == 0)){
                     //Console.WriteLine("Опять фигня");
                 }else{
                     //Console.WriteLine("Хорошая машинка");
                     CarsArray.Add(borders.CarBorders(input, ret));
-                    Console.WriteLine("Сохранение машины");
+                    //Console.WriteLine("Сохранение машины");
                 }
                 borders.remoovecar(input);
                 //CarsArray.Add(borders.CarBorders(input));
