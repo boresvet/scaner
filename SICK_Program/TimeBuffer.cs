@@ -16,7 +16,7 @@ namespace Sick_test
 {
     public class SuperScan{
         public int[] CarIslandLanes;
-        public PointXYint[][] OneSecondScanArray;
+        public PointXYint[][] ScanArray;
         public DateTime Time;
         ///<summary>Функция, сохраняющая в себе скан
         ///</summary>
@@ -24,8 +24,18 @@ namespace Sick_test
         }
         public SuperScan(int[] carIslandLanes, PointXYint[][] scanArray, DateTime time){
             CarIslandLanes = carIslandLanes;
-            OneSecondScanArray = scanArray;
+            ScanArray = scanArray;
             Time = time;
+        }
+        public SuperScan CopyScan(){
+            var newScan = new SuperScan();
+            newScan.Time = Time;
+            Array.Copy(CarIslandLanes, newScan.CarIslandLanes, CarIslandLanes.Length);
+            newScan.ScanArray = new PointXYint[ScanArray.Length][];
+            for(int i = 0; i<ScanArray.Length; i++){
+                newScan.ScanArray[i] = PointXYint.copyScan(ScanArray[i]);
+            }
+            return newScan;
         }
         /*public SuperScan(){
             CarIslandLanes = carIslandLanes;
@@ -60,10 +70,11 @@ namespace Sick_test
     public class TimeBuffer{
         private CircularBuffer<SuperScan>[] bufferstosearch; 
 
+
         int _head;
         int _indexbuffer;
         int _read_indexbuffer;
-
+        SuperScan _input;
         int _tail;
         int _length;
         int _buffersize;
@@ -126,21 +137,25 @@ namespace Sick_test
         }
         //Как SaveSuperScan, только с копированием
         public void AddSuperScan(SuperScan input){
-            var _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], OneSecondScanArray = new PointXYint[input.OneSecondScanArray.Length][], Time = new DateTime()};
+            _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], ScanArray = new PointXYint[input.ScanArray.Length][], Time = new DateTime()};
             _input.CarIslandLanes = input.CarIslandLanes;
             _input.Time = input.Time;
-            for(int i = 0; i < input.OneSecondScanArray.Length; i++){
-                _input.OneSecondScanArray[i] = input.OneSecondScanArray[i].ToArray();
+            for(int i = 0; i < input.ScanArray.Length; i++){
+                _input.ScanArray[i] = input.ScanArray[i].ToArray();
             }
             SaveSuperScan(_input);
         }
         public SuperScan CopySuperScan(SuperScan input){
-            var _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], OneSecondScanArray = new PointXYint[input.OneSecondScanArray.Length][], Time = new DateTime()};
+            var _input = new SuperScan(){CarIslandLanes = new int[input.CarIslandLanes.Length], ScanArray = new PointXYint[input.ScanArray.Length][], Time = new DateTime()};
             _input.CarIslandLanes = input.CarIslandLanes;
             _input.Time = input.Time;
-            for(int i = 0; i < input.OneSecondScanArray.Length; i++){
-                _input.OneSecondScanArray[i] = input.OneSecondScanArray[i].ToArray();
+            for(int i = 0; i < input.ScanArray.Length; i++){
+                _input.ScanArray[i] = input.ScanArray[i].ToArray();
             }
+            return _input;
+        }
+
+        public SuperScan readLastScan(){
             return _input;
         }
     }

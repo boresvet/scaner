@@ -112,7 +112,7 @@ namespace Sick_test
         }
 
 
-        static void Main(){
+        static void Main(returns returns){
 
                 /*var line1 = new line();
                 line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
@@ -150,6 +150,7 @@ namespace Sick_test
             var carbuffer = new CarBuffer(config.SortSettings.Buffers);
             var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
+            returns.initreturns(Inputs, times, carbuffer);
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll(InputT.Concat(new [] {MainT, ServerT}).ToArray());
@@ -782,7 +783,7 @@ namespace Sick_test
                 }
                 catch{
                     Inputs.ErrorEvent.Set();
-                    Inputs.InputEvent.Set();
+                    //Inputs.InputEvent.Set();
                 }
             }
         }

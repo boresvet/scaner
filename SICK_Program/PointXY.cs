@@ -35,8 +35,8 @@ namespace Sick_test
         ///<summary>///Возвращает копию массива точек
         ///<param name = "oldArray">Старый массив, который нужно скопировать</param>
         ///</summary>
-        static public PointXY[] copyScan(PointXY[] oldArray){
-            var newScan = new PointXY[oldArray.Length];
+        static public PointXYint[] copyScan(PointXYint[] oldArray){
+            var newScan = new PointXYint[oldArray.Length];
             oldArray.CopyTo(newScan, 0);
             return newScan;
         }
