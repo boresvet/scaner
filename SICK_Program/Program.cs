@@ -150,7 +150,7 @@ namespace Sick_test
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
             var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent));
-            var carbuffer = new CarBuffer(config.SortSettings.Buffers);
+            var carbuffer = new CarBuffer(config);
             var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             returns.initreturns(Inputs, times, carbuffer);

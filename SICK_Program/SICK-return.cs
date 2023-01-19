@@ -25,9 +25,9 @@ namespace Sick_test
             ret = times.readLastScan().CopyScan();
             return ret;
         }
-        public CarArraySize returnCar(DateTime Time){
+        public CarArraySize returnCar(DateTime Time, int roadline){
             var ret = new CarArraySize();
-            ret = carbuffer.GiveMyCar(Time);
+            ret = carbuffer.GiveMyCar(Time, roadline);
             return ret;
         }
     }

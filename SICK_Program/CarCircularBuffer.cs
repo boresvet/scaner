@@ -4,6 +4,7 @@ using System;
 namespace Sick_test
 {
     public class CarCircularBuffer{
+        config config;
         public CarArraySize[] _buffer;
         public int _head;
         int _tail;
@@ -11,7 +12,8 @@ namespace Sick_test
         int _buffersize;
         Object _lock = new object ();
 
-        public CarCircularBuffer(int buffersize){
+        public CarCircularBuffer(int buffersize, config _config){
+            config = _config;
             _buffer = new CarArraySize[buffersize];
             _buffersize = buffersize;
             _head = buffersize -1;
@@ -159,6 +161,26 @@ namespace Sick_test
                 j++;
             }
             return ret;
+        }
+        private bool iscarinthisLane(CarArraySize car, int roadline){
+            var laneleftborder = config.RoadSettings.Lanes[roadline].Offset;
+            var lanerightborder = config.RoadSettings.Lanes[roadline].Offset+config.RoadSettings.Lanes[roadline].Width;
+            return (((laneleftborder<=car.leftborder&&lanerightborder>car.rightborder))||(lanerightborder>=car.rightborder&&laneleftborder<car.rightborder));
+        }
+        private bool iscarinthisTime(CarArraySize car, DateTime time){
+            return ((car.starttime<time&&car.endtime>time));
+        }
+        public CarArraySize GiveMyCar(DateTime time, int roadline){
+            lock(_lock){
+                var ret = new CarArraySize();
+                foreach(CarArraySize i in _buffer){
+                    if(iscarinthisLane(i, roadline)&&iscarinthisTime(i, time)){
+                        ret = i.Copy();
+                    }
+                }
+
+                return ret;
+            }
         }
     }
 }

@@ -710,6 +710,19 @@ namespace Sick_test
         public int Height { get; set; }
         public CarArraySize(){
         }
+
+        public CarArraySize Copy(){
+            var ret = new CarArraySize();
+            ret.leftborder = leftborder;
+            ret.rightborder = rightborder;
+            ret.starttime = starttime;
+            ret.endtime = endtime;
+            ret.leftindexborders = leftindexborders;
+            ret.rightindexborders = rightindexborders;
+            ret.Height = Height;
+            ret.Width = Width;
+            return ret;
+        }
     }
     ///<summary>///Находит границы (упрощённые, только предельные габариты) машинки по одной точке (номер скана, номер точки)
     ///</summary>

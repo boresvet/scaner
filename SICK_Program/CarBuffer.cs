@@ -20,9 +20,9 @@ namespace Sick_test
         ///<summary>Объявление точки, в которую переносится система координат
         ///<param name = "zeropoint">Точка, в которую переносится начало координат</param>
         ///</summary>   
-        public CarBuffer(int size)
+        public CarBuffer(config config)
         {
-            _buffer = new CarCircularBuffer(size);
+            _buffer = new CarCircularBuffer(config.SortSettings.Buffers, config);
         }
 
         public void UpdateCars(List<CarArraySize> input){
@@ -70,14 +70,8 @@ namespace Sick_test
             return false;
         }
 
-            public CarArraySize GiveMyCar(DateTime time){
-                var ret = new CarArraySize();
-
-
-
-
-
-                return ret;
+            public CarArraySize GiveMyCar(DateTime time, int roadline){
+                return _buffer.GiveMyCar(time, roadline);
             }
     }
 }
