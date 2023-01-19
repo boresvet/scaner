@@ -111,7 +111,10 @@ namespace Sick_test
             Myfyle.WriteLine(@"{""PointsXY"":[" + String.Join(", ", mass.Select(n => PointsToString(n))) + "]}");
         }
 
-
+        static void Main(){
+            var returns = new returns();
+            Main(returns);
+        }
         static void Main(returns returns){
 
                 /*var line1 = new line();

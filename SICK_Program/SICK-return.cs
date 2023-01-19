@@ -20,9 +20,14 @@ namespace Sick_test
             ret = Inputs.inputClass[number].MyConcurrentQueue.ReadPosition().copyScan();
             return ret;
         }
-        public SuperScan returnroad(){
+        public SuperScan returnRoad(){
             var ret = new SuperScan();
             ret = times.readLastScan().CopyScan();
+            return ret;
+        }
+        public CarArraySize returnCar(DateTime Time){
+            var ret = new CarArraySize();
+            ret = carbuffer.GiveMyCar(Time);
             return ret;
         }
     }

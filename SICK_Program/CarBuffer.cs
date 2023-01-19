@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System;
 
 
 namespace Sick_test
@@ -68,5 +69,15 @@ namespace Sick_test
             }
             return false;
         }
+
+            public CarArraySize GiveMyCar(DateTime time){
+                var ret = new CarArraySize();
+
+
+
+
+
+                return ret;
+            }
     }
 }

@@ -810,10 +810,10 @@ namespace Sick_test
         }
 
 
-        public CarArraySize CarBorders(SuperScan[] input, carRESULT resulrtCar){
+        public CarArraySize CarBorders(SuperScan[] input, carRESULT resulrtCar, config config){
             var ret = new CarArraySize();
-            ret.leftborder = leftborder;
-            ret.rightborder = rightborder;
+            ret.leftborder = config.RoadSettings.LeftLimit + leftborder*config.RoadSettings.Step;
+            ret.rightborder = config.RoadSettings.LeftLimit + rightborder*config.RoadSettings.Step;
             ret.starttime = input[starttime].Time;
             ret.endtime = input[starttime + leftindexborders.Length-1].Time;
             ret.leftindexborders = leftindexborders;
@@ -934,7 +934,7 @@ namespace Sick_test
                     //Console.WriteLine("Опять фигня");
                 }else{
                     //Console.WriteLine("Хорошая машинка");
-                    CarsArray.Add(borders.CarBorders(input, ret));
+                    CarsArray.Add(borders.CarBorders(input, ret, _config));
                     //Console.WriteLine("Сохранение машины");
                 }
                 borders.remoovecar(input);
