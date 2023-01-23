@@ -1,5 +1,4 @@
 using System;
-using static System.Math;
 namespace Sick_test
 {
     public class returns

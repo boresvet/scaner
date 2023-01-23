@@ -1,6 +1,5 @@
 using System;
 
-
 namespace Sick_test
 {
     public class CarCircularBuffer{
