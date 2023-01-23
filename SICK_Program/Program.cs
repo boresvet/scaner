@@ -167,9 +167,6 @@ namespace Sick_test
         }
 
         static void TServerT(TimeBuffer times, config config, CarBuffer carbuffer, ManualResetEvent ExitEvent){
-            Thread.Sleep(10000);
-
-            //var res = new Scanint(MyConcurrentQueue.);
             while(true){
                 if (ExitEvent.WaitOne(0)) {
                     return;
@@ -202,48 +199,6 @@ namespace Sick_test
                 {
                     Console.WriteLine(ex);
                 }
-            }
-        }
-        /*static void ServerT(TimeBuffer times, config config, ManualResetEvent ExitEvent){
-            //var res = new Scanint(MyConcurrentQueue.);
-            var serv = new Server(new string[] {"127.0.0.0", "9000"});
-            while(true){
-                if (ExitEvent.WaitOne(0)) {
-                    return;
-                }
-                try
-                {
-                    serv.ServerLoop(times, config);
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex);
-                    if(serv.response != null)
-                    {
-                        serv.SendErrorResponse(500, "Internal server error");
-                    }
-                }
-            }
-        }*/
-        static void TLaneT(config config, CircularBuffer<Scanint> LaneConcurrentQueue, ManualResetEvent RoadEvent, ManualResetEvent ExitEvent){
-            //var res = new Scanint(MyConcurrentQueue.);
-            while(true){
-                if (ExitEvent.WaitOne(0)) {
-                    return;
-                }
-                RoadEvent.WaitOne();
-                    /*
-                    for(int i = 0; i<MyConcurrentQueue.Length; i++){
-                    RoadScan = new Scanint(0);
-                    MyConcurrentQueue[i].TryDequeue(out var res);
-                    InputEvent[i].Reset();
-                    if(RoadScan.pointsArray.Length == o){
-                        RoadScan.DateTime = res.DateTime;
-                    }
-                    RoadScan.pointsArray = RoadScan.pointsArray.Concat().ToArray();
-                } */
-                //Console.WriteLine("356673");
-                RoadEvent.Reset();
             }
         }
 
@@ -285,38 +240,6 @@ namespace Sick_test
 
                 if (ExitEvent.WaitOne(0))
                 {
-                    /*int o = 0;
-                    int len = 0;
-                    var groundTable = new PointXYint[pointsSortTable.Length];
-
-                    //saveTableToFile(pointsSortTable);
-                    for(int l = 0; l<pointsSortTable.Length; l++){
-                        o = o+pointsSortTable[l].Length;
-                    }
-                    var 
-                    for(int l = 0; l<pointsSortTable.Length; l++){
-                        if(pointsSortTable[l].Length == 0){
-                            //Console.Write("Пустой столбец ");
-                            //Console.WriteLine(l);
-                        }else{
-                            if(o/pointsSortTable.Length<pointsSortTable[l].Length){
-                            //Console.Write("Заполнен столбец ");
-                            //Console.Write(l);
-                            //Console.Write(" Значений: ");
-                            //Console.WriteLine(pointsSortTable[l].Length);
-
-                            len++;
-                            }
-                        }
-                        o = o+pointsSortTable[l].Length;
-                    }
-                    Console.Write("Всего столбцов ");
-                    Console.WriteLine(pointsSortTable.Length);
-                    Console.Write("среднее арифм по столбцам ");
-                    Console.WriteLine(o/pointsSortTable.Length);
-                    Console.Write("Итого столбцов: ");
-                    Console.WriteLine(len);*/
-
                     return;
                 }
                 //Console.WriteLine("Ждём");
@@ -505,34 +428,6 @@ namespace Sick_test
                     i.Reset();
                 }
             }
-        }
-        static void Main2(){
-            ConcurrentQueue<Scan> MyConcurrentQueue = new ConcurrentQueue<Scan>();
-            CircularBuffer<PointXY[]> MyGround = new CircularBuffer<PointXY[]>(1);
-            var InputEvent = new ManualResetEvent(false);
-            var ExitEvent = new ManualResetEvent(false);
-            //var dump = @"asciidump/scan_[--ffff-192.168.5.241]-2111_637563296658652353.bin";
-            //var s = new FileStream(dump, FileMode.Open, FileAccess.Read);
-            //var r = LMDScandataResult.Parse(s);
-            //var InputT = Task.Run(() => InputTask("192.168.43.241", MyConcurrentQueue, InputEvent, ExitEvent));
-            //var MainT = Task.Run(() => MainTask(MyConcurrentQueue, InputEvent, ExitEvent));
-            Console.ReadLine();
-            ExitEvent.Set();
-            //Task.WaitAll(InputT, MainT);PointXYint
-            Console.WriteLine("Завершено");
-            return;
-            /*for (int i = 0; i < pos.Count(); i++)
-            {
-                Console.WriteLine($"{addr},  {i + 1}, {qwer[i].X},  {qwer[i].Y} ");
-            }*/
-            /*var translatePoint = new PointXY();
-            translatePoint.X = 17;
-            translatePo}int.Y = 4;
-            var TestGen = new TestGenerator(Step, 5, -5, 10, -5, 185);
-            var RawScan = TestGen.ScanGen();
-            var Translator = new translator(translatePoint);
-            var scan = Translator.Translate(RawScan);
-            Console.WriteLine();*/
         }
 
         public static int[] AddLineIsland(int[] input, int startpoint, int endpoint){
