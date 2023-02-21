@@ -1,5 +1,5 @@
 {
-"Test": true,
+"Test": false,
 "Method": "primitive",
 "FilteredHeight": 300,
 "SortSettings": 
@@ -13,17 +13,18 @@
 {
     "UpLimit": 7000,
     "DownLimit": -100,
-    "LeftLimit": -10000,
-    "RightLimit": 10000,
+    "LeftLimit": -1000,
+    "RightLimit": 11000,
 	"Step": 20,
 	
     "Lanes": 
 	[
-		{"ID":0, "Offset":-100, "Width":2500, "Height":100}
+		{"ID":0, "Offset":-100, "Width":10000, "Height":100}
 	], 
     "Blinds": 
 	[
-		{"ID":0, "Offset":2400, "Width":500, "Height":350}
+		{"ID":0, "Offset":10000, "Width":10000, "Height":10000},
+		{"ID":1, "Offset":-10000, "Width":10000, "Height":10000}
 	] 
 },
 "Scanners": 
@@ -44,7 +45,7 @@
 		},
 		
 		"Transformations":{	
-			"Height" : 4500,
+			"Height" : 10000,
 			"HorisontalOffset" : 1500,
 			"CorrectionAngle": 2
 		}
@@ -66,7 +67,7 @@
 		},
 		
 		"Transformations":{	
-			"Height" : 4500,
+			"Height" : 10000,
 			"HorisontalOffset" : 2500,
 			"CorrectionAngle": 2
 		}
@@ -88,7 +89,7 @@
 			},
 			
 			"Transformations":{	
-				"Height" : 4500,
+				"Height" : 10000,
 				"HorisontalOffset" : 5500,
 				"CorrectionAngle": 2
 			}

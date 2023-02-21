@@ -840,7 +840,7 @@ namespace Sick_test
     }
     public class IslandSeach{
         public List<CarArraySize> CarsArray; //Массив всех машинок
-        public string method; //метод поиска машинки, бреётся из конфига
+        public string method; //метод поиска машинки, берётся из конфига
         public int MinLength;
         public int MinWigdh;
         config _config;
@@ -906,6 +906,11 @@ namespace Sick_test
 
                 ret.Starttime = inputscans[input.downborder].Time;
                 ret.Endtime = inputscans[input.upborder].Time;
+                if(HeightArray.Length == 0){
+                    ret.Width = 0;
+                    ret.Height = 0;
+                    return ret;
+                }
                 ret.Width = (lenthArray[(int)(lenthArray.Length - (lenthArray.Length*0.05))]) * config.RoadSettings.Step;//Уже в миллиметрах
                 ret.Height = HeightArray[(int)(HeightArray.Length - (HeightArray.Length*0.05))];
                 //Отбрасываются максимальные точки, т.к. они скорее всего ошибка(та же антенна, + блики)

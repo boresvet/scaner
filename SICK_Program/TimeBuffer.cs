@@ -88,7 +88,7 @@ namespace Sick_test
             _indexbuffer++;
             if(_indexbuffer >= bufferstosearch.Length){
                 _indexbuffer = 0;
-            }          
+            }
         }
         private void nextreadbuffer(){
             Console.WriteLine("Буффер считан");
