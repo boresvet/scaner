@@ -7,7 +7,7 @@ namespace Sick_test
     public class inputTheard
     {
         public Scanner scaner;
-        public CircularBuffer<Scanint> MyConcurrentQueue;
+        private CircularBuffer<Scanint> MyConcurrentQueue;
         public ManualResetEvent InputEvent;
         public ManualResetEvent ErrorEvent;
         
@@ -21,29 +21,69 @@ namespace Sick_test
             ErrorEvent = new ManualResetEvent(false);
             MyConcurrentQueue = new CircularBuffer<Scanint>(1);
         }
+
+        public Scanint GetLastScan(){
+            return MyConcurrentQueue.ZeroPoint();
+        }
+        public void AddScan(Scanint scan){
+            MyConcurrentQueue.AddZeroPoint(scan);
+        }
     }
     ///<summary> Класс содержит все данные, передаваемые в поток и из потока. Так же из массива описаний потоков создаётся массив тригеров, что позволяет не тратить каждый раз время на извлечение триггеров из массива классов.
     ///</summary>
     public class AllInput{
-        public inputTheard[] inputClass;
-        public ManualResetEvent[] InputEvent;
-        public ManualResetEvent[] ErrorEvent;
+        private bool[] ScannerDataReady;
+        private inputTheard[] inputThreads;
+        private ManualResetEvent[] InputEvent;
+        private ManualResetEvent[] ErrorEvent;
         ///<summary>
         ///</summary>
         ///<param name = "config">Конфигурации всех сканеров, тип <paramref config="config"/>config</paramref> позволяют обработать сразу все сканеры в одном потоке.</param>
         public AllInput(config config){
-            inputClass = new inputTheard[config.Scanners.Length];
+            inputThreads = new inputTheard[config.Scanners.Length];
+            ScannerDataReady = new bool[config.Scanners.Length];
             for(var i = 0; i < config.Scanners.Length; i++){
-                inputClass[i] = new inputTheard(config.Scanners[i]);
+                inputThreads[i] = new inputTheard(config.Scanners[i]);
             }
             InputEvent = InputClInput();
             ErrorEvent = InputClError();
         }
         private ManualResetEvent[] InputClInput(){
-            return(inputClass.Select(n => n.InputEvent).ToArray());
+            return(inputThreads.Select(n => n.InputEvent).ToArray());
         }
         private ManualResetEvent[] InputClError(){
-            return(inputClass.Select(n => n.ErrorEvent).ToArray());
+            return(inputThreads.Select(n => n.ErrorEvent).ToArray());
+        }
+
+
+        public void TestScanners(){
+            for(int i = 0; i < ErrorEvent.Length; i++)
+            {
+                ScannerDataReady[i] = (ErrorEvent[i].WaitOne(0) == false);
+            }
+        }
+        public bool IsScannerReady(int i){
+            return ScannerDataReady[i];
+        }
+
+        public Scanint ReadLastScan(int i){
+            return inputThreads[i].GetLastScan();
+        }
+        public Scanint GetLastScan(int i){
+            var ret = inputThreads[i].GetLastScan();
+            InputEvent[i].Reset();
+            return ret;
+        }
+
+        public void WaitAnyData(){
+            WaitHandle.WaitAny(InputEvent);
+        }
+        public bool WaitAllData(){
+            return WaitHandle.WaitAll(InputEvent, 50);
+        }
+        
+        public inputTheard GetInputTheard(int i){
+            return inputThreads[i];
         }
 
         //TaskInput, AllTaskInput

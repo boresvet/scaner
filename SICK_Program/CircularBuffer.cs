@@ -2,18 +2,9 @@ using System;
 
 namespace Sick_test
 {
-    public class CircularBuffer<T> : abstractCircularBuffer<T>
-    {
-        public CircularBuffer(int buffersize){
-            _buffer = new T[buffersize];
-            _buffersize = buffersize;
-            _head = buffersize -1;
-        }
-    }
-
-    ///<summary>Примитивнейший круговой буфеh
+    ///<summary>Примитивнейший круговой буфер
     ///</summary>  
-    public class abstractCircularBuffer<T>{
+    public class CircularBuffer<T>{
         public T[] _buffer;
         public int _head;
         public int _tail;
@@ -21,7 +12,11 @@ namespace Sick_test
         public int _buffersize;
         public Object _lock = new object ();
 
-
+        public CircularBuffer(int buffersize){
+            _buffer = new T[buffersize];
+            _buffersize = buffersize;
+            _head = buffersize -1;
+        }
         public bool IsEmpty{
             get{return _length == 0;}
         }

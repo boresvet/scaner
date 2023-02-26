@@ -16,7 +16,7 @@ namespace Sick_test
         }
         public Scanint returnScan(int number){
             var ret = new Scanint();
-            ret = Inputs.inputClass[number].MyConcurrentQueue.ReadPosition().copyScan();
+            ret = Inputs.ReadLastScan(number).copyScan();
             return ret;
         }
         public SuperScan returnRoad(){

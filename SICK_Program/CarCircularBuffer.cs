@@ -2,19 +2,19 @@ using System;
 
 namespace Sick_test
 {
-    public class CarCircularBuffer : abstractCircularBuffer<CarArraySize>{
+    public class CarCircularBuffer : CircularBuffer<CarArraySize>{
         config config;
-
-
-        public CarCircularBuffer(int buffersize, config _config){
+        public CarCircularBuffer(int buffersize, config _config):base(buffersize){
             config = _config;
-            _buffer = new CarArraySize[buffersize];
-            _buffersize = buffersize;
-            _head = buffersize -1;
         }
 
         private int NextPosition(int position){
-            return (position + 1) % _buffersize;
+            position+=1;
+            if(position >= _buffersize){
+                position = 0;
+            }
+            return position;
+            //return (position + 1) % _buffersize;
         }
 
 

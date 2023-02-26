@@ -138,9 +138,9 @@ namespace Sick_test
             var Inputs = new AllInput(config);
             Task[] InputT;
             if(config.Test){
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.inputClass[y], ExitEvent, y))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y))).ToArray();
             }else{
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.inputClass[y], ExitEvent))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent))).ToArray();
             }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
@@ -201,21 +201,24 @@ namespace Sick_test
 
         static void TMainT(config config, AllInput Inputs, TimeBuffer times, ManualResetEvent ExitEvent){
             try{
-            var WorkScanners = new bool[Inputs.inputClass.Length];
             //Объявление массива с датчиками рабочести сканеров. 
-            
-            for(int i = 0; i<Inputs.inputClass.Length; i++){
+            //var ScannerDataReady = Enumerable.Range(0,config.Scanners.Length).Select(x => true).ToArray();
+            /*for(int i = 0; i<config.Scanners.Length; i++){
                 WorkScanners[i] = true;
-            }
+            }*/
+
+
             //var LanesArray = new Scanint[config.RoadSettings.Lanes.Length];
             Scanint RoadScan;// = new Scanint(0);
-            WaitHandle.WaitAll(Inputs.InputEvent);
-            var pointsfilter = new Filter((int)((config.RoadSettings.RightLimit-config.RoadSettings.LeftLimit)/config.RoadSettings.Step), config);
+            Inputs.WaitAnyData();
+            Inputs.WaitAllData();
+            var pointsfilter = new Filter(config);
 
 
 
-            //Создание массива столбцов, каждый столбец - содержит именно точки
-            var pointsSortTable = new PointXYint[(config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step][];
+            //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
+            var roadColumnsCount = (int)((config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step);
+            var pointsSortTable = new PointXYint[roadColumnsCount][];
             for(var i = 0; i < pointsSortTable.Length; i++){
                 pointsSortTable[i] = new PointXYint[0];
             }
@@ -228,9 +231,6 @@ namespace Sick_test
             //Соответственно, достаточно собрать генератор островов, и профит)
 
 
-            var trig = false;
-
-
             //var res = new Scanint(MyConcurrentQueue.);
             while(true)
             {
@@ -240,30 +240,29 @@ namespace Sick_test
                     return;
                 }
                 //Console.WriteLine("Ждём");
-                WaitHandle.WaitAny(Inputs.InputEvent);
-                WaitHandle.WaitAll(Inputs.InputEvent, 50);
+
+
+                Inputs.WaitAnyData();
+                Inputs.WaitAllData();
+
                 //Console.WriteLine("Дождались");
 
-                if ((WaitHandle.WaitAny(Inputs.ErrorEvent, 0) != 0) | (trig))
-                {
-                    for (int i = 0; i < Inputs.ErrorEvent.Length; i++)
-                    {
-                        WorkScanners[i] = (Inputs.ErrorEvent[i].WaitOne(0) == false);
-                        trig = true;
-                    }
-                }
+                //Проверка работоспособности сканеров(упал ли поток со сканерами)
+                Inputs.TestScanners();
+
                 RoadScan = new Scanint(0);
-                for (int i = 0; i < Inputs.InputEvent.Length; i++)
+                for (int i = 0; i < config.Scanners.Length; i++)
                 {
                     /*if(InputEvent[i].WaitOne(0)){
                     }else{
                         Console.Write("Пропал скан ");
                         Console.WriteLine(i+1);
                     }*/
-                    if (WorkScanners[i])
+
+                    //Проверка на ошибку в сканере
+                    if (Inputs.IsScannerReady(i)) 
                     {
-                        var res = Inputs.inputClass[i].MyConcurrentQueue.ZeroPoint();
-                        Inputs.InputEvent[i].Reset();
+                        var res = Inputs.GetLastScan(i);
                         if (RoadScan.pointsArray.Length == 0)
                         {
                             RoadScan.time = res.time;
@@ -272,13 +271,11 @@ namespace Sick_test
                     }
                 }
 
-
-                Sorts.HoareSort(RoadScan.pointsArray);//Сортировка точек в скане по ширине дороги
-                SliceByColumns(config, RoadScan, pointsSortTable);
+                SliceByColumns(config, RoadScan, pointsSortTable);//Смешная нарезка в столбцы
 
 
                 var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
-                var CarArray = AddAllIslandLane(FilteredPoints);
+                var CarArray = AddAllIslandLane(FilteredPoints);//Дорисовка машины (недостающих столбцов)
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
@@ -293,20 +290,27 @@ namespace Sick_test
             }
         }
 
+
+        //Нарезка данных в колонны
         private static void SliceByColumns(config config, Scanint RoadScan, PointXYint[][] pointsSortTable)
         {
             for (var i = 0; i < pointsSortTable.Length; i++)
             {
                 pointsSortTable[i] = new PointXYint[0];
             }
+            
+            Sorts.HoareSort(RoadScan.pointsArray);//Сортировка точек в скане по ширине дороги
 
-
+            var invertStep = 1.0 / config.RoadSettings.Step;
             int j = 0;
             while (j < RoadScan.pointsArray.Length)
             {
                 if ((RoadScan.pointsArray[j].X > config.RoadSettings.LeftLimit) & (RoadScan.pointsArray[j].X < config.RoadSettings.RightLimit))
                 {
-                    pointsSortTable[(int)((RoadScan.pointsArray[j].X - config.RoadSettings.LeftLimit) / config.RoadSettings.Step)] = pointsSortTable[(int)((RoadScan.pointsArray[j].X - config.RoadSettings.LeftLimit) / config.RoadSettings.Step)].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();//Навернуть логику
+                    //Вычисляет номер столбца, в который нужно добавить точку
+                    var index = (int)((double)(RoadScan.pointsArray[j].X - config.RoadSettings.LeftLimit) * invertStep);
+                    //Добавление точки в столбец
+                    pointsSortTable[index] = pointsSortTable[index].Concat(RoadScan.pointsArray[j].ToArray()).ToArray();
                 }
                 j++;
             }
@@ -556,7 +560,7 @@ namespace Sick_test
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);
-                        Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
+                        Inputs.AddScan(Scan);
                         Inputs.InputEvent.Set();
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
@@ -615,7 +619,7 @@ namespace Sick_test
                         Потом - транслирует все точки в общую систему  координат дороги
                         */
 
-                        Inputs.MyConcurrentQueue.AddZeroPoint(Scan);
+                        Inputs.AddScan(Scan);
                         Inputs.InputEvent.Set();
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));

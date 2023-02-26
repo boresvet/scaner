@@ -14,10 +14,10 @@ namespace Sick_test
         ///<param name = "roadLenght">Ширина дороги (количество столбцов)</param>
         ///<param name = "settings">Конфигурация дороги</param>
         ///</summary>
-        public Filter(int roadLenght, config settings)
+        public Filter(config settings)
 		{
             FilteredHeight = settings.FilteredHeight;
-            RoadLenght = roadLenght;
+            RoadLenght = (int)((settings.RoadSettings.RightLimit-settings.RoadSettings.LeftLimit)/settings.RoadSettings.Step);
             Settings = settings.RoadSettings;
             filterMax = new int[RoadLenght];
             filterMin = new int[RoadLenght];
