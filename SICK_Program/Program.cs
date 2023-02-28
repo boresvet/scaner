@@ -132,7 +132,7 @@ namespace Sick_test
             //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
-            TimeBuffer times = new TimeBuffer(300, config.SortSettings.Buffers);
+            TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, config.SortSettings.Buffers);
 
 
             var Inputs = new AllInput(config);
@@ -182,8 +182,8 @@ namespace Sick_test
                     Console.WriteLine("Созданы острова");
                     seach.Search(_buffer);
                     Console.WriteLine("Произведён поиск");
-                    var cars = seach.CarsArray;
-                    carbuffer.UpdateCars(cars); //Сохранение машинок в буффер с машинками
+                    //var cars = seach.CarsArray;
+                    carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
                     Console.WriteLine("Сохранено");
                     times.RemoveReadArray();
                     Console.WriteLine("Буффер очищен");

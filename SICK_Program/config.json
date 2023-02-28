@@ -6,6 +6,7 @@
 {
 	"SavedCars" : 100,
 	"Buffers" : 5,
+	"BufferTimesLength" : 300,
 	"MinWigdh": 500,
     "MinLength": 10
 },
