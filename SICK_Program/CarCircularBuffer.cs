@@ -2,12 +2,12 @@ using System;
 
 namespace Sick_test
 {
+    ///<summary>Круговой буффер для хранения машинок</summary>  
     public class CarCircularBuffer : CircularBuffer<CarArraySize>{
         config config;
         public CarCircularBuffer(int buffersize, config _config):base(buffersize){
             config = _config;
         }
-
         private int NextPosition(int position){
             position+=1;
             if(position >= _buffersize){
@@ -17,7 +17,7 @@ namespace Sick_test
             //return (position + 1) % _buffersize;
         }
 
-
+        ///<summary>Добавляет полученную машинку в буффер</summary>  
         public void AddCar(CarArraySize input){
             var _input = new CarArraySize(){
                 leftborder = new int(),
@@ -40,6 +40,7 @@ namespace Sick_test
             _input.Height = input.Height;
             Enqueue(_input);
         }
+        ///<summary>Возвращает все имеющиеся машинки</summary>  
         public CarArraySize[] ReadAllBuffer(){
             if(_length == 0){
                 return new CarArraySize[0];
@@ -70,6 +71,7 @@ namespace Sick_test
         private bool iscarinthisTime(CarArraySize car, DateTime time){
             return ((car.starttime<time&&car.endtime>time));
         }
+        ///<summary>Возвращает машинку, при запросе по времени и номеру полосы</summary>  
         public CarArraySize GiveMyCar(DateTime time, int roadline){
             lock(_lock){
                 var ret = new CarArraySize();

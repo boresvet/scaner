@@ -592,7 +592,6 @@ namespace Sick_test
                         pointsArray = translator.Translate(Conv.MakePoint(res)),
                         time = DateTime.Now
                     };
-                    var oldscannumber=0;
                     while(true){
                         if (ExitEvent.WaitOne(10)) {
                             return;

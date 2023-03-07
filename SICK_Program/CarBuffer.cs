@@ -4,17 +4,16 @@ using System;
 
 namespace Sick_test
 {
+    ///<summary>Буффер для хранения машинок</summary>  
     public class CarBuffer{
 
         CarCircularBuffer _buffer;
-        ///<summary>Объявление точки, в которую переносится система координат
-        ///<param name = "zeropoint">Точка, в которую переносится начало координат</param>
-        ///</summary>   
+        ///<summary>Размер и количество очередей берётся из конфига</summary>  
         public CarBuffer(config config)
         {
             _buffer = new CarCircularBuffer(config.SortSettings.Buffers, config);
         }
-
+        ///<summary>Добавляет полученные машинки к уже имеющимся в буффере</summary>  
         public void UpdateCars(List<CarArraySize> input){
             if(input.Count == 0){
                 return;
@@ -30,7 +29,7 @@ namespace Sick_test
                 WriteCarToBuffer(input[i], carbuffer);
             }
         }
-
+        ///<summary>Добавляет полученную машинки в буффер</summary>  
         private void WriteCarToBuffer(CarArraySize input, CarArraySize[] carbuffer)
         {
             foreach (CarArraySize carfrombuffer in carbuffer)
@@ -42,7 +41,7 @@ namespace Sick_test
             }
             _buffer.AddCar(input);
         }
-
+        ///<summary>Проверяет, не является ли пара машинок кусками одной и той же</summary>  
         public bool IsItThisCar(CarArraySize CarFromBuffer, CarArraySize NewCar){
             //Если машина из буфера совпадает с свеженайденой машиной, то границы машинф в буффере расширяются
             if(((CarFromBuffer.leftindexborders[CarFromBuffer.leftindexborders.Length-1]==NewCar.leftindexborders[0])||(CarFromBuffer.rightindexborders[CarFromBuffer.rightindexborders.Length-1]==NewCar.rightindexborders[0]))&&(CarFromBuffer.endtime == NewCar.starttime)){
@@ -59,6 +58,7 @@ namespace Sick_test
             }
             return false;
         }
+        ///<summary>Возвращает машинку по заданному времени</summary>  
 
             public CarArraySize GiveMyCar(DateTime time, int roadline){
                 return _buffer.GiveMyCar(time, roadline);
