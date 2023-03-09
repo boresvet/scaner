@@ -213,8 +213,7 @@ namespace Sick_test
             Inputs.WaitAnyData();
             Inputs.WaitAllData();
             var pointsfilter = new Filter(config);
-
-
+            var ConcatScanInterface = new ScanConcat(config);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
             var roadColumnsCount = (int)((config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step);
@@ -263,14 +262,15 @@ namespace Sick_test
                     if (Inputs.IsScannerReady(i)) 
                     {
                         var res = Inputs.GetLastScan(i);
-                        if (RoadScan.pointsArray.Length == 0)
+                        if (ConcatScanInterface.IsEmpty())
                         {
                             RoadScan.time = res.time;
                         }
-                        RoadScan.pointsArray = RoadScan.pointsArray.Concat(res.pointsArray).ToArray();
+                        ConcatScanInterface.Add(res.pointsArray);
                     }
                 }
 
+                RoadScan.pointsArray = ConcatScanInterface.Dequeue();
                 SliceByColumns(config, RoadScan, pointsSortTable);//Смешная нарезка в столбцы
 
 
