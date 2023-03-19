@@ -222,7 +222,7 @@ namespace Sick_test
                 pointsSortTable[i] = new PointXYint[0];
             }
 
-
+            var Slicer = new ScanColumnArray(config);
 
             //Штука, куда складываются все точки дороги. 
             //Точки распределяются по массивам, как по вертикальным столбцам шириной в "config.RoadSettings.Step"
@@ -271,8 +271,7 @@ namespace Sick_test
                 }
 
                 RoadScan.pointsArray = ConcatScanInterface.Dequeue();
-                SliceByColumns(config, RoadScan, pointsSortTable);//Смешная нарезка в столбцы
-
+                Slicer.Add(RoadScan.pointsArray);//Смешная нарезка в столбцы
 
                 var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
                 var CarArray = AddAllIslandLane(FilteredPoints);//Дорисовка машины (недостающих столбцов)
@@ -282,7 +281,7 @@ namespace Sick_test
                     LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
                 }
                 RoadEvent.Set();*/
-                times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
+                times.AddSuperScan(new SuperScan(CarArray, Slicer.Dequeue(), RoadScan.time));
                 //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{
