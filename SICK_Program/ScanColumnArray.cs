@@ -16,10 +16,7 @@ namespace Sick_test
         public ScanColumnArray(config config){
             _config = config;
             invertStep = 1.0 / config.RoadSettings.Step;
-			scanleanth = 0;
-			foreach(Scanner scanner in config.Scanners){
-				scanleanth += (int)((float)(scanner.Settings.EndAngle-scanner.Settings.StartAngle)/scanner.Settings.Resolution);
-			}
+			scanleanth =  (int)((config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step);
 			InterFace = new PointXYint[scanleanth][];
             leanth = new int[scanleanth];
             for(int i = 0; i < InterFace.Length; i++){
@@ -31,7 +28,10 @@ namespace Sick_test
 			return leanth[i] == 0;
 		}
         private void injectItem(int index, PointXYint point){
-            if(InterFace[index].Length >= leanth[index]){
+            if((index >= InterFace.Length)||(index<0)){
+                return;
+            }
+            if(InterFace[index].Length <= leanth[index]){
                 InterFace[index] = InterFace[index].Concat(point.ToArray()).ToArray();
                 leanth[index]+=1;
             }else{

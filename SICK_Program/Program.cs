@@ -14,30 +14,6 @@ namespace Sick_test
 
     class Program
     {
-        static void CreateImage(CircularBuffer<Scan> myCircularBuffer, string Filename){
-            var img = new Bitmap(myCircularBuffer.MyLeanth, 1000, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            var color = new Color();
-            var Scans = myCircularBuffer.ReadPosition();
-            var cnt = 0;
-            var n = 0;
-            int j = 0;
-            while(myCircularBuffer.MyLeanth > j){
-                Scans = myCircularBuffer.ReadPosition();
-                foreach(PointXY i in Scans.pointsArray){
-                    n = PointsHigth(i.Y);
-                    color = System.Drawing.Color.FromArgb(n,n,127);
-                    if(Abs(i.X)<10){
-                        var MyPoint = (((i.X/10.0)*500.0)+500)%1000;
-                        img.SetPixel(myCircularBuffer.MyLeanth,(int)MyPoint,color);
-                        //img.SetPixel(0,0,color);
-                    }
-                cnt++;
-                }
-                //Console.WriteLine(PointsHigth(7.7));
-            }
-            img.Save(Filename, System.Drawing.Imaging.ImageFormat.Png); 
-            img.Dispose();
-        }
         public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
             var scan = new Scan(Step);
             //= MyCircularBuffer.ReadPosition();
@@ -272,7 +248,8 @@ namespace Sick_test
 
                 RoadScan.pointsArray = ConcatScanInterface.Dequeue();
                 Slicer.Add(RoadScan.pointsArray);//Смешная нарезка в столбцы
-
+                //SliceByColumns(config, RoadScan, pointsSortTable);
+                pointsSortTable = Slicer.Dequeue();
                 var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
                 var CarArray = AddAllIslandLane(FilteredPoints);//Дорисовка машины (недостающих столбцов)
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
@@ -281,7 +258,7 @@ namespace Sick_test
                     LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
                 }
                 RoadEvent.Set();*/
-                times.AddSuperScan(new SuperScan(CarArray, Slicer.Dequeue(), RoadScan.time));
+                times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
                 //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{
