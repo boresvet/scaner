@@ -3,15 +3,16 @@ using System.Linq;
 
 namespace Sick_test
 {
-	///<summary>Объявляет скан с массивом указанной длинны
+	///<summary> Нарезает данные со сканеров в таблицу столбцов
     ///</summary>   
     public class ScanColumnArray{
         private config _config;
-        PointXYint[][] InterFace;
+        private PointXYint[][] InterFace;
 		private int[] leanth;
 		private int scanleanth;
         private int index;
         private double invertStep;
+		///<summary> Нарезает данные со сканеров в таблицу столбцов </summary>
 
         public ScanColumnArray(config config){
             _config = config;
@@ -24,6 +25,7 @@ namespace Sick_test
                 InterFace[i] = new PointXYint[0];
             }
         }
+		///<summary> Проверка на то, является ли буфер пустым </summary>
 		public bool IsEmpty(int i){
 			return leanth[i] == 0;
 		}
@@ -40,6 +42,7 @@ namespace Sick_test
             }
 
         }
+		///<summary> Нарезка данных в столбцы </summary>
         public void Add(PointXYint[] RoadScan){
             for(int i = 0; i < InterFace.Length; i++){
                 leanth[i] = 0;
@@ -49,6 +52,7 @@ namespace Sick_test
                 injectItem(index, i);
             }
 		}
+		///<summary> Получение копии таблицы с данными </summary>
 		public PointXYint[][] Dequeue(){
 			var x = new PointXYint[scanleanth][]; 
             for(int i = 0; i < InterFace.Length; i++){
