@@ -1,19 +1,7 @@
-using BSICK.Sensors.LMS1xx;
-using System;
-using static System.Math;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-namespace Sick_test;
+namespace Sick_test
+{
 
-public class Tests
+    public class Tests
 {
     int[] CarArray;
     config config;
@@ -72,7 +60,7 @@ public class Tests
                     var ReadFile= File.ReadAllText("../../../../SICK_Program/config.json");
 
                     //Console.WriteLine(ReadFile);
-                    config = JsonSerializer.Deserialize<config>(ReadFile);
+                    /*config = JsonSerializer.Deserialize<config>(ReadFile);
                     var Inputs = new AllInput(config).inputClass[0];
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     var lms = new TestGenerator(config, 0, 30); 
@@ -85,7 +73,7 @@ public class Tests
 
                     var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
                     //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
-
+*/
     }
 
 
@@ -123,5 +111,5 @@ public class Tests
     }
     //Тесты математики. Предыдущий - кооперация всех этих в один большой, чтобы галочка была только одна
     
-}
+}}
 
