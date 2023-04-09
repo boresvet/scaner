@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NLog;
+
 
 namespace Sick_test
 {
@@ -108,29 +110,29 @@ namespace Sick_test
             //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
-            TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, config.SortSettings.Buffers);
+            TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, returns.logger, config.SortSettings.Buffers);
 
 
             var Inputs = new AllInput(config);
             Task[] InputT;
             if(config.Test){
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y, returns.logger))).ToArray();
             }else{
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent))).ToArray();
+                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent, returns.logger))).ToArray();
             }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
-            var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent));
+            var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent, returns.logger));
             var carbuffer = new CarBuffer(config);
-            var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent));
+            var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent, returns.logger));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             returns.initreturns(Inputs, times, carbuffer);
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll(InputT.Concat(new [] {MainT, ServerT}).ToArray());
-            Console.WriteLine("Завершено");
+            returns.logger.Info("Завершено");
             return;
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
             //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
@@ -139,7 +141,7 @@ namespace Sick_test
             //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
 
-        static void TServerT(TimeBuffer times, config config, CarBuffer carbuffer, ManualResetEvent ExitEvent){
+        static void TServerT(TimeBuffer times, config config, CarBuffer carbuffer, ManualResetEvent ExitEvent, Logger logger){
             while(true){
                 if (ExitEvent.WaitOne(0)) {
                     return;
@@ -153,29 +155,36 @@ namespace Sick_test
                     times.ReadEvent.WaitOne();
 
                     SuperScan[] _buffer = times.ReadFullArray();
-                    Console.WriteLine("Считан массив");
-                    var seach = new IslandSeach(config);
-                    Console.WriteLine("Созданы острова");
-                    seach.Search(_buffer);
-                    Console.WriteLine("Произведён поиск");
+                    logger.Info("Считан массив");
+                    //Console.WriteLine("Считан массив");
+                    var seach = new IslandSeach(config, logger);
+                    logger.Info("Созданы острова");
+                    //Console.WriteLine("Созданы острова");
+                    seach.Search(_buffer, logger);
+                    logger.Info("Произведён поиск");
+                    //Console.WriteLine("Произведён поиск");
                     //var cars = seach.CarsArray;
-                    carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
-                    Console.WriteLine("Сохранено");
+                    //carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
+                    logger.Info("Сохранено");
+                    //Console.WriteLine("Сохранено");
                     times.RemoveReadArray();
-                    Console.WriteLine("Буффер очищен");
-                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+                    logger.Info("Буффер очищен");
+                    //Console.WriteLine("Буффер очищен");
+                    logger.Info($"Найдено {seach.CarsArray.Count} машинок");
+                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    logger.Fatal($"{ex}");
+                    //Console.WriteLine(ex);
                 }
             }
         }
 
-        static void TMainT(config config, AllInput Inputs, TimeBuffer times, ManualResetEvent ExitEvent){
+        static void TMainT(config config, AllInput Inputs, TimeBuffer times, ManualResetEvent ExitEvent, Logger logger){
             try{
             //Объявление массива с датчиками рабочести сканеров. 
             //var ScannerDataReady = Enumerable.Range(0,config.Scanners.Length).Select(x => true).ToArray();
@@ -260,9 +269,11 @@ namespace Sick_test
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
                 //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+                logger.Debug($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{
-                Console.WriteLine("Ошибка в потоке обработки");
+                logger.Error("Ошибка в потоке обработки");
+                //Console.WriteLine("Ошибка в потоке обработки");
             }
         }
 
@@ -475,7 +486,7 @@ namespace Sick_test
             return input.ToArray();
         }
 
-        private static void InputTask(inputTheard Inputs, ManualResetEvent ExitEvent){
+        private static void InputTask(inputTheard Inputs, ManualResetEvent ExitEvent, Logger logger){
             while(true){
                 try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
@@ -509,7 +520,8 @@ namespace Sick_test
                         }
                         res = lms.ScanContinious();
                         if (oldscannumber!=res.ScanCounter){ 
-                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
+                            logger.Warn($"Потеряны сканы со сканера с {oldscannumber} по {res.ScanCounter}; частота сканера {res.ScanFrequency}");
+                            //Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
                         }
                         if (res.ScanCounter == null){
                             oldscannumber++;
@@ -544,12 +556,13 @@ namespace Sick_test
                 }
                 catch{
                     Inputs.ErrorEvent.Set();
+                    logger.Warn("Упал поток со сканером");
                     //Inputs.InputEvent.Set();
                 }
             }
         }
 
-        private static void TestInputTask(config config, inputTheard Inputs, ManualResetEvent ExitEvent, int scannumber){
+        private static void TestInputTask(config config, inputTheard Inputs, ManualResetEvent ExitEvent, int scannumber, Logger logger){
             while(true){
                 try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
@@ -573,18 +586,6 @@ namespace Sick_test
                             return;
                         }
                         res = lms.createscan();
-                        /*if (oldscannumber!=res.ScanCounter){ 
-                            Console.WriteLine($"{oldscannumber} {res.ScanCounter} {res.ScanFrequency}");
-                        }
-                        if (res.ScanCounter == null){
-                            oldscannumber++;
-                        }else{
-                            oldscannumber = (int)res.ScanCounter+1;
-                        }*/
-                        /*if(oldscannumber%1000 == 0){
-                            Console.WriteLine("Тысячный скан");
-                        }*/
-
 
                         Scan.time = DateTime.Now;
                         Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X!=0)&(point.Y!=0)));
@@ -596,6 +597,7 @@ namespace Sick_test
 
                         Inputs.AddScan(Scan);
                         Inputs.InputEvent.Set();
+                        //logger.Debug($"Принят скан от сканера {Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1)}");
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }
@@ -603,6 +605,7 @@ namespace Sick_test
                 catch{
                     Inputs.ErrorEvent.Set();
                     Inputs.InputEvent.Set();
+                    logger.Warn($"Упал сканер {Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1)}");
                 }
             }
         }

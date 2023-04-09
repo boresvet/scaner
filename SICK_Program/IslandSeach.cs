@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 
 namespace Sick_test
 {
@@ -431,6 +432,7 @@ namespace Sick_test
                 leftindex(input);
                 return;
             }
+
             Console.WriteLine("Ошибка");
         }
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка слева сверху от текущей </summary>
@@ -963,7 +965,7 @@ namespace Sick_test
         ///<summary> Алгоритм поиска машинки </summary>
         private ISearchAlgoritm SearchAlgoritm;
         config _config;
-        public IslandSeach(config config){
+        public IslandSeach(config config, Logger logger){
             _config = config;
             CarsArray = new List<CarArraySize>();
             method = config.Method;
@@ -972,11 +974,14 @@ namespace Sick_test
             switch (method)
             {
                 case "primitive":
-                    Console.WriteLine("Установлен режим поиска 'primitive'");
+                    logger.Error($"Установлен режим поиска '{method}'");
+
+                    //Console.WriteLine("Установлен режим поиска 'primitive'");
                     SearchAlgoritm = new PrimitiveSearchAlgoritm();
                     break;
                 default:
-                    Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                    logger.Error($"Ошибка режима поиска: режим '{method}' не известен. Установлен режим поиска 'primitive'");
+                    //Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
                     SearchAlgoritm = new PrimitiveSearchAlgoritm();
                     break;
             }
@@ -1001,7 +1006,7 @@ namespace Sick_test
         }
 
         ///<summary> Примитивный метод поиска границ </summary>
-        private carRESULT primitive(SuperScan[] input, Action<CarArraySize> AddCarAction, ISearchAlgoritm algoritm){
+        private carRESULT primitive(SuperScan[] input, Action<CarArraySize> AddCarAction, ISearchAlgoritm algoritm, Logger logger){
             var ret = new carRESULT();
             var startpoint = firstcarpoint(input);
             //Console.WriteLine("Установка начальной точки");
@@ -1022,7 +1027,9 @@ namespace Sick_test
                 borders.remoovecar(input);
                 //CarsArray.Add(borders.CarBorders(input));
             }else{
-                Console.WriteLine("Поиск завершён");
+                logger.Info("Поиск завершён");
+
+                //Console.WriteLine("Поиск завершён");
                 ret.Height = -1;
                 ret.Width = -1;
             }
@@ -1031,7 +1038,7 @@ namespace Sick_test
         }
 
         ///<summary> Команда на поиск по алгоритму, задаваемому в конфиге </summary>
-        public List<CarArraySize> Search(SuperScan[] input){
+        public List<CarArraySize> Search(SuperScan[] input, Logger logger){
             int oldHeight = 0;
             var car = new carRESULT();
             while(oldHeight != -1){
@@ -1047,7 +1054,7 @@ namespace Sick_test
                         oldHeight = car.Height;
                         break;
                 }*/
-                car = primitive(input, x => CarsArray.Add(x), SearchAlgoritm);
+                car = primitive(input, x => CarsArray.Add(x), SearchAlgoritm, logger);
                 oldHeight = car.Height;
             }
 

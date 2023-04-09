@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using NLog;
 
 namespace Sick_test
 {
@@ -60,7 +61,7 @@ namespace Sick_test
     public class TimeBuffer{
         private CircularBuffer<SuperScan>[] bufferstosearch; 
 
-
+        private Logger logger;
         int _head;
         int _indexbuffer;
         int _read_indexbuffer;
@@ -71,7 +72,8 @@ namespace Sick_test
         public Object _lock = new object ();
         public ManualResetEvent ReadEvent;
 
-        public TimeBuffer(int timesize, int buffersToSearchLeangth = 5){
+        public TimeBuffer(int timesize, Logger _logger, int buffersToSearchLeangth = 5){
+            logger = _logger;
             _length = 0;
             _buffersize = timesize;
             _head = timesize - 1;
@@ -84,14 +86,16 @@ namespace Sick_test
         }
 
         private void nextbuffer(){
-            Console.WriteLine("Буффер записан");
+            logger.Info("Буффер записан");
+            //Console.WriteLine("Буффер записан");
             _indexbuffer++;
             if(_indexbuffer >= bufferstosearch.Length){
                 _indexbuffer = 0;
             }
         }
         private void nextreadbuffer(){
-            Console.WriteLine("Буффер считан");
+            logger.Info("Буффер считан");
+            //Console.WriteLine("Буффер считан");
             _read_indexbuffer++;
             if(_read_indexbuffer >= bufferstosearch.Length){
                 _read_indexbuffer = 0;

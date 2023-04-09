@@ -1,4 +1,6 @@
 using System;
+using NLog;
+
 namespace Sick_test
 {
     public class returns
@@ -9,8 +11,11 @@ namespace Sick_test
         public TimeBuffer times;
         ///<summary>Хранит все сканы машинки</summary>  
         public CarBuffer carbuffer;
+        public Logger logger;
+
         public returns()
         {
+            logger = LogManager.GetCurrentClassLogger();
         }
         ///<summary>Инициализирует класс, передавая ссылки на интерфейсы между потоками и буфферы</summary>  
         public void initreturns(AllInput _Inputs, TimeBuffer _times, CarBuffer _carbuffer){
