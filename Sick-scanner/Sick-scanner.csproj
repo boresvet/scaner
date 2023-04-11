@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Sick_test</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="SICK-Sensor-LMS1XX\SICK-LMS1XX.csproj" />
+    <ProjectReference Include="../SICK-Sensor-LMS1XX\SICK-LMS1XX.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -10,11 +16,6 @@
     <PackageReference Include="pclsharp" Version="1.8.1.20180820-beta07" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Sick_test</RootNamespace>
-    <OutputType>Library</OutputType>
 
-  </PropertyGroup>
 
 </Project>
