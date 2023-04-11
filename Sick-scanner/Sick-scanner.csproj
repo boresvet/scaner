@@ -1,18 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Sick-scanner\Sick-scanner.csproj" />
+    <ProjectReference Include="SICK-Sensor-LMS1XX\SICK-LMS1XX.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.1.3" />
     <PackageReference Include="NLog.Config" Version="4.7.15" />
+    <PackageReference Include="pclsharp" Version="1.8.1.20180820-beta07" />
   </ItemGroup>
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Sick_scanner</RootNamespace>
+    <RootNamespace>Sick_test</RootNamespace>
+    <OutputType>Library</OutputType>
+
   </PropertyGroup>
 
 </Project>
