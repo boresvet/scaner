@@ -1,0 +1,9 @@
+[Unit]
+Description=SICK scanners
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/SICK_Program
+
+[Install]
+WantedBy=multi-user.target
