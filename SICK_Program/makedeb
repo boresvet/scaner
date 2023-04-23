@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+rm -rf SICK-DEB
+
+dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained=true -p:GenerateRuntimeConfigurationFiles=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+mkdir SICK-DEB
+mkdir SICK-DEB/usr
+mkdir SICK-DEB/usr/sbin
+
+cp -rf bin/Release/net6.0/linux-x64/publish/ SICK-DEB/usr/sbin
+mv SICK-DEB/usr/sbin/publish SICK-DEB/usr/sbin/SICK_Program
+
+mkdir SICK-DEB/etc
+mkdir SICK-DEB/etc/systemd
+mkdir SICK-DEB/etc/systemd/system
+
+cp SICK.service SICK-DEB/etc/systemd/system/
+cp -f NLog.config SICK-DEB/usr/sbin/SICK_Program
+
+cp -rf DEBIAN SICK-DEB
+
+chmod --recursive  755 SICK-DEB/DEBIAN/
+
+dpkg-deb --build ./SICK-DEB
+
+exit 0

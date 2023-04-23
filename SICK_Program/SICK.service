@@ -1,9 +1,13 @@
 [Unit]
-Description=SICK scanners
+Description=SICK
 
 [Service]
-Type=notify
-ExecStart=/usr/sbin/SICK_Program
+WorkingDirectory=/usr/sbin/SICK_Program
+Type=simple
+ExecStart=/usr/sbin/SICK_Program/Sick-test
+Restart=always
+RestartSec=10
+User=root
 
 [Install]
 WantedBy=multi-user.target

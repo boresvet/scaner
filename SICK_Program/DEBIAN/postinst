@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+
+
+systemctl daemon-reload
+systemctl start SICK.service
+
+
+exit 0
