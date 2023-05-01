@@ -1,4 +1,5 @@
 using System.Text.Json;
+using NLog;
 
 
 namespace Sick_test
@@ -6,6 +7,11 @@ namespace Sick_test
 
     public class Tests
     {
+        TestGenerator lms; 
+        SpetialConvertorint Conv;
+        translator translator;
+        Scanint Scan = new Scanint();
+        int CarsInBuffer;
         int[] CarArray;
         config config;
         IslandSeach scans;
@@ -70,29 +76,31 @@ namespace Sick_test
 
                         var Inputs = inputs.GetInputTheard(0);
                         var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
-                        var lms = new TestGenerator(config, 0, 30); 
-                        var lms1 = new TestGenerator(config, 0, 3000); //На маленьком промежутке не создаст машин
+                        lms = new TestGenerator(config, 1, 30); 
+                        //var lms1 = new TestGenerator(config, 0, 3000); //На маленьком промежутке не создаст машин
 
-                        var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                        Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
                         //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                         
                         Inputs.ErrorEvent.Reset();
 
-                        var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
+                        translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
                         //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
     
 
 
-                    var res = lms.createscan();
-                    var Scan = new Scanint{
+                    //var res = lms.createscan();
+                    /*var Scan = new Scanint{
                         pointsArray = translator.Translate(Conv.MakePoint(res)),
                         time = DateTime.Now
-                    };
+                    };*/
 
 
             var pointsfilter = new Filter(config);
             var ConcatScanInterface = new ScanConcat(config);
-            TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, config.SortSettings.Buffers);
+            var logger = LogManager.GetCurrentClassLogger();
+
+            TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, logger, config.SortSettings.Buffers);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
             var roadColumnsCount = (int)((config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step);
@@ -109,22 +117,43 @@ namespace Sick_test
 
                     for(int i = 0; i < config.SortSettings.BufferTimesLength; i++){
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X!=0)&(point.Y!=0)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(lms.createscan()), point => (point.X!=0)&(point.Y!=0)));
                         Inputs.AddScan(Scan);
 
 
                         res1 = Inputs.GetLastScan();
                         ret.time = res1.time;
                         ConcatScanInterface.Add(res1.pointsArray);
-                ret.pointsArray = ConcatScanInterface.Dequeue();
-                pointsSortTable = Slicer.Dequeue();
-                var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
-                var CarArray = AddAllIslandLane(FilteredPoints);
+                        Slicer.Add(res1.pointsArray);
+                        ret.pointsArray = ConcatScanInterface.Dequeue();
+                        pointsSortTable = Slicer.Dequeue();
+                        var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
+                        var CarArray = AddAllIslandLane(FilteredPoints);
 
                         times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, ret.time));
 
                     }
 
+
+                    SuperScan[] _buffer = times.ReadFullArray();
+                    logger.Info("Считан массив");
+                    //Console.WriteLine("Считан массив");
+                    var seach = new IslandSeach(config, logger);
+                    //logger.Info("Созданы острова");
+                    //Console.WriteLine("Созданы острова");
+                    seach.Search(_buffer, logger);
+                    //logger.Info("Произведён поиск");
+                    //Console.WriteLine("Произведён поиск");
+                    //var cars = seach.CarsArray;
+                    //carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
+                    //logger.Info("Сохранено");
+                    //Console.WriteLine("Сохранено");
+                    //times.RemoveReadArray();
+                    //logger.Info("Буффер очищен");
+                    //Console.WriteLine("Буффер очищен");
+                    CarsInBuffer = seach.CarsArray.Count;
+                    //logger.Info($"Найдено {seach.CarsArray.Count} машинок");
+                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 
@@ -219,8 +248,6 @@ namespace Sick_test
         }*/
 
 
-
-
         [Test]
         public void Maths()
         {
@@ -228,6 +255,27 @@ namespace Sick_test
         }
         //Тесты математики. Предыдущий - кооперация всех этих в один большой, чтобы галочка была только одна
         
+
+
+        [Test]
+        public void CarEDIT()
+        {
+            Assert.IsTrue(lms.RoadDistance.Sum()>lms.RoadDistanceWithCars.Sum());
+        }
+
+
+
+        [Test]
+        public void CarTranslation()
+        {
+            Assert.IsTrue(translator.Translate(Conv.MakePoint(lms.RoadDistance)) != translator.Translate(Conv.MakePoint(lms.RoadDistanceWithCars)) );
+        }
+
+        [Test]
+        public void SeachCar()
+        {
+            Assert.IsTrue(CarsInBuffer>=10);
+        }
     }
 }
 

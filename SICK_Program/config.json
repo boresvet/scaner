@@ -8,7 +8,7 @@
 	"Buffers" : 5,
 	"BufferTimesLength" : 300,
 	"MinWigdh": 500,
-    "MinLength": 10
+    "MinLength": 5
 },
 "RoadSettings": 
 {

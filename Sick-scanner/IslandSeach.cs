@@ -7,7 +7,7 @@ namespace Sick_test
 {
 
     public interface ISearchAlgoritm{
-        ///<summary> Примитивный алгоритм поиска машинки </summary>
+        ///<summary> алгоритм поиска машинки </summary>
         public carRESULT search(islandborders input, SuperScan[] inputscans, config config);
     }
     public class PrimitiveSearchAlgoritm : ISearchAlgoritm{

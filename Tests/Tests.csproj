@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SICK_Program\Sick-test.csproj" />
+    <ProjectReference Include="..\Sick-scanner\Sick-scanner.csproj" />
   </ItemGroup>
 
 </Project>
