@@ -16,7 +16,7 @@ namespace Sick_test
         ///</summary>
         public Filter(config settings)
 		{
-            FilteredHeight = settings.FilteredHeight;
+            FilteredHeight = settings.RoadSettings.UpLimit;
             RoadLenght = (int)((settings.RoadSettings.RightLimit-settings.RoadSettings.LeftLimit)/settings.RoadSettings.Step);
             Settings = settings.RoadSettings;
             filterMax = new int[RoadLenght];

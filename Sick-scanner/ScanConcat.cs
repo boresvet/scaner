@@ -11,7 +11,7 @@ namespace Sick_test
 		///<summary> Склеивает массивы со сканеров </summary>
         public ScanConcat(config config){
 			int leanth = 0;
-			foreach(Scanner scanner in config.Scanners){
+			foreach(Scaner scanner in config.Scanners){
 				leanth += (int)((float)(scanner.Settings.EndAngle-scanner.Settings.StartAngle)/scanner.Settings.Resolution);
 			}
 			InterFace = new PointXYint[leanth];

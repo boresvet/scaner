@@ -6,7 +6,7 @@ namespace Sick_test
     ///</summary>
     public class inputTheard
     {
-        public Scanner scaner;
+        public Scaner scaner;
         private CircularBuffer<Scanint> MyConcurrentQueue;
         public ManualResetEvent InputEvent;
         public ManualResetEvent ErrorEvent;
@@ -15,7 +15,7 @@ namespace Sick_test
         ///<summary>Создаёт класс, описывающий все данные, передаваемые в потоки
         ///</summary>
         ///<param name = "scanner">Конфигурация сканера, тип <paramref scanner="Scanner"/>Scadner</paramref>r</param>
-        public inputTheard(Scanner scanner){
+        public inputTheard(Scaner scanner){
             scaner = scanner;
             InputEvent = new ManualResetEvent(false);
             ErrorEvent = new ManualResetEvent(false);

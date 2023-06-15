@@ -122,7 +122,7 @@ public class SickScanners
             var carbuffer = new CarBuffer(config);
             var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent, returns.logger));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
-            returns.initreturns(Inputs, times, carbuffer);
+            returns.initreturns(Inputs, times, carbuffer, config);
             Console.ReadLine();
             ExitEvent.Set();
             Task.WaitAll(InputT.Concat(new [] {MainT, ServerT}).ToArray());

@@ -12,16 +12,18 @@ namespace Sick_test
         ///<summary>Хранит все сканы машинки</summary>  
         public CarBuffer carbuffer;
         public Logger logger;
+        public config config;
 
         public returns()
         {
             logger = LogManager.GetCurrentClassLogger();
         }
         ///<summary>Инициализирует класс, передавая ссылки на интерфейсы между потоками и буфферы</summary>  
-        public void initreturns(AllInput _Inputs, TimeBuffer _times, CarBuffer _carbuffer){
+        public void initreturns(AllInput _Inputs, TimeBuffer _times, CarBuffer _carbuffer, config _config){
             Inputs = _Inputs;
             times = _times;
             carbuffer = _carbuffer;
+            config = _config;
         }
         ///<summary>Получить последний скан по номеру сканера</summary>  
         public Scanint returnScan(int number){

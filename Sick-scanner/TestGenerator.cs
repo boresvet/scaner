@@ -7,7 +7,7 @@ namespace Sick_test
         public int scanernumber;
         public int lanes;
         public int carheight = 1500;
-        public Scanner scaner;
+        public Scaner scaner;
         public line[] ray;//Все линии лучей
         public line[][] cars;//Примитивные модели машин(3 линии)
         public line[] road; //Все линии ДОРОГИ

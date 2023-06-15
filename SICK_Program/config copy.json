@@ -1,0 +1,103 @@
+{
+	"Test": false,
+	"Method": "primitive",
+	"FilteredHeight": 300,
+	"SortSettings": 
+	{
+		"SavedCars" : 100,
+		"Buffers" : 5,
+		"BufferTimesLength" : 300,
+		"MinWigdh": 500,
+		"MinLength": 5
+	},
+	"RoadSettings": 
+	{
+		"UpLimit": 7000,
+		"DownLimit": -100,
+		"LeftLimit": -1000,
+		"RightLimit": 11000,
+		"Step": 20,
+		
+		"Lanes": 
+		[
+			{"ID":0, "Offset":-100, "Width":10000, "Height":100}
+		], 
+		"Blinds": 
+		[
+			{"ID":0, "Offset":10000, "Width":10000, "Height":10000},
+			{"ID":1, "Offset":-10000, "Width":10000, "Height":10000}
+		] 
+	},
+	"Scanners": 
+		[
+			{
+			"ID": 1,
+	
+			"Connection":{
+				"ScannerAddres": "10.199.1.131",
+				"ScannerPort": 2112
+			},
+			
+			"Settings":{
+				"Frequency": 100,
+				"StartAngle": -5,
+				"EndAngle": 185,
+				"Resolution": 0.6667
+			},
+			
+			"Transformations":{	
+				"Height" : 10000,
+				"HorisontalOffset" : 1500,
+				"CorrectionAngle": 2
+			}
+			
+			},
+			{
+			"ID": 2,
+	
+			"Connection":{
+				"ScannerAddres": "10.199.1.132",
+				"ScannerPort": 2112
+			},
+			
+			"Settings":{
+				"Frequency": 100,
+				"StartAngle": -5,
+				"EndAngle": 185,
+				"Resolution": 0.6667
+			},
+			
+			"Transformations":{	
+				"Height" : 10000,
+				"HorisontalOffset" : 2500,
+				"CorrectionAngle": 2
+			}
+			
+			},
+			{
+				"ID": 3,
+		
+				"Connection":{
+					"ScannerAddres": "10.199.1.133",
+					"ScannerPort": 2112
+				},
+				
+				"Settings":{
+					"Frequency": 100,
+					"StartAngle": -5,
+					"EndAngle": 185,
+					"Resolution": 0.6667
+				},
+				
+				"Transformations":{	
+					"Height" : 10000,
+					"HorisontalOffset" : 5500,
+					"CorrectionAngle": 2
+				}
+			}
+		]
+	}
+	
+	
+	
+	
