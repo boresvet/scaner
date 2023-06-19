@@ -6,6 +6,7 @@ namespace Sick_test
     ///</summary>
     public class inputTheard
     {
+        public int id;
         public Scaner scaner;
         private CircularBuffer<Scanint> MyConcurrentQueue;
         public ManualResetEvent InputEvent;
@@ -16,6 +17,7 @@ namespace Sick_test
         ///</summary>
         ///<param name = "scanner">Конфигурация сканера, тип <paramref scanner="Scanner"/>Scadner</paramref>r</param>
         public inputTheard(Scaner scanner){
+            id = scanner.ID;
             scaner = scanner;
             InputEvent = new ManualResetEvent(false);
             ErrorEvent = new ManualResetEvent(false);
@@ -54,7 +56,6 @@ namespace Sick_test
         private ManualResetEvent[] InputClError(){
             return(inputThreads.Select(n => n.ErrorEvent).ToArray());
         }
-
 
         public void TestScanners(){
             for(int i = 0; i < ErrorEvent.Length; i++)

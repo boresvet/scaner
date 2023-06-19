@@ -104,12 +104,11 @@ namespace SickScanner{
                 webconfig.scanners[i].transformations.height = new int();
                 webconfig.scanners[i].transformations.horisontalOffset = new int();
             }  
-
+            ReadScaners(webconfig, config);
             ReadRoadSettings(webconfig, config);
             webconfig.AnalisSettings.test = config.Test;
             webconfig.AnalisSettings.mathsmethod = config.Method;
             ReadSortsettings(webconfig, config);
-            ReadScaners(webconfig, config);
         }
         private void SaveRoadSettings(ResponseFullConfig webconfig, config config){
             config.RoadSettings.DownLimit = webconfig.roadSettings.downLimit;
@@ -203,7 +202,7 @@ namespace SickScanner{
             return ret;
         }
         private void ReadScaners(ResponseFullConfig webconfig, config config){
-            for(int i = 0; i < webconfig.roadSettings.lanes.Length; i++){
+            for(int i = 0; i < webconfig.scanners.Length; i++){
                 webconfig.scanners[i] = ReadScaner(config.Scanners[i]);
             }            
         }

@@ -1,3 +1,9 @@
+using Microsoft.Extensions.Options;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net.WebSockets;
+using System.Text;
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Sick_test;
@@ -10,18 +16,55 @@ namespace SickScanner
 
     class Program
     {
-        List<Person> users = new List<Person> 
-        { 
-            new() { Id = Guid.NewGuid().ToString(), Name = "Tom", Age = 37 },
-            new() { Id = Guid.NewGuid().ToString(), Name = "Bob", Age = 41 },
-            new() { Id = Guid.NewGuid().ToString(), Name = "Sam", Age = 24 }
-        };
+
         config config;
         ResponseFullConfig webconfig;
         static void Main1(){
             var returns = new Sick_test.returns();
             var MainT = Task.Run(() => Sick_test.SickScanners.RunScanners(returns));
 
+        }
+        async Task Echo(WebSocket webSocket, returns returns)
+        {
+            var cts = new CancellationTokenSource();    
+
+            var recvBuffer = new byte[1024];
+            var recvArraySegment = new ArraySegment<byte>(recvBuffer, 0, recvBuffer.Length);
+            while (webSocket.State == WebSocketState.Open)
+            {
+                
+                var json = JsonSerializer.Serialize(returns.times.readLastScan());
+                var buffer = Encoding.UTF8.GetBytes(json);
+                ///var tmp = await webSocket.ReceiveAsync(recvArraySegment, CancellationToken.None);
+                try
+                {
+                    var recvTask = webSocket.ReceiveAsync(recvArraySegment, cts.Token);
+                    var sendTask = webSocket.SendAsync(
+                        new ArraySegment<byte>(buffer, 0, buffer.Length),
+                        WebSocketMessageType.Text,
+                        true,
+                        cts.Token);
+                    
+                    var result = Task.WaitAny(new[] { recvTask, sendTask });
+                    if (result == 1)
+                    {
+                        await Task.Delay(500);
+                        continue;
+                    }
+                    var status = webSocket.CloseStatus;
+                    if (status.HasValue)
+                    {
+                        cts.Cancel();
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    cts.Cancel();
+                    return;
+                }
+                
+            }
         }
         public void ReadConfig(){
             var ReadFile = File.ReadAllText("config.json");
@@ -47,10 +90,7 @@ namespace SickScanner
         }
         static void Main(){
             var Returns = new returns();
-
-
-
-
+            var MainT = Task.Run(() => Sick_test.SickScanners.RunScanners(Returns));
 
 
 
@@ -64,7 +104,34 @@ namespace SickScanner
 
         void server(returns returns){
             var builder = WebApplication.CreateBuilder();
+            builder.Logging.SetMinimumLevel(LogLevel.Trace);
+
             var app = builder.Build();
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/www/ws")
+                {
+                    if (context.WebSockets.IsWebSocketRequest)
+                    {
+                        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                        await Echo(webSocket, returns);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
+                }
+                else
+                {
+                    await next(context);
+                }
+
+            });
 
             app.Run(async (context) =>
             {
@@ -73,8 +140,8 @@ namespace SickScanner
                 var path = request.Path;
                 //string expressionForNumber = "^/api/users/([0-9]+)$";   // если id представляет число
                 // 2e752824-1657-4c7f-844b-6ec2e168e99c
-                string expressionForGuid = @"^/api/users/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$";
-                if (path == "/api/users" && request.Method=="GET")
+                //string expressionForGuid = @"^/api/users/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$";
+                /*if (path == "/api/users" && request.Method=="GET")
                 {
                     await GetAllPeople(response); 
                 }
@@ -96,15 +163,26 @@ namespace SickScanner
                 {
                     string? id = path.Value?.Split("/")[3];
                     await DeletePerson(id, response);
-                }
+                }*/
 
 
 
 
 
 
-
-                else if (path == "/www/configname" && request.Method == "GET")//
+                /*if (path == "/www/ws")
+                {
+                    if (context.WebSockets.IsWebSocketRequest)
+                    {
+                        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                        await Echo(webSocket, returns);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
+                }*/
+                /*else */if (path == "/www/configname" && request.Method == "GET")//
                 {
                     await ReadWebConfigName(response);
                 }
@@ -116,95 +194,89 @@ namespace SickScanner
                 {
                     await WriteConfigName(response, request);
                 }
-                else if (path == "www/full_config" && request.Method == "GET")//
+                else if (path == "/www/full_config" && request.Method == "GET")//
                 {
                     await ReturnConfig(response);
                 }
-                else if (path == "www/full_config" && request.Method == "POST")//
+                else if (path == "/www/full_config" && request.Method == "POST")//
                 {
                     await WriteWebConfigToFile(response, request);
                 }
-                else if (path == "www/road" && request.Method == "GET")//
+                else if (path == "/www/road" && request.Method == "GET")//
                 {
                     await ReturnRoad(response);
                 }
-                else if (path == "www/road" && request.Method == "POST")//
+                else if (path == "/www/road" && request.Method == "POST")//
                 {
                     await SaveRoad(response, request);
                 }
-                else if (path == "www/lanes" && request.Method == "GET")//
+                else if (path == "/www/lanes" && request.Method == "GET")//
                 {
                     await ReturnLanes(response);
                 }
-                else if (path == "www/lanes" && request.Method == "POST")//
+                else if (path == "/www/lanes" && request.Method == "POST")//
                 {
                     await SaveLanes(response, request);
                 }
-                else if (path == "www/deadzones" && request.Method == "GET")//
+                else if (path == "/www/deadzones" && request.Method == "GET")//
                 {
                     await ReturnDeadzones(response);
                 }
-                else if (path == "www/deadzones" && request.Method == "POST")//
+                else if (path == "/www/deadzones" && request.Method == "POST")//
                 {
                     await SaveDeadzones(response, request);
                 }
-                else if (path == "www/transforms" && request.Method == "GET")//
+                /*else if (path == "/www/transforms" && request.Method == "GET")//
                 {
                     await ReturnTransforms(response);
                 }
-                else if (path == "www/transform" && request.Method == "POST")//
+                else if (path == "/www/transform" && request.Method == "POST")//
                 {
                     await SaveTransform(response, request);
-                }
+                }*/
                 
                 
                 
-                else if (path == "www/transforms" && request.Method == "GET")//
+                else if (path == "/www/transforms" && request.Method == "GET")//
                 {
                     await ReturnTransforms(response);
                 }
-                else if (path == "www/transform" && request.Method == "POST")//
+                else if (path == "/www/transform" && request.Method == "POST")//
                 {
                     await SaveTransform(response, request);
                 }
-                else if (path == "www/connection" && request.Method == "DELETE")//
+                else if (path == "/www/connection" && request.Method == "POST")//
+                {
+                    await GetScanner(response, request);
+                }
+                else if (path == "/www/connections" && request.Method == "GET")//
+                {
+                    await ReturnScanners(response);
+                }
+                else if (path == "/www/connection" && request.Method == "DELETE")//
                 {
                     var name = await request.ReadFromJsonAsync<int>();
                     webconfig.DeleteScaner(name);
                 }
-                else if (path == "www/get_scan" && request.Method == "GET")//
+                else if (path == "/www/get_scan" && request.Method == "GET")//
                 {
                     await ReturnScan(response, returns);
                 }
-                else if (path == "www/add_connection" && request.Method == "POST")//
+                else if (path == "/www/add_connection" && request.Method == "POST")//
                 {
                     await SaveScaner(response, request);
                 }
+                /*else if (path == "/wwwroot" && request.Method == "GET")//
+                {
+                    await SaveScaner(response, request);
+                }*/
             });
             app.Run();
         }
 
 
         // получение всех пользователей
-        async Task GetAllPeople(HttpResponse response)
-        {
-            await response.WriteAsJsonAsync(users);
-        }
-        // получение одного пользователя по id
-        async Task GetPerson(string? id, HttpResponse response)
-        {
-            // получаем пользователя по id
-            Person? user = users.FirstOrDefault((u) => u.Id == id);
-            // если пользователь найден, отправляем его
-            if (user != null)
-                await response.WriteAsJsonAsync(user);
-            // если не найден, отправляем статусный код и сообщение об ошибке
-            else
-            {
-                response.StatusCode = 404;
-                await response.WriteAsJsonAsync(new { message = "Пользователь не найден" });
-            }
-        }
+
         async Task ReadWebConfigName(HttpResponse response)
         {
             await response.WriteAsJsonAsync(config.WebConfigsName);
@@ -286,14 +358,19 @@ namespace SickScanner
         }
         async Task ReturnLanes(HttpResponse response)
         {
+            for (int i = 0; i < webconfig.roadSettings.lanes.Length; i++)
+                webconfig.roadSettings.lanes[i].id = i;
             await response.WriteAsJsonAsync(webconfig.roadSettings.lanes);
         }
         async Task SaveLanes(HttpResponse response, HttpRequest request)
         {
             try
             {
-                var cnf = await request.ReadFromJsonAsync<Lanes[]>();
-                webconfig.roadSettings.lanes = cnf;
+                var lanes = await request.ReadFromJsonAsync<Lanes[]>();
+                for (int i = 0; i < lanes.Length; i++)
+                    lanes[i].id = i;
+                webconfig.roadSettings.lanes = lanes;
+                response.WriteAsJsonAsync(webconfig.roadSettings.lanes);
                 /*for (int i = 0; i < cnf.Length; i++)
                 {
                     webconfig.roadSettings.lanes[i].id = i;
@@ -307,14 +384,19 @@ namespace SickScanner
         }
         async Task ReturnDeadzones(HttpResponse response)
         {
+            for (int i = 0; i < webconfig.roadSettings.blinds.Length; i++)
+                webconfig.roadSettings.blinds[i].id = i;
             await response.WriteAsJsonAsync(webconfig.roadSettings.blinds);
         }
         async Task SaveDeadzones(HttpResponse response, HttpRequest request)
         {
             try
             {
-                var cnf = await request.ReadFromJsonAsync<Blinds[]>();
-                webconfig.roadSettings.blinds = cnf;
+                var blinds = await request.ReadFromJsonAsync<Blinds[]>();
+                for (int i = 0; i < blinds.Length; i++)
+                    blinds[i].id = i;
+                webconfig.roadSettings.blinds = blinds;
+                response.WriteAsJsonAsync(webconfig.roadSettings.blinds);
                 /*for (int i = 0; i < cnf.Length; i++)
                 {
                     webconfig.roadSettings.lanes[i].id = i;
@@ -380,82 +462,37 @@ namespace SickScanner
         {
             await response.WriteAsJsonAsync(returns.returnRoad());
         }
-        async Task DeletePerson(string? id, HttpResponse response)
-        {
-            // получаем пользователя по id
-            Person? user = users.FirstOrDefault((u) => u.Id == id);
-            // если пользователь найден, удаляем его
-            if (user != null)
-            {
-                users.Remove(user);
-                await response.WriteAsJsonAsync(user);
-            }
-            // если не найден, отправляем статусный код и сообщение об ошибке
-            else
-            {
-                response.StatusCode = 404;
-                await response.WriteAsJsonAsync(new { message = "Пользователь не найден" });
-            }
-        }
 
-        async Task CreatePerson(HttpResponse response, HttpRequest request)
+        async Task ReturnScanners(HttpResponse response)
+        {
+            await response.WriteAsJsonAsync(webconfig.scanners.Select(x => new Connect(x)).ToList());
+        }
+        async Task GetScanner(HttpResponse response, HttpRequest request)
         {
             try
             {
-                // получаем данные пользователя
-                var user = await request.ReadFromJsonAsync<Person>();
-                if (user != null)
+                var scaners = await request.ReadFromJsonAsync<Connect>();
+
+                var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(scaners.uid));
+                if (scan == null)
+                    response.StatusCode = 400;
+                scan.connection = new Connection
                 {
-                    // устанавливаем id для нового пользователя
-                    user.Id = Guid.NewGuid().ToString();
-                    // добавляем пользователя в список
-                    users.Add(user);
-                    await response.WriteAsJsonAsync(user);
-                }
-                else
+                    address = scaners.Address,
+                    port = scaners.Port.Value,
+                    enabled = scaners.Enabled.Value  
+                };
+                await response.WriteAsJsonAsync(webconfig.scanners.Select(x => new Connect(x)).ToArray());
+
+                /*for (int i = 0; i < cnf.Length; i++)d
                 {
-                    throw new Exception("Некорректные данные");
-                }
+                    webconfig.roadSettings.lanes[i].id = i;
+                }*/
             }
             catch (Exception)
             {
                 response.StatusCode = 400;
-                await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
-            }
-        }
-
-        async Task UpdatePerson(HttpResponse response, HttpRequest request)
-        {
-            try
-            {
-                // получаем данные пользователя
-                Person? userData = await request.ReadFromJsonAsync<Person>();
-                if (userData != null)
-                {
-                    // получаем пользователя по id
-                    var user = users.FirstOrDefault(u => u.Id == userData.Id);
-                    // если пользователь найден, изменяем его данные и отправляем обратно клиенту
-                    if (user != null)
-                    {
-                        user.Age = userData.Age;
-                        user.Name = userData.Name;
-                        await response.WriteAsJsonAsync(user);
-                    }
-                    else
-                    {
-                        response.StatusCode = 404;
-                        await response.WriteAsJsonAsync(new { message = "Пользователь не найден" });
-                    }
-                }
-                else
-                {
-                    throw new Exception("Некорректные данные");
-                }
-            }
-            catch (Exception)
-            {
-                response.StatusCode = 400;
-                await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
+                await response.WriteAsJsonAsync(new { message = "Где-то произощёл косяк в конвертации. Возможно конфиг заполнен не до конца" });
             }
         }
         async Task SaveConfig(ResponseFullConfig webconfig, HttpResponse response, HttpRequest request)
@@ -482,11 +519,24 @@ namespace SickScanner
                 await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
             }
         }
-        public class Person
+
+        public class Connect
         {
-            public string Id { get; set; } = "";
-            public string Name { get; set; } = "";
-            public int Age { get; set; }
+            public int uid  { get; set; }
+            public string? Address { get; set; }
+            public int? Port { get; set; }
+            public bool? Enabled { get; set; }
+
+            public Connect() { }
+            public Connect(Scanner scanner)
+            {
+                uid = scanner.id;
+                Address = scanner.connection.address;
+                Port = scanner.connection.port;
+                Enabled = scanner.connection.enabled;
+
+            }
         }
+
     }
 }
