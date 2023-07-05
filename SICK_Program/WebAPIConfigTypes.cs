@@ -190,12 +190,15 @@ namespace SickScanner{
         private Scaner SaveScaner(Scanner webconfig){
             var ret = new Scaner();
             ret.ID = webconfig.id;
+            ret.Connection = new global::Connection();
             ret.Connection.ScannerAddres = webconfig.connection.address;
             ret.Connection.ScannerPort = webconfig.connection.port;
+            ret.Settings = new global::Settings();
             ret.Settings.EndAngle = webconfig.settings.endAngle;
             ret.Settings.StartAngle = webconfig.settings.startAngle;
             ret.Settings.Resolution = webconfig.settings.resolution;
             ret.Settings.Frequency = webconfig.settings.frequency;
+            ret.Transformations = new global::Transformations();
             ret.Transformations.CorrectionAngle = webconfig.transformations.correctionAngle;
             ret.Transformations.Height = webconfig.transformations.height;
             ret.Transformations.HorisontalOffset = webconfig.transformations.horisontalOffset;

@@ -1,8 +1,7 @@
 {
-	"Test": true,
+	"Test": false,
 	"Method": "primitive",
 	"FilteredHeight": 300,
-	"WebConfigsName": "default",
 	"SortSettings": 
 	{
 		"SavedCars" : 100,
@@ -32,49 +31,49 @@
 	"Scanners": 
 		[
 			{
-				"ID": 1,
-		
-				"Connection":{
-					"ScannerAddres": "10.199.1.131",
-					"ScannerPort": 2112
-				},
-				
-				"Settings":{
-					"Frequency": 100,
-					"StartAngle": -5,
-					"EndAngle": 185,
-					"Resolution": 0.6667
-				},
-				
-				"Transformations":{	
-					"Height" : 10000,
-					"HorisontalOffset" : 1500,
-					"CorrectionAngle": 2
-				}
-				
-				},
+			"ID": 1,
+	
+			"Connection":{
+				"ScannerAddres": "10.199.1.131",
+				"ScannerPort": 2112
+			},
+			
+			"Settings":{
+				"Frequency": 100,
+				"StartAngle": -5,
+				"EndAngle": 185,
+				"Resolution": 0.6667
+			},
+			
+			"Transformations":{	
+				"Height" : 10000,
+				"HorisontalOffset" : 1500,
+				"CorrectionAngle": 2
+			}
+			
+			},
 			{
-				"ID": 2,
-		
-				"Connection":{
-					"ScannerAddres": "10.199.1.132",
-					"ScannerPort": 2112
-				},
-				
-				"Settings":{
-					"Frequency": 100,
-					"StartAngle": -5,
-					"EndAngle": 185,
-					"Resolution": 0.6667
-				},
-				
-				"Transformations":{	
-					"Height" : 10000,
-					"HorisontalOffset" : 2500,
-					"CorrectionAngle": 2
-				}
-				
-				},
+			"ID": 2,
+	
+			"Connection":{
+				"ScannerAddres": "10.199.1.132",
+				"ScannerPort": 2112
+			},
+			
+			"Settings":{
+				"Frequency": 100,
+				"StartAngle": -5,
+				"EndAngle": 185,
+				"Resolution": 0.6667
+			},
+			
+			"Transformations":{	
+				"Height" : 10000,
+				"HorisontalOffset" : 2500,
+				"CorrectionAngle": 2
+			}
+			
+			},
 			{
 				"ID": 3,
 		
@@ -98,6 +97,7 @@
 			}
 		]
 	}
+	
 	
 	
 	

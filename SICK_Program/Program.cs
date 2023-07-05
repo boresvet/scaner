@@ -164,6 +164,11 @@ namespace SickScanner
                 SaveConfigToFile();
                 return (new { message = "Ok" });
             });
+            app.MapGet("/www/SaveWebConfigToFile", () =>//
+            {
+                SaveWebConfigToFile();
+                return (new { message = "Ok" });
+            });
             app.MapPost("/www/configname", (string name) =>//
             {
                 if (name != null)
@@ -345,33 +350,6 @@ namespace SickScanner
 
         // получение всех пользователей
 
-        async Task SaveWebConfigAsConfig(HttpResponse response)
-        {
-
-        }
-        async Task WriteConfigName(HttpResponse response, HttpRequest request)
-        {
-            try
-            {
-                // получаем название конфига
-                var name = await request.ReadFromJsonAsync<string>();
-                if (name != null)
-                {
-                    // устанавливаем название конфига
-                    SaveWebConfigName(name);
-                    await response.WriteAsJsonAsync(new { message = "Конфиг установлен" });
-                }
-                else
-                {
-                    throw new Exception("Назвать конфигурацию пустой строкой - гениально, я считаю. Но увы, Великий Рандом, величайший из богов Хаоса с этим не согласен");
-                }
-            }
-            catch (Exception)
-            {
-                response.StatusCode = 400;
-                await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
-            }
-        }
         public void SaveWebConfigName(string name){
             config.WebConfigsName = name;
         }
