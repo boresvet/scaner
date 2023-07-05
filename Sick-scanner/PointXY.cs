@@ -31,7 +31,8 @@ namespace Sick_test
     ///<summary>///Структура, содержит Х и У координаты точки
     ///</summary>
     public struct PointXYint{
-        public int X,Y;
+        public int X { get; set; }
+        public int Y { get; set; }
         ///<summary>///Возвращает копию массива точек
         ///<param name = "oldArray">Старый массив, который нужно скопировать</param>
         ///</summary>

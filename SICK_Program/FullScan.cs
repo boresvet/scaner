@@ -37,7 +37,7 @@ namespace SickScanner
     public class ScanData
     {
         public int Uid { get; set; }
-        public PointXYint[]? Points { get; set; } = null;
+        public PointXYint[]? Points { get; set; }
 
         public ScanData() { }
         public ScanData(int id, PointXYint[] points) {

@@ -106,8 +106,19 @@ namespace SickScanner
         void server(returns returns){
             var builder = WebApplication.CreateBuilder();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
+
+            
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
             RetScan = new FullScan(config.Scanners.Length);
             var app = builder.Build();
+
+            if (true )
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -156,7 +167,7 @@ namespace SickScanner
 
             app.MapGet("/www/configname", () =>//
             {
-                return config.WebConfigsName;
+                return (new { WebConfigsName = config.WebConfigsName });
             });
             app.MapGet("/www/savewebconfigasconfig", () =>//
             {
