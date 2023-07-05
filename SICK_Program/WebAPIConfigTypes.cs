@@ -97,7 +97,7 @@ namespace SickScanner{
                 webconfig.scanners[i].settings = new Settings();
                 webconfig.scanners[i].settings.endAngle = new int();
                 webconfig.scanners[i].settings.startAngle = new int();
-                webconfig.scanners[i].settings.resolution = new int();
+                webconfig.scanners[i].settings.resolution = new double();
                 webconfig.scanners[i].settings.frequency = new int();
                 webconfig.scanners[i].transformations = new Transformations();
                 webconfig.scanners[i].transformations.correctionAngle = new int();
@@ -215,7 +215,7 @@ namespace SickScanner{
             ret.settings = new Settings();
             ret.settings.endAngle = webconfig.Settings.EndAngle;
             ret.settings.startAngle = webconfig.Settings.StartAngle;
-            ret.settings.resolution = (int)webconfig.Settings.Resolution;
+            ret.settings.resolution = webconfig.Settings.Resolution;
             ret.settings.frequency = webconfig.Settings.Frequency;
             ret.transformations = new Transformations();
             ret.transformations.correctionAngle = webconfig.Transformations.CorrectionAngle;
@@ -256,7 +256,7 @@ namespace SickScanner{
     public class Settings {
         public int endAngle { get; set; }
         public int frequency { get; set; }
-        public int resolution { get; set; }
+        public double resolution { get; set; }
         public int startAngle { get; set; }
     }
 

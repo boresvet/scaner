@@ -70,6 +70,9 @@ namespace Sick_test
         public Scanint ReadLastScan(int i){
             return inputThreads[i].GetLastScan();
         }
+        public int ReadScanerID(int i){
+            return inputThreads[i].id;
+        }
         public Scanint GetLastScan(int i){
             var ret = inputThreads[i].GetLastScan();
             InputEvent[i].Reset();
