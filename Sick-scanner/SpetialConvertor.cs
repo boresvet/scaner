@@ -5,8 +5,8 @@ namespace Sick_test
     ///<summary>Конвертор из радиальной системы координат в ХУ
     ///</summary>     
     public class SpetialConvertorint{
-        public int BeginGrade;//    Углы относительно оси У
-        public int EndGrade;
+        public double BeginGrade;//    Углы относительно оси У
+        public double EndGrade;
         public int Step; // Кол-во шагов. 
 
         public double[] RatioSin;
@@ -17,7 +17,7 @@ namespace Sick_test
         ///<param name = "endgrade">Конечный угол в градусах</param>
         ///<param name = "step">Количество точек</param>
         ///</summary>  
-        public SpetialConvertorint(int begingrade, int endgrade, int step){
+        public SpetialConvertorint(double begingrade, double endgrade, int step){
             BeginGrade = begingrade;
             EndGrade = endgrade;
             Step = step;
@@ -25,7 +25,7 @@ namespace Sick_test
             RatioCos = RatoiGenCos(BeginGrade, EndGrade, Step);//Массивы с коэффециентами для приведения к нормальному виду координат
         }
         
-        static public double[] RatoiGenSin(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static public double[] RatoiGenSin(double BeginGrade, double EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
@@ -33,7 +33,7 @@ namespace Sick_test
             }
             return result;
         }
-        static public double[] RatoiGenCos(int BeginGrade, int EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
+        static public double[] RatoiGenCos(double BeginGrade, double EndGrade, int Step){   //принимает начальное и конечное значение в градусах(с учётом знака), и кол-во шагов
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){

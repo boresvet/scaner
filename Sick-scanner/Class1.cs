@@ -487,7 +487,7 @@ public class SickScanners
                     //step = 286;
                     
                     var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
-                    var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    var Conv = new SpetialConvertorint(-5.0 + Inputs.scaner.Transformations.CorrectionAngle, 185.0+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
                     lms.Connect();

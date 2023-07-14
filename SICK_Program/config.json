@@ -2,7 +2,6 @@
 	"Test": false,
 	"Method": "primitive",
 	"FilteredHeight": 300,
-	"WebConfigsName": "default",
 	"SortSettings": 
 	{
 		"SavedCars" : 100,

@@ -2,18 +2,18 @@ using Sick_test;
 
 namespace SickScanner
 {
-    public class FullScan
+    public class WebScans
     {
         public TestGenerator[]? testgen;
         public ScanData[]? Scan { get; set; }
 
-        public FullScan() { }
-        public FullScan(int len)
+        public WebScans() { }
+        public WebScans(int len)
         {
             testgen = new TestGenerator[len];
             Scan = new ScanData[len];
         }
-        public FullScan(ResponseFullConfig cfg)
+        public WebScans(ResponseFullConfig cfg)
         {
             testgen = cfg.scanners.Select(s => new TestGenerator(cfg, s.id, 2)).ToArray();
             Scan = testgen.Select(s => new ScanData(s.lanes, s.RoadPointWithCars)).ToArray();
@@ -25,7 +25,7 @@ namespace SickScanner
                 Scan[i] = new ScanData(i,testgen[i].RoadPointWithCars);
             }
         }
-        //public FullScan(int scan_count, int scan_len = 286)
+        //public WebScans(int scan_count, int scan_len = 286)
         //{
 
         //    Scan = Enumerable.Range(0, scan_count)
