@@ -257,10 +257,10 @@ namespace SickScanner{
 
 
     public class Settings {
-        public int endAngle { get; set; }
+        public double endAngle { get; set; }
         public int frequency { get; set; }
         public double resolution { get; set; }
-        public int startAngle { get; set; }
+        public double startAngle { get; set; }
     }
 
     public class Connection {

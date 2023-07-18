@@ -83,9 +83,9 @@
         ///<summary>частота сканирования</summary>
         public int Frequency { get; set; }
         ///<summary>начальный угол</summary>
-        public int StartAngle { get; set; }
+        public double StartAngle { get; set; }
         ///<summary>конечный угол</summary>
-        public int EndAngle { get; set; }
+        public double EndAngle { get; set; }
         ///<summary>единичный угол отклонения(шаг)</summary>
         public double Resolution { get; set; }
     }
