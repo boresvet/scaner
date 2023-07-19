@@ -165,7 +165,7 @@ public class SickScanners
                     logger.Info("Буффер очищен");
                     //Console.WriteLine("Буффер очищен");
                     logger.Info($"Найдено {seach.CarsArray.Count} машинок");
-                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 
@@ -191,33 +191,7 @@ public class SickScanners
             Scanint RoadScan;// = new Scanint(0);
             Inputs.WaitAnyData();
             Inputs.WaitAllData();
-
-
-
-            Filter pointsfilter;
-            var method = config.Method;
-            switch (method)
-            {
-                case "primitive":
-                    logger.Error($"Установлен режим поиска '{method}'");
-
-                    //Console.WriteLine("Установлен режим поиска 'primitive'");
-                    pointsfilter = new PrimitiveFilter(config);
-                    break;
-                case "EazyAutomatic":
-                    logger.Error($"Установлен режим поиска '{method}'");
-
-                    //Console.WriteLine("Установлен режим поиска 'primitive'");
-                    pointsfilter = new EasyAutomaticFilter(config);
-                    break;
-                default:
-                    logger.Error($"Ошибка режима поиска: режим '{method}' не известен. Установлен режим поиска 'primitive'");
-                    //Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
-                    pointsfilter = new PrimitiveFilter(config);
-                    break;
-            }
-
-
+            var pointsfilter = new Filter(config);
             var ConcatScanInterface = new ScanConcat(config);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
@@ -513,7 +487,7 @@ public class SickScanners
                     //step = 286;
                     
                     var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
-                    var Conv = new SpetialConvertorint(Inputs.scaner.Settings.StartAngle + Inputs.scaner.Transformations.CorrectionAngle, Inputs.scaner.Settings.EndAngle+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    var Conv = new SpetialConvertorint(-5.0 + Inputs.scaner.Transformations.CorrectionAngle, 185.0+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
                     lms.Connect();

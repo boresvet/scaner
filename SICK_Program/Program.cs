@@ -97,10 +97,10 @@ namespace SickScanner
 
 
 
-            /*var prog = new Program();
+            var prog = new Program();
             prog.ReadConfig();
             prog.ReadWebConfig();
-            prog.server(Returns);*/
+            prog.server(Returns);
         }
 
         void server(returns returns){
@@ -316,8 +316,8 @@ namespace SickScanner
                     Road = new
                     {
                         HorisontalOffset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Height = new { Min = 4000, Max = 10000, Step = new { Min = 10, Max = 100 } },
-                        CorrectionAngle = new { Min = -45, Max = 45, Step = new { Min = 0.01f, Max = 1f } }
+                        Height = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
+                        CorrectionAngle = new { Min = -45, Max = 45, Step = new { Min = 0.01, Max = 1 } }
                     },
                 };
             });
@@ -329,7 +329,6 @@ namespace SickScanner
                     Lane = new
                     {
                         Offset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Height = new { Min = -2000, Max = 2000, Step = new { Min = 1, Max = 100 } },
                         Width = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } }
                     },
 
