@@ -15,7 +15,8 @@
             "cwd": "${workspaceFolder}/SICK_Program",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "externalTerminal",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "requireExactSource": false
         },
         {
             "name": ".NET Core Attach",

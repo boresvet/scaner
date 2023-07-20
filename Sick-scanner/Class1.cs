@@ -165,7 +165,7 @@ public class SickScanners
                     logger.Info("Буффер очищен");
                     //Console.WriteLine("Буффер очищен");
                     logger.Info($"Найдено {seach.CarsArray.Count} машинок");
-                    //Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
+                    Console.WriteLine($"Найдено {seach.CarsArray.Count} машинок");
 
 
 
@@ -191,7 +191,7 @@ public class SickScanners
             Scanint RoadScan;// = new Scanint(0);
             Inputs.WaitAnyData();
             Inputs.WaitAllData();
-            var pointsfilter = new Filter(config);
+            var pointsfilter = new PrimitiveFilter(config);
             var ConcatScanInterface = new ScanConcat(config);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают

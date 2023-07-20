@@ -18,7 +18,7 @@ namespace SickScanner
 
         config config;
         ResponseFullConfig webconfig;
-        FullScan RetScan;
+        WebScans RetScan;
         static void Main1(){
             var returns = new Sick_test.returns();
             var MainT = Task.Run(() => Sick_test.SickScanners.RunScanners(returns));
@@ -78,7 +78,7 @@ namespace SickScanner
         public void ReadWebConfig(){
             try
             {
-                var ReadFile = File.ReadAllText($"Configs/{config.WebConfigsName}.json");
+                var ReadFile = File.ReadAllText("WebConfig.json");
                 webconfig = JsonSerializer.Deserialize<ResponseFullConfig>(ReadFile);
             }
             catch (Exception){
@@ -87,7 +87,7 @@ namespace SickScanner
         }
         public void SaveWebConfigToFile(){
             var WriteFile = JsonSerializer.Serialize<ResponseFullConfig>(webconfig);
-            File.WriteAllText($"Configs/{config.WebConfigsName}.json", WriteFile);
+            File.WriteAllText("WebConfig.json", WriteFile);
         }
         static void Main(){
             var Returns = new returns();
@@ -110,7 +110,7 @@ namespace SickScanner
             
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            RetScan = new FullScan(config.Scanners.Length);
+            RetScan = new WebScans(config.Scanners.Length);
             var app = builder.Build();
 
             if (true )
@@ -153,55 +153,36 @@ namespace SickScanner
             app.MapGet("www/lanes", () =>//
             {
                 for (int i = 0; i < config.RoadSettings.Lanes.Length; i++)
-                    config.RoadSettings.Lanes[i].ID = i;
-                return config.RoadSettings.Lanes;
+                    webconfig.roadSettings.lanes[i].id = i;
+                return webconfig.roadSettings.lanes;
             });
 
-            app.MapPost("www/lanes", (Lane[] lanes) =>//
+            app.MapPost("www/lanes", (Lanes[] lanes) =>//
             {
                 for (int i = 0; i < lanes.Length; i++)
-                    lanes[i].ID = i;
-                config.RoadSettings.Lanes = lanes;
-                return config.RoadSettings.Lanes;
+                    lanes[i].id = i;
+                webconfig.roadSettings.lanes = lanes;
+                SaveWebConfigToFile();
+                return webconfig.roadSettings.lanes;
             });
 
-            app.MapGet("/www/configname", () =>//
-            {
-                return (new { WebConfigsName = config.WebConfigsName });
-            });
             app.MapGet("/www/savewebconfigasconfig", () =>//
             {
                 webconfig.SaveConfig(webconfig, config);
                 SaveConfigToFile();
                 return (new { message = "Ok" });
             });
-            app.MapGet("/www/SaveWebConfigToFile", () =>//
-            {
-                SaveWebConfigToFile();
-                return (new { message = "Ok" });
-            });
-            app.MapPost("/www/configname", (string name) =>//
-            {
-                if (name != null)
-                {
-                    // устанавливаем название конфига
-                    SaveWebConfigName(name);
-                    return (new { message = "Конфиг установлен" });
-                }
-                else
-                {
-                    return (new { message = ("Назвать конфигурацию пустой строкой - гениально, я считаю. Но увы, Великий Рандом, величайший из богов Хаоса с этим не согласен" ) });
-                }
-            });
+
+
             app.MapGet("/www/full_config", () =>//
             {
-                return webconfig.roadSettings;
+                return webconfig;
             });
             app.MapPost("/www/full_config", (ResponseFullConfig cnf) =>
             {
                 webconfig = cnf;
                 SaveWebConfigToFile();
-                return webconfig.roadSettings;
+                return webconfig;
             });
 
             app.MapGet("/www/road", () =>//
@@ -211,6 +192,7 @@ namespace SickScanner
             app.MapPost("/www/road", (RoadSettings cnf) =>
             {
                 webconfig.roadSettings = cnf;
+                SaveWebConfigToFile();
                 return webconfig.roadSettings;
             });
                 /*else if (path == "/www/lanes" && request.Method == "GET")//
@@ -223,6 +205,7 @@ namespace SickScanner
                 }*/
             app.MapGet("/www/deadzones", () =>//
             {
+                SaveWebConfigToFile();
                 return webconfig.roadSettings.blinds;
             });
             app.MapPost("/www/deadzones", (Blinds[] blinds) =>
@@ -230,6 +213,7 @@ namespace SickScanner
                 for (int i = 0; i < blinds.Length; i++)
                     blinds[i].id = i;
                 webconfig.roadSettings.blinds = blinds;
+                SaveWebConfigToFile();
                 return webconfig.roadSettings.blinds;
             });
                 /*else if (path == "/www/transforms" && request.Method == "GET")//
@@ -249,7 +233,7 @@ namespace SickScanner
             });
             app.MapPost("/www/transform", (Transformations transform) =>
             {
-                var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(transform.id));
+                var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(transform.uid));
                 if (scan != null){
                 scan.transformations = new Transformations
                 {
@@ -258,12 +242,12 @@ namespace SickScanner
                     correctionAngle = transform.correctionAngle
                 };
                 }
+                SaveWebConfigToFile();
                 return webconfig.scanners.Select(x => new Transformations(x)).ToList();
             });
 
             app.MapGet("/www/connections", () =>//
             {
-
                 return webconfig.scanners.Select(x => new Connect(x)).ToList();
             });
             app.MapPost("/www/connection", (Connect scaners) =>
@@ -277,8 +261,7 @@ namespace SickScanner
                     port = scaners.Port.Value,
                     enabled = scaners.Enabled.Value  
                 };
-                RetScan = new FullScan(webconfig);
-
+                SaveWebConfigToFile();
                 return Results.Ok(webconfig.scanners.Select(x => new Connect(x)).ToList());
             });
             app.MapDelete("/www/connection", (int uid) =>
@@ -287,7 +270,7 @@ namespace SickScanner
                 if (scanner == null)
                     return Results.NotFound();
                 webconfig.scanners = webconfig.scanners.Where(x => !x.id.Equals(uid)).ToArray();
-                RetScan = new FullScan(webconfig);
+                SaveWebConfigToFile();
                 return Results.Ok(webconfig.scanners.Select(x => new Connect(x)).ToArray());
 
             });
@@ -360,10 +343,6 @@ namespace SickScanner
 
 
         // получение всех пользователей
-
-        public void SaveWebConfigName(string name){
-            config.WebConfigsName = name;
-        }
 
         /*async Task ReturnConfig(HttpResponse response)
         {
@@ -567,7 +546,7 @@ namespace SickScanner
 
         public class Connect
         {
-            public string uid  { get; set; }
+            public int uid  { get; set; }
             public string? Address { get; set; }
             public int? Port { get; set; }
             public bool? Enabled { get; set; }
@@ -575,7 +554,7 @@ namespace SickScanner
             public Connect() { }
             public Connect(Scanner scanner)
             {
-                uid = scanner.id.ToString();
+                uid = scanner.id;
                 Address = scanner.connection.address;
                 Port = scanner.connection.port;
                 Enabled = scanner.connection.enabled;

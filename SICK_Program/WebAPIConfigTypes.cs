@@ -224,7 +224,7 @@ namespace SickScanner{
             ret.transformations.correctionAngle = webconfig.Transformations.CorrectionAngle;
             ret.transformations.height = webconfig.Transformations.Height;
             ret.transformations.horisontalOffset = webconfig.Transformations.HorisontalOffset;
-            ret.transformations.id = webconfig.ID;
+            ret.transformations.uid = webconfig.ID;
             return ret;
         }
 
@@ -272,15 +272,15 @@ namespace SickScanner{
 
 
     public class Transformations {
-        public int id { get; set; }
-        public int correctionAngle { get; set; }
-        public int height { get; set; }
+        public int uid { get; set; }
         public int horisontalOffset { get; set; }
+        public int height { get; set; }
+        public int correctionAngle { get; set; }
         public Transformations() { }
 
         public Transformations(Scanner scanner)
         {
-            id = scanner.id;
+            uid = scanner.id;
             height = scanner.transformations.height;
             horisontalOffset = scanner.transformations.horisontalOffset;
             correctionAngle = scanner.transformations.correctionAngle;
@@ -323,17 +323,6 @@ namespace SickScanner{
         public int correctionAngle { get; set; }
     }
 
-
-    public class Scan {
-        public Point[] Points { get; set; }
-        public string uid { get; set; }
-        public string? color { get; set; }
-    }
-
-    public class Point {
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
 
     public class ConnectionSettingsObj {
         public ConnectionSettings road  { get; set; }

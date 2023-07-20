@@ -25,10 +25,11 @@
     ///<summary>Информация о всех сканерфх, дороге, полосах и различных неровностях
     ///</summary>
     public class config{
-        ///<summary>Название файла веб конфигурации </summary>
-        public string WebConfigsName { get; set; }
         ///<summary> Вкл/Выкл тестовый режим(режим генерации псевдоданных со сканеров по введённой дороге)</summary>
         public bool Test { get; set; }
+        ///<summary> Всё, что ниже - не машина </summary>
+
+        public int FilteredHeight { get; set; } 
         ///<summary> Глобальный метод поиска машинок(обработки границ и т.д.)</summary>
         public string Method { get; set; }
         ///<summary> Задаёт минимальные размеры машинок (необходимо для фильтрации птичек/веточек/идиотов с дроном и прочих неприятностей)</summary>
