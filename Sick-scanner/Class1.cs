@@ -191,7 +191,28 @@ public class SickScanners
             Scanint RoadScan;// = new Scanint(0);
             Inputs.WaitAnyData();
             Inputs.WaitAllData();
-            var pointsfilter = new PrimitiveFilter(config);
+            Filter pointsfilter;
+            var method = config.Method;
+            switch (method)
+            {
+                case "primitive":
+                    logger.Error($"Установлен режим поиска '{method}'");
+
+                    //Console.WriteLine("Установлен режим поиска 'primitive'");
+                    pointsfilter = new PrimitiveFilter(config);
+                    break;
+                case "primitiveAutomatic":
+                    logger.Error($"Установлен режим поиска '{method}'");
+
+                    //Console.WriteLine("Установлен режим поиска 'primitive'");
+                    pointsfilter = new AutomaticPrimitiveFilter(config);
+                    break;
+                default:
+                    logger.Error($"Ошибка режима поиска: режим '{method}' не известен. Установлен режим поиска 'primitive'");
+                    //Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
+                    pointsfilter = new PrimitiveFilter(config);
+                    break;
+            }
             var ConcatScanInterface = new ScanConcat(config);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
@@ -253,8 +274,7 @@ public class SickScanners
                 Slicer.Add(RoadScan.pointsArray);//Смешная нарезка в столбцы
                 //SliceByColumns(config, RoadScan, pointsSortTable);
                 pointsSortTable = Slicer.Dequeue();
-                var FilteredPoints = pointsfilter.CarPoints(pointsSortTable);
-                var CarArray = AddAllIslandLane(FilteredPoints);//Дорисовка машины (недостающих столбцов)
+                var CarArray = pointsfilter.CarPoints(pointsSortTable);//Дорисовка машины (недостающих столбцов)
                 //LanesArray = LaneGen(RoadScan, config.RoadSettings.Lanes);
                 //Сделать дороги
                 /*for(int i = 0; i<LaneConcurrentQueue.Length; i++){
@@ -262,7 +282,7 @@ public class SickScanners
                 }
                 RoadEvent.Set();*/
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-                //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
                 logger.Debug($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{

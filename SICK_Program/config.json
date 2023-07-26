@@ -1,6 +1,6 @@
 {
 	"Test": true,
-	"Method": "primitive",
+	"Method": "primitiveAutomatic",
 	"FilteredHeight": 500,
 	"SortSettings": 
 	{

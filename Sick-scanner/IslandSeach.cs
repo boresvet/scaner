@@ -979,6 +979,12 @@ namespace Sick_test
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     SearchAlgoritm = new PrimitiveSearchAlgoritm();
                     break;
+                case "primitiveAutomatic":
+                    logger.Error($"Установлен режим поиска '{method}'");
+
+                    //Console.WriteLine("Установлен режим поиска 'primitive'");
+                    SearchAlgoritm = new PrimitiveSearchAlgoritm();
+                    break;
                 default:
                     logger.Error($"Ошибка режима поиска: режим '{method}' не известен. Установлен режим поиска 'primitive'");
                     //Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");

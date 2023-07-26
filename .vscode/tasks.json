@@ -32,9 +32,8 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/SICK_Program/Sick-test.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--project",
+                "${workspaceFolder}/SICK_Program/Sick-test.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

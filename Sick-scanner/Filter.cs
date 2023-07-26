@@ -187,6 +187,7 @@ namespace Sick_test
             Settings = settings.RoadSettings;
             filterMax = new int[RoadLenght];
             filterMin = new int[RoadLenght];
+            ground = new int[RoadLenght];
             for(int i = 0; i<RoadLenght; i++){
                 filterMax[i] = settings.RoadSettings.UpLimit;
                 filterMin[i] = startGroundFilter(i);
