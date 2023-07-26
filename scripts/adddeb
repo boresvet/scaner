@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+cd ../SICK_Program
+./../scripts/amd64deb
+mv DEBIAN/control ../
+mv ../scripts/control DEBIAN/
+
+./../scripts/arm64deb
+mv DEBIAN/control ../scripts/
+mv ../control  DEBIAN/
+cd ../scripts
+
+exit 0
