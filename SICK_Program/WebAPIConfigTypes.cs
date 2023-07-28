@@ -206,10 +206,10 @@ namespace SickScanner{
         }
         private void ReadScaners(ResponseFullConfig webconfig, config config){
             for(int i = 0; i < webconfig.scanners.Length; i++){
-                webconfig.scanners[i] = ReadScaner(config.Scanners[i]);
+                webconfig.scanners[i] = ReadScaner(config.Scanners[i], webconfig.scanners[i]);
             }            
         }
-        private Scanner ReadScaner(Scaner webconfig){
+        private Scanner ReadScaner(Scaner webconfig, Scanner oldscaner){
             var ret = new Scanner();
             ret.id = webconfig.ID;
             ret.connection = new Connection();
@@ -276,6 +276,8 @@ namespace SickScanner{
         public int horisontalOffset { get; set; }
         public int height { get; set; }
         public int correctionAngle { get; set; }
+        public bool Flip { get; set; }
+
         public Transformations() { }
 
         public Transformations(Scanner scanner)

@@ -176,13 +176,13 @@ namespace SickScanner
 
             app.MapGet("/www/full_config", () =>//
             {
-                return webconfig;
+                return config;
             });
-            app.MapPost("/www/full_config", (ResponseFullConfig cnf) =>
+            app.MapPost("/www/full_config", (config cnf) =>
             {
-                webconfig = cnf;
-                SaveWebConfigToFile();
-                return webconfig;
+                config = cnf;
+                SaveConfigToFile();
+                return config;
             });
 
             app.MapGet("/www/road", () =>//
@@ -235,12 +235,18 @@ namespace SickScanner
             {
                 var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(transform.uid));
                 if (scan != null){
+                
                 scan.transformations = new Transformations
                 {
                     height = transform.height,
                     horisontalOffset = transform.horisontalOffset,
-                    correctionAngle = transform.correctionAngle
+                    correctionAngle = transform.correctionAngle,
                 };
+                if(transform.Flip){
+                    var i = scan.settings.startAngle;
+                    scan.settings.startAngle = scan.settings.endAngle;
+                    scan.settings.endAngle = i;
+                }
                 }
                 SaveWebConfigToFile();
                 return webconfig.scanners.Select(x => new Transformations(x)).ToList();
@@ -313,7 +319,7 @@ namespace SickScanner
                     {
                         HorisontalOffset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
                         Height = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
-                        CorrectionAngle = new { Min = -45, Max = 45, Step = new { Min = 1, Max = 10 } }
+                        CorrectionAngle = new { Min = -45.0f, Max = 45.0f, Step = new { Min = 0.01f, Max = 1.0f } }
                     },
                 };
             });
@@ -325,15 +331,16 @@ namespace SickScanner
                     Lane = new
                     {
                         Offset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Width = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } }
+                        Width = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
+                        Height = new { Min = -2000, Max = 2000, Step = new { Min = 1, Max = 100 } },
                     },
 
-                    Blind = new
-                    {
-                        Offset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Width = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
-                        Height = new { Min = 0, Max = 10000, Step = new { Min = 1, Max = 100 } }
-                    },
+                Blind = new
+                {
+                    Offset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
+                    Width = new { Min = 10, Max = 10000, Step = new { Min = 1, Max = 100 } },
+                    Height = new { Min = 0, Max = 10000, Step = new { Min = 1, Max = 100 } }
+                },
 
                 };
             });
