@@ -25,7 +25,7 @@ namespace SickScanner
 
         }
 
-        async Task Echo(WebSocket webSocket, ResponseFullConfig webconfig, DateTime WSocketTime, DateTime oldWSocketTime)
+        async Task Echo(WebSocket webSocket, ResponseFullConfig webconfig, returns returns)
         {
             var cts = new CancellationTokenSource();    
 
@@ -34,7 +34,7 @@ namespace SickScanner
             var trig = false;
             while (webSocket.State == WebSocketState.Open)
             {
-                RetScan.AddScan(webconfig, trig);
+                RetScan.AddScan(webconfig, trig, returns, config.Test);
                 trig = !trig;
                 var json = JsonSerializer.Serialize(RetScan);
                 var buffer = Encoding.UTF8.GetBytes(json);
@@ -106,9 +106,6 @@ namespace SickScanner
         }
 
         void server(returns returns){
-            var WSocketTime = DateTime.Now;
-            var oldWSocketTime = DateTime.Now;
-
             var builder = WebApplication.CreateBuilder();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
@@ -141,7 +138,7 @@ namespace SickScanner
                     if (context.WebSockets.IsWebSocketRequest)
                     {
                         using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                        await Echo(webSocket, webconfig, WSocketTime, oldWSocketTime);
+                        await Echo(webSocket, webconfig, returns);
                     }
                     else
                     {

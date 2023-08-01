@@ -19,7 +19,7 @@ namespace SickScanner
             Scan = testgen.Select(s => new ScanData(s.lanes, s.RoadPointWithCars)).ToArray();
         }
 
-        public void AddScan(ResponseFullConfig cfg, /*DateTime WSocketTime, DateTime oldWSocketTime,*/ bool trig){
+        public void AddScan(ResponseFullConfig cfg, bool trig, returns returns, bool Test){
 /*          WSocketTime = DateTime.Now;
             if(oldWSocketTime.AddSeconds(10)>WSocketTime){
                 for(int i = 0; i < testgen.Length; i++){
@@ -34,16 +34,22 @@ namespace SickScanner
                 oldWSocketTime = DateTime.Now;
             }
 */
-
-            if(trig){
-                for(int i = 0; i < testgen.Length; i++){
-                    testgen[i] = new TestGenerator(cfg, i, 2);
-                    Scan[i] = new ScanData(i,testgen[i].RoadPointWithCars);
+            if(Test){
+                if(trig){
+                    for(int i = 0; i < testgen.Length; i++){
+                        testgen[i] = new TestGenerator(cfg, i, 2);
+                        Scan[i] = new ScanData(i,testgen[i].RoadPointWithCars);
+                    }
+                }else{
+                    for(int i = 0; i < testgen.Length; i++){
+                        testgen[i] = new TestGenerator(cfg, i, 2);
+                        Scan[i] = new ScanData(i,testgen[i].RoadPoints);
+                    }
                 }
-            }else{
+            }
+            else{
                 for(int i = 0; i < testgen.Length; i++){
-                    testgen[i] = new TestGenerator(cfg, i, 2);
-                    Scan[i] = new ScanData(i,testgen[i].RoadPoints);
+                    Scan[i] = new ScanData(i,returns.Inputs.ReadLastScan(i).pointsArray);
                 }
             }
         }
