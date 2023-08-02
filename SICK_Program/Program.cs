@@ -13,6 +13,13 @@ using System.Threading.Tasks;
 
 namespace SickScanner
 {
+    class carresponse{
+        public DateTime time;
+        public int lanenumber;
+        public carresponse(){
+
+        }
+    }
     class Program
     {
 
@@ -25,18 +32,26 @@ namespace SickScanner
 
         }
 
-        async Task Echo(WebSocket webSocket, ResponseFullConfig webconfig, returns returns)
+        async Task Echo(WebSocket webSocket, ResponseFullConfig webconfig, returns returns, DateTime pausetime)
         {
             var cts = new CancellationTokenSource();    
 
             var recvBuffer = new byte[1024];
             var recvArraySegment = new ArraySegment<byte>(recvBuffer, 0, recvBuffer.Length);
             var trig = false;
+            var pausescan = new WebScans();
             while (webSocket.State == WebSocketState.Open)
             {
+                
                 RetScan.AddScan(webconfig, trig, returns, config.Test);
                 trig = !trig;
-                var json = JsonSerializer.Serialize(RetScan);
+                string json;
+                if(pausetime>=DateTime.Now.AddMinutes(-10)){
+                    json = JsonSerializer.Serialize(pausescan);
+                }else{
+                    json = JsonSerializer.Serialize(RetScan);
+                    pausescan.Scan = RetScan.readScanData();
+                }
                 var buffer = Encoding.UTF8.GetBytes(json);
                 ///var tmp = await webSocket.ReceiveAsync(recvArraySegment, CancellationToken.None);
                 try
@@ -106,6 +121,11 @@ namespace SickScanner
         }
 
         void server(returns returns){
+            var Pause = new DateTime();
+            Pause = DateTime.Now;
+            Pause.AddMinutes(-15);
+
+
             var builder = WebApplication.CreateBuilder();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
@@ -133,12 +153,12 @@ namespace SickScanner
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/www/ws")
+                if (context.Request.Path == "/ws")
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
                         using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                        await Echo(webSocket, webconfig, returns);
+                        await Echo(webSocket, webconfig, returns, Pause);
                     }
                     else
                     {
@@ -175,7 +195,28 @@ namespace SickScanner
                 return (new { message = "Ok" });
             });
 
-
+            app.MapGet("/www/pause", () =>//
+            {
+                Pause = DateTime.Now;
+                return (new { message = "Paused" });
+            });
+            app.MapPost("/get_data/car", (DateTime time) =>
+            {
+                return returns.carbuffer.GiveMyCar(time);
+            });
+            app.MapGet("/get_data/road", () =>//
+            {
+                return (returns.returnRoad());
+            });
+            app.MapPost("/get_data/scan", (int scanernumber) =>
+            {
+                return returns.returnScan(scanernumber);
+            });
+            
+            app.MapPost("/get_data/car", (carresponse resp) =>
+            {
+                return returns.carbuffer.GiveMyCar(resp.time, resp.lanenumber);
+            });
             app.MapGet("/www/full_config", () =>//
             {
                 return config;

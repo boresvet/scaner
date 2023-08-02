@@ -37,10 +37,16 @@ namespace Sick_test
             ret = times.readLastScan().CopyScan();
             return ret;
         }
-        ///<summary>Получить машинку по заданному времени</summary>  
+        ///<summary>Получить машинку по заданному времени и номеру полосы</summary>  
         public CarArraySize returnCar(DateTime Time, int roadline){
             var ret = new CarArraySize();
             ret = carbuffer.GiveMyCar(Time, roadline);
+            return ret;
+        }
+        ///<summary>Получить машинку по заданному времени</summary>  
+        public CarArraySize returnCar(DateTime Time){
+            var ret = new CarArraySize();
+            ret = carbuffer.GiveMyCar(Time);
             return ret;
         }
     }

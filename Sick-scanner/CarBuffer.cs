@@ -58,10 +58,15 @@ namespace Sick_test
             }
             return false;
         }
-        ///<summary>Возвращает машинку по заданному времени</summary>  
+        ///<summary>Возвращает машинку по заданному времении номеру полосы</summary>  
 
             public CarArraySize GiveMyCar(DateTime time, int roadline){
                 return _buffer.GiveMyCar(time, roadline);
+            }
+        ///<summary>Возвращает машинку по заданному времени</summary>  
+
+            public CarArraySize GiveMyCar(DateTime time){
+                return _buffer.GiveMyCar(time);
             }
     }
 }

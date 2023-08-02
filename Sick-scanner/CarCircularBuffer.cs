@@ -84,5 +84,19 @@ namespace Sick_test
                 return ret;
             }
         }
+
+        ///<summary>Возвращает машинку, при запросе по номеру полосы</summary>  
+        public CarArraySize GiveMyCar(DateTime time){
+            lock(_lock){
+                var ret = new CarArraySize();
+                foreach(CarArraySize i in _buffer){
+                    if(iscarinthisTime(i, time)){
+                        ret = i.Copy();
+                    }
+                }
+
+                return ret;
+            }
+        }
     }
 }

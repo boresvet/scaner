@@ -53,6 +53,9 @@ namespace SickScanner
                 }
             }
         }
+        public ScanData[]? readScanData(){
+            return Scan.ToArray();
+        }
         //public WebScans(int scan_count, int scan_len = 286)
         //{
 
