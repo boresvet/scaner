@@ -200,6 +200,11 @@ namespace SickScanner
                 Pause = DateTime.Now;
                 return (new { message = "Paused" });
             });
+            app.MapGet("/www/play", () =>//
+            {
+                Pause.AddMinutes(-15);
+                return (new { message = "Played" });
+            });
             app.MapPost("/get_data/car", (DateTime time) =>
             {
                 return returns.carbuffer.GiveMyCar(time);
