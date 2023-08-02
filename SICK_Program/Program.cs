@@ -195,10 +195,15 @@ namespace SickScanner
                 return (new { message = "Ok" });
             });
 
-            app.MapPost("/www/pause", () =>//
+            app.MapPost("/www/pause", (int seconds) =>//
             {
                 Pause = DateTime.Now;
-                Pause.AddSeconds(600);
+                if(seconds == 0){
+                    Pause = DateTime.Now;
+                }else{
+                    Pause.AddSeconds(600);
+                }
+                Pause.AddSeconds(seconds);
                 return ((int)Pause.Subtract(DateTime.Now).TotalSeconds);
             });
             app.MapGet("/www/pause", () =>//
