@@ -46,7 +46,7 @@ namespace SickScanner
                 RetScan.AddScan(webconfig, trig, returns, config.Test);
                 trig = !trig;
                 string json;
-                if(pausetime>=DateTime.Now.AddMinutes(-10)){
+                if(pausetime>=DateTime.Now){
                     json = JsonSerializer.Serialize(pausescan);
                 }else{
                     json = JsonSerializer.Serialize(RetScan);
@@ -195,15 +195,18 @@ namespace SickScanner
                 return (new { message = "Ok" });
             });
 
-            app.MapGet("/www/pause", () =>//
+            app.MapPost("/www/pause", (int seconds) =>//
             {
                 Pause = DateTime.Now;
-                return (new { message = "Paused" });
+                Pause.AddSeconds(seconds);
+                return ((int)Pause.Subtract(DateTime.Now).TotalSeconds);
             });
-            app.MapGet("/www/play", () =>//
+            app.MapGet("/www/pause", () =>//
             {
-                Pause.AddMinutes(-15);
-                return (new { message = "Played" });
+                if((int)Pause.Subtract(DateTime.Now).TotalSeconds>0){
+                    return ((int)Pause.Subtract(DateTime.Now).TotalSeconds);
+                }
+                return (0);
             });
             app.MapPost("/get_data/car", (DateTime time) =>
             {
