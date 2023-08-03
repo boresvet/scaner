@@ -218,14 +218,14 @@ namespace SickScanner
                 }else{
                     AbsolutPause(Paused);
                 }
-                return ((int)Paused.Subtract(DateTime.Now).TotalSeconds);
+                return (new {isPaused = (int)Paused.Subtract(DateTime.Now).TotalSeconds==0, duration = (int)Paused.Subtract(DateTime.Now).TotalSeconds});
             });
             app.MapGet("/www/pause", () =>//
             {
                 if((int)Paused.Subtract(DateTime.Now).TotalSeconds>0){
-                    return ((int)Paused.Subtract(DateTime.Now).TotalSeconds);
+                    return (new {isPaused = (int)Paused.Subtract(DateTime.Now).TotalSeconds==0, duration = (int)Paused.Subtract(DateTime.Now).TotalSeconds});
                 }
-                return (0);
+                return (new {isPaused = false, duration = 0});
             });
             app.MapPost("/get_data/car", (DateTime time) =>
             {
