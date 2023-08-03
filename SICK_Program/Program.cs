@@ -22,7 +22,7 @@ namespace SickScanner
     }
     class Program
     {
-
+        
         config config;
         ResponseFullConfig webconfig;
         WebScans RetScan;
@@ -31,7 +31,22 @@ namespace SickScanner
             var MainT = Task.Run(() => Sick_test.SickScanners.RunScanners(returns));
 
         }
-
+        static void AbsolutPause(DateTime pausetime){
+            if(pausetime>DateTime.Now.AddMinutes(10)){
+                return;
+            }else{
+                pausetime = DateTime.Now.AddMinutes(10);
+            }
+        }
+        static void Pause(DateTime pausetime){
+            if(pausetime>DateTime.Now){
+                if(pausetime>DateTime.Now.AddMinutes(10)){
+                    return;
+                }else{
+                    pausetime = DateTime.Now.AddMinutes(10);
+                }
+            }
+        }
         async Task Echo(WebSocket webSocket, ResponseFullConfig webconfig, returns returns, DateTime pausetime)
         {
             var cts = new CancellationTokenSource();    
@@ -121,9 +136,9 @@ namespace SickScanner
         }
 
         void server(returns returns){
-            var Pause = new DateTime();
-            Pause = DateTime.Now;
-            Pause.AddMinutes(-15);
+            var Paused = new DateTime();
+            Paused = DateTime.Now;
+            Paused.AddMinutes(-15);
 
 
             var builder = WebApplication.CreateBuilder();
@@ -153,12 +168,12 @@ namespace SickScanner
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/ws")
+                if (context.Request.Path == "/www/ws")
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
                         using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                        await Echo(webSocket, webconfig, returns, Pause);
+                        await Echo(webSocket, webconfig, returns, Paused);
                     }
                     else
                     {
@@ -197,18 +212,18 @@ namespace SickScanner
 
             app.MapPost("/www/pause", (bool paused) =>//
             {
-                Pause = DateTime.Now;
+                Paused = DateTime.Now;
                 if(!paused){
-                    Pause = DateTime.Now;
+                    Paused = DateTime.Now;
                 }else{
-                    Pause.AddSeconds(600);
+                    AbsolutPause(Paused);
                 }
-                return ((int)Pause.Subtract(DateTime.Now).TotalSeconds);
+                return ((int)Paused.Subtract(DateTime.Now).TotalSeconds);
             });
             app.MapGet("/www/pause", () =>//
             {
-                if((int)Pause.Subtract(DateTime.Now).TotalSeconds>0){
-                    return ((int)Pause.Subtract(DateTime.Now).TotalSeconds);
+                if((int)Paused.Subtract(DateTime.Now).TotalSeconds>0){
+                    return ((int)Paused.Subtract(DateTime.Now).TotalSeconds);
                 }
                 return (0);
             });
@@ -248,6 +263,7 @@ namespace SickScanner
             {
                 webconfig.roadSettings = cnf;
                 SaveWebConfigToFile();
+                Pause(Paused);
                 return webconfig.roadSettings;
             });
                 /*else if (path == "/www/lanes" && request.Method == "GET")//
@@ -269,6 +285,7 @@ namespace SickScanner
                     blinds[i].id = i;
                 webconfig.roadSettings.blinds = blinds;
                 SaveWebConfigToFile();
+                Pause(Paused);
                 return webconfig.roadSettings.blinds;
             });
                 /*else if (path == "/www/transforms" && request.Method == "GET")//
@@ -304,6 +321,7 @@ namespace SickScanner
                 }
                 }
                 SaveWebConfigToFile();
+                Pause(Paused);
                 return webconfig.scanners.Select(x => new Transformations(x)).ToList();
             });
 
@@ -323,6 +341,7 @@ namespace SickScanner
                     enabled = scaners.Enabled.Value  
                 };
                 SaveWebConfigToFile();
+                Pause(Paused);
                 return Results.Ok(webconfig.scanners.Select(x => new Connect(x)).ToList());
             });
             app.MapDelete("/www/connection", (int uid) =>
@@ -333,7 +352,6 @@ namespace SickScanner
                 webconfig.scanners = webconfig.scanners.Where(x => !x.id.Equals(uid)).ToArray();
                 SaveWebConfigToFile();
                 return Results.Ok(webconfig.scanners.Select(x => new Connect(x)).ToArray());
-
             });
 
                 /*else if (path == "/wwwroot" && request.Method == "GET")//
