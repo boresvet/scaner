@@ -1,7 +1,8 @@
 #.vscode/
 */test.txt
 SICK_Program/SICK-DEB
-SICK_Program/SICK-DEB.deb
+SICK_Program/SICK-DEB
+SICK_Program/WebConfig.json
 
 *.deb
 
