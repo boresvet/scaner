@@ -406,8 +406,8 @@ namespace SickScanner
                 {
                     Road = new
                     {
-                        HorisontalOffset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Height = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
+                        HorisontalOffset = new { Min = -5000, Max = 20000, Step = new { Min = 1, Max = 100 } },
+                        Height = new { Min = 3000, Max = 10000, Step = new { Min = 1, Max = 100 } },
                         CorrectionAngle = new { Min = -270.0f, Max = 270.0f, Step = new { Min = 0.01f, Max = 1.0f } }
                     },
                 };
@@ -420,7 +420,7 @@ namespace SickScanner
                     Lane = new
                     {
                         Offset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
-                        Width = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
+                        Width = new { Min = 1500, Max = 10000, Step = new { Min = 1, Max = 100 } },
                         Height = new { Min = -2000, Max = 2000, Step = new { Min = 1, Max = 100 } },
                     },
 

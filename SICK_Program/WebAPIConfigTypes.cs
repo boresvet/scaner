@@ -116,9 +116,11 @@ namespace SickScanner{
             config.RoadSettings.RightLimit = webconfig.roadSettings.rightLimit;
             config.RoadSettings.Step = webconfig.roadSettings.step;
             config.RoadSettings.UpLimit = webconfig.roadSettings.upLimit;
+            config.RoadSettings.Blinds = new Blind[webconfig.roadSettings.blinds.Length];
             for(int i = 0; i < webconfig.roadSettings.blinds.Length; i++){
                 config.RoadSettings.Blinds[i] = SaveBlind(webconfig.roadSettings.blinds[i]);
             }
+            config.RoadSettings.Lanes = new Lane[webconfig.roadSettings.lanes.Length];
             for(int i = 0; i < webconfig.roadSettings.lanes.Length; i++){
                 config.RoadSettings.Lanes[i] = SaveLane(webconfig.roadSettings.lanes[i]);
             }
@@ -183,7 +185,8 @@ namespace SickScanner{
             webconfig.sorts.SavedCars = config.SortSettings.SavedCars;
         }
         private void SaveScaners(ResponseFullConfig webconfig, config config){
-            for(int i = 0; i < webconfig.roadSettings.lanes.Length; i++){
+            config.Scanners = new Scaner[webconfig.scanners.Length];
+            for(int i = 0; i < webconfig.scanners.Length; i++){
                 config.Scanners[i] = SaveScaner(webconfig.scanners[i]);
             }            
         }

@@ -110,9 +110,9 @@ public class SickScanners
             var Inputs = new AllInput(config);
             Task[] InputT;
             if(config.Test){
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y, returns.logger))).ToArray();
+                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y, returns.logger))).ToArray();
             }else{
-                InputT = Enumerable.Range(0, 3).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent, returns.logger))).ToArray();
+                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent, returns.logger))).ToArray();
             }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
@@ -240,9 +240,12 @@ public class SickScanners
                 }
                 //Console.WriteLine("Ждём");
 
+                logger.Debug("Старт ожидания даных от сканеров");
 
                 Inputs.WaitAnyData();
                 Inputs.WaitAllData();
+
+                logger.Debug("Завершено ожидание данных от сканеров");
 
                 //Console.WriteLine("Дождались");
 
@@ -269,6 +272,7 @@ public class SickScanners
                         ConcatScanInterface.Add(res.pointsArray);
                     }
                 }
+                logger.Debug("Смешная нарезка точек в столбцы");
 
                 RoadScan.pointsArray = ConcatScanInterface.Dequeue();
                 Slicer.Add(RoadScan.pointsArray);//Смешная нарезка в столбцы
@@ -281,8 +285,9 @@ public class SickScanners
                     LaneConcurrentQueue[i].AddZeroPoint(LanesArray[i]);
                 }
                 RoadEvent.Set();*/
+                logger.Debug("Сохранение обработанных данных в буфер по времени");
                 times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+                //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
                 logger.Debug($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch{
@@ -502,6 +507,7 @@ public class SickScanners
 
         private static void InputTask(inputTheard Inputs, ManualResetEvent ExitEvent, Logger logger){
             while(true){
+                logger.Debug($"Начало запуска сканера {Inputs.id}");
                 try{
                     var step = (int)((Inputs.scaner.Settings.EndAngle-Inputs.scaner.Settings.StartAngle)/Inputs.scaner.Settings.Resolution);
                     //step = 286;
@@ -510,8 +516,12 @@ public class SickScanners
                     var Conv = new SpetialConvertorint(Inputs.scaner.Settings.StartAngle + Inputs.scaner.Transformations.CorrectionAngle, Inputs.scaner.Settings.EndAngle+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
+                    logger.Debug($"Подключение к сканеру {Inputs.id}");
+
                     lms.Connect();
                     Inputs.ErrorEvent.Reset();
+
+                    logger.Debug($"Начало считывания информации о сканере {Inputs.id}, подготовка таблиц перевода в XY систему координат");
 
                     var translator = new translator(new PointXYint(){X = Inputs.scaner.Transformations.HorisontalOffset, Y = Inputs.scaner.Transformations.Height});
                     //Объявление транслятора для переноса координат из системы сканера в систему координат дороги
@@ -527,11 +537,16 @@ public class SickScanners
                         time = DateTime.Now
                     };
                     var oldscannumber=0;
+
+                    logger.Debug($"Запись первого пришедшего скана {Inputs.id}");
+
                     while(true){
+                        logger.Debug($"Проверка на ExitEvent {Inputs.id}");
                         if (ExitEvent.WaitOne(0)) {
                             lms.Disconnect();
                             return;
                         }
+                        logger.Debug($"Получение значений со сканера {Inputs.id}");
                         res = lms.ScanContinious();
                         if (oldscannumber!=res.ScanCounter){ 
                             logger.Warn($"Потеряны сканы со сканера с {oldscannumber} по {res.ScanCounter}; частота сканера {res.ScanFrequency}");
@@ -546,9 +561,12 @@ public class SickScanners
                             Console.WriteLine("Тысячный скан");
                         }*/
 
-
+                        logger.Debug($"Запись времени получения скана со сканера {Inputs.id}");
                         Scan.time = DateTime.Now;
+                        logger.Debug($"Обработка данных со сканера {Inputs.id}");
                         Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X!=0)||(point.Y!=0)));
+                        logger.Debug($"Данные от сканера {Inputs.id} обработаны");
+
                         /*
                         Эта штука конвертирует скан из радиальных координат в ХУ, 
                         потом удаляет все "нули" - точки, совпадающие со сканером 
@@ -562,9 +580,13 @@ public class SickScanners
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);
+                        logger.Debug($"Сохранение сырых данных со сканера {Inputs.id}");
                         Inputs.AddRawScan(ConnectionResultDistanceDataint(res));
+                        logger.Debug($"Сохранение сырых данных со сканера {Inputs.id} завершено, сохранение XY точек");
                         Inputs.AddScan(Scan);
+                        logger.Debug($"Сохранение XY точек со сканера {Inputs.id} завершено");
                         Inputs.InputEvent.Set();
+                        logger.Debug($"Сканер {Inputs.id} завершил работу, Мавр свободен");
                         //Console.Write("Принят скан от сканера  ");
                         //Console.WriteLine(Inputs.scaner.Connection.ScannerAddres.Substring(Inputs.scaner.Connection.ScannerAddres.Length-1));
                     }

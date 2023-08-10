@@ -434,6 +434,7 @@ namespace Sick_test
             }
 
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка слева сверху от текущей </summary>
         private void InLeftUpPoint(SuperScan[] input){
@@ -474,6 +475,7 @@ namespace Sick_test
                 return;
             }
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
 
@@ -516,6 +518,7 @@ namespace Sick_test
                 return;
             }
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка справа сверху от текущей </summary>
@@ -557,6 +560,7 @@ namespace Sick_test
                 return;
             }
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка справа от текущей </summary>
@@ -598,6 +602,7 @@ namespace Sick_test
                 return;
             }
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка справа снизу от текущей </summary>
@@ -638,7 +643,8 @@ namespace Sick_test
                 rightindex(input);
                 return;
             }
-            Console.WriteLine("Ошибка");
+            //Console.WriteLine("Ошибка");
+            //ConsoleLog(input);
         }
 
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка снизу от текущей </summary>
@@ -679,7 +685,8 @@ namespace Sick_test
                 downindex(input);
                 return;
             }
-            Console.WriteLine("ошибка");
+            Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
         /// <summary> Поиск и переход на следущую точку, когда предыдущая точка слева снизу от текущей </summary>
@@ -721,6 +728,7 @@ namespace Sick_test
                 return;
             }
             Console.WriteLine("Ошибка");
+            ConsoleLog(input);
         }
 
         /// <summary> Установка старой точки в координаты текущей точки </summary>
