@@ -29,7 +29,7 @@ namespace Sick_test
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
-                result[i] = Math.Sin((i * (( double )(EndGrade - BeginGrade))/(( double )(Step)) + BeginGrade)*Math.PI/180);
+                result[i] = Math.Sin(((double)i * (( double )(EndGrade - BeginGrade))/(( double )(Step)) + (double)BeginGrade)*Math.PI/180.0);
             }
             return result;
         }
@@ -37,7 +37,7 @@ namespace Sick_test
             double[] result;
             result = new double[Step];
             for (int i=0; i<Step; i++){
-                result[i] = Math.Cos((i * (( double )(EndGrade - BeginGrade))/(( double )(Step)) + BeginGrade)*Math.PI/180);
+                result[i] = Math.Cos(((double)i * (( double )(EndGrade - BeginGrade))/(( double )(Step)) + (double)BeginGrade)*Math.PI/180.0);
             }
             return result;
         }

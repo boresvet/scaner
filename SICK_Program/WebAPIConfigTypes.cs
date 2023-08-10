@@ -286,6 +286,7 @@ namespace SickScanner{
             height = scanner.transformations.height;
             horisontalOffset = scanner.transformations.horisontalOffset;
             correctionAngle = scanner.transformations.correctionAngle;
+            Flip = scanner.transformations.Flip;
         }
     }
 

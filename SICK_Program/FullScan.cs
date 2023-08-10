@@ -5,6 +5,8 @@ namespace SickScanner
     public class WebScans
     {
         public TestGenerator[]? testgen;
+        public SpetialConvertorint[]? Conv;
+        public translator[]? translator;
         public ScanData[]? Scan { get; set; }
 
         public WebScans() { }
@@ -12,14 +14,19 @@ namespace SickScanner
         {
             testgen = new TestGenerator[len];
             Scan = new ScanData[len];
+            Conv = new SpetialConvertorint[len];
+            translator = new translator[len];
         }
         public WebScans(ResponseFullConfig cfg)
         {
             testgen = cfg.scanners.Select(s => new TestGenerator(cfg, s.id, 2)).ToArray();
             Scan = testgen.Select(s => new ScanData(s.lanes, s.RoadPointWithCars)).ToArray();
+            Conv = cfg.scanners.Select(s => new SpetialConvertorint(s.settings.startAngle + s.transformations.correctionAngle, s.settings.endAngle + s.transformations.correctionAngle, Math.Abs((int)((s.settings.endAngle-s.settings.startAngle)/s.settings.resolution)))).ToArray();
+            translator = cfg.scanners.Select(s => new translator(new PointXYint(){X = s.transformations.horisontalOffset, Y = s.transformations.height})).ToArray();
         }
 
         public void AddScan(ResponseFullConfig cfg, bool trig, returns returns, bool Test){
+
 /*          WSocketTime = DateTime.Now;
             if(oldWSocketTime.AddSeconds(10)>WSocketTime){
                 for(int i = 0; i < testgen.Length; i++){
@@ -48,8 +55,10 @@ namespace SickScanner
                 }
             }
             else{
-                for(int i = 0; i < testgen.Length; i++){
-                    Scan[i] = new ScanData(i,returns.Inputs.ReadLastScan(i).pointsArray);
+                for(int i = 0; i < cfg.scanners.Length; i++){
+                    Conv[i] = new SpetialConvertorint(cfg.scanners[i].settings.startAngle + cfg.scanners[i].transformations.correctionAngle, cfg.scanners[i].settings.endAngle + cfg.scanners[i].transformations.correctionAngle, Math.Abs((int)((cfg.scanners[i].settings.endAngle-cfg.scanners[i].settings.startAngle)/cfg.scanners[i].settings.resolution)));
+                    translator[i] = new translator(new PointXYint(){X = cfg.scanners[i].transformations.horisontalOffset, Y = cfg.scanners[i].transformations.height});
+                    Scan[i] = new ScanData(i,translator[i].Translate(Conv[i].MakePoint(returns.Inputs.ReadRawScan(i))));
                 }
             }
         }

@@ -168,7 +168,7 @@ namespace SickScanner
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/www/ws")
+                if (context.Request.Path == "/ws")
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
@@ -297,7 +297,12 @@ namespace SickScanner
                     await SaveTransform(response, request);
                 }*/
                 
-                
+            static bool getbool(bool? input){
+                if(input == null){
+                    return false;
+                }
+                return (bool)input;
+            }
 
             app.MapGet("/www/transforms", () =>//
             {
@@ -308,16 +313,27 @@ namespace SickScanner
                 var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(transform.uid));
                 if (scan != null){
                 
-                scan.transformations = new Transformations
-                {
-                    height = transform.height,
-                    horisontalOffset = transform.horisontalOffset,
-                    correctionAngle = transform.correctionAngle,
-                };
-                if(transform.Flip){
-                    var i = scan.settings.startAngle;
-                    scan.settings.startAngle = scan.settings.endAngle;
-                    scan.settings.endAngle = i;
+                if(scan == null){
+                    scan.transformations = new Transformations
+                    {
+                        height = transform.height,
+                        horisontalOffset = transform.horisontalOffset,
+                        correctionAngle = transform.correctionAngle,
+                        Flip = false,
+                    };
+                }else{
+                    if(transform.Flip!=scan.transformations.Flip){
+                        var i = scan.settings.startAngle;
+                        scan.settings.startAngle = scan.settings.endAngle;
+                        scan.settings.endAngle = i;
+                    }
+                    scan.transformations = new Transformations
+                    {
+                        height = transform.height,
+                        horisontalOffset = transform.horisontalOffset,
+                        correctionAngle = transform.correctionAngle,
+                        Flip = transform.Flip,
+                    };
                 }
                 }
                 SaveWebConfigToFile();
@@ -392,7 +408,7 @@ namespace SickScanner
                     {
                         HorisontalOffset = new { Min = -2000, Max = 20000, Step = new { Min = 1, Max = 100 } },
                         Height = new { Min = 4000, Max = 10000, Step = new { Min = 1, Max = 100 } },
-                        CorrectionAngle = new { Min = -45.0f, Max = 45.0f, Step = new { Min = 0.01f, Max = 1.0f } }
+                        CorrectionAngle = new { Min = -270.0f, Max = 270.0f, Step = new { Min = 0.01f, Max = 1.0f } }
                     },
                 };
             });

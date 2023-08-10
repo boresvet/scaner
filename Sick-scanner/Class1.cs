@@ -507,7 +507,7 @@ public class SickScanners
                     //step = 286;
                     
                     var lms = new LMS1XX(Inputs.scaner.Connection.ScannerAddres, Inputs.scaner.Connection.ScannerPort, 5000, 5000);
-                    var Conv = new SpetialConvertorint(-5 + Inputs.scaner.Transformations.CorrectionAngle, 185+Inputs.scaner.Transformations.CorrectionAngle, step);
+                    var Conv = new SpetialConvertorint(Inputs.scaner.Settings.StartAngle + Inputs.scaner.Transformations.CorrectionAngle, Inputs.scaner.Settings.EndAngle+Inputs.scaner.Transformations.CorrectionAngle, step);
                     //объявление конвертера, переводящего координаты из радиальной системы в ХУ
                     
                     lms.Connect();
@@ -548,7 +548,7 @@ public class SickScanners
 
 
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X!=0)&(point.Y!=0)));
+                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X!=0)||(point.Y!=0)));
                         /*
                         Эта штука конвертирует скан из радиальных координат в ХУ, 
                         потом удаляет все "нули" - точки, совпадающие со сканером 
@@ -562,6 +562,7 @@ public class SickScanners
                         //Console.Write(scaner.Connection.ScannerAddres.Substring(scaner.Connection.ScannerAddres.Length-1) + "  ");
                         //Console.WriteLine(res.TimeSinceStartup);
                         //Console.WriteLine(res.TimeOfTransmission);
+                        Inputs.AddRawScan(ConnectionResultDistanceDataint(res));
                         Inputs.AddScan(Scan);
                         Inputs.InputEvent.Set();
                         //Console.Write("Принят скан от сканера  ");

@@ -9,6 +9,7 @@ namespace Sick_test
         public int id;
         public Scaner scaner;
         private CircularBuffer<Scanint> MyConcurrentQueue;
+        private CircularBuffer<int[]> RawConcurrentQueue;
         public ManualResetEvent InputEvent;
         public ManualResetEvent ErrorEvent;
         
@@ -22,6 +23,7 @@ namespace Sick_test
             InputEvent = new ManualResetEvent(false);
             ErrorEvent = new ManualResetEvent(false);
             MyConcurrentQueue = new CircularBuffer<Scanint>(1);
+            RawConcurrentQueue = new CircularBuffer<int[]>(1);
         }
 
         public Scanint GetLastScan(){
@@ -29,6 +31,14 @@ namespace Sick_test
         }
         public void AddScan(Scanint scan){
             MyConcurrentQueue.AddZeroPoint(scan);
+        }
+
+
+        public int[] GetRawScan(){
+            return RawConcurrentQueue.ZeroPoint();
+        }
+        public void AddRawScan(int[] scan){
+            RawConcurrentQueue.AddZeroPoint(scan);
         }
     }
     ///<summary> Класс содержит все данные, передаваемые в поток и из потока. Так же из массива описаний потоков создаётся массив тригеров, что позволяет не тратить каждый раз время на извлечение триггеров из массива классов.
@@ -69,6 +79,9 @@ namespace Sick_test
 
         public Scanint ReadLastScan(int i){
             return inputThreads[i].GetLastScan();
+        }
+        public int[] ReadRawScan(int i){
+            return inputThreads[i].GetRawScan();
         }
         public int ReadScanerID(int i){
             return inputThreads[i].id;

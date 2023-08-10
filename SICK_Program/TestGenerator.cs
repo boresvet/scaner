@@ -1,4 +1,5 @@
 using System;
+using static System.Math;
 
 namespace SickScanner
 {
@@ -30,7 +31,7 @@ namespace SickScanner
 
             scaner = config.scanners[scanernumber];
             var scanerpoint = new Sick_test.PointXYint(){X = scaner.transformations.horisontalOffset, Y = scaner.transformations.height};
-            ray = new Sick_test.line[(int)((float)(scaner.settings.endAngle-scaner.settings.startAngle)/scaner.settings.resolution)];
+            ray = new Sick_test.line[Math.Abs((int)((float)(scaner.settings.endAngle-scaner.settings.startAngle)/scaner.settings.resolution))];
             for(int i = 0; i < (int)((scaner.settings.endAngle-scaner.settings.startAngle)/scaner.settings.resolution); i++){
                 ray[i] = new Sick_test.line();
                 ray[i].createLine(scanerpoint, (scaner.transformations.correctionAngle-(scaner.settings.resolution*i)));

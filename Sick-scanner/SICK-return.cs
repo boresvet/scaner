@@ -1,5 +1,6 @@
 using System;
 using NLog;
+using System.Linq;
 
 namespace Sick_test
 {
@@ -29,6 +30,11 @@ namespace Sick_test
         public Scanint returnScan(int number){
             var ret = new Scanint();
             ret = Inputs.ReadLastScan(number).copyScan();
+            return ret;
+        }
+        public int[] returnRawScan(int number){
+            int[] ret;
+            ret = Inputs.ReadRawScan(number).ToArray();
             return ret;
         }
         ///<summary>Получить собранный и обработанный скан дороги</summary>  

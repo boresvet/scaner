@@ -10,6 +10,9 @@ mv ../scripts/control DEBIAN/
 ./../scripts/arm64deb
 mv DEBIAN/control ../scripts/
 mv ../control  DEBIAN/
+
+./../scripts/amd64win
+
 cd ../scripts
 
 exit 0

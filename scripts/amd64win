@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+rm -rf SICK-WIN
+
+dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained=true -p:GenerateRuntimeConfigurationFiles=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+mkdir SICK-WIN
+
+cp -rf bin/Release/net6.0/win-x64/publish/ SICK-WIN
+mv SICK-WIN/publish SICK-WIN/SICK_Program
+
+cp -f NLog.config SICK-WIN/SICK_Program
+
+exit 0
