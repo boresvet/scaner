@@ -4,9 +4,11 @@ namespace Sick_test
 {
     ///<summary>Круговой буффер для хранения машинок</summary>  
     public class CarCircularBuffer : CircularBuffer<CarArraySize>{
+        CircularBuffer<CarArraySize> retCars;
         config config;
-        public CarCircularBuffer(int buffersize, config _config):base(buffersize){
+        public CarCircularBuffer(int buffersize,  CircularBuffer<CarArraySize> _retCars, config _config):base(buffersize){
             config = _config;
+            retCars = _retCars;
         }
         private int NextPosition(int position){
             position+=1;
@@ -38,7 +40,11 @@ namespace Sick_test
             Array.Copy(input.leftindexborders, _input.leftindexborders, _input.leftindexborders.Length);
             _input.Width = input.Width;
             _input.Height = input.Height;
+            retCars.Enqueue(Dequeue1());
             Enqueue(_input);
+        }
+        public CarArraySize GiveCar(){
+            return retCars.Dequeue();
         }
         ///<summary>Возвращает все имеющиеся машинки</summary>  
         public CarArraySize[] ReadAllBuffer(){

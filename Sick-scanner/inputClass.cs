@@ -93,7 +93,7 @@ namespace Sick_test
         }
 
         public void WaitAnyData(){
-            WaitHandle.WaitAny(InputEvent);
+            WaitHandle.WaitAny(InputEvent, 500);
         }
         public bool WaitAllData(){
             return WaitHandle.WaitAll(InputEvent, 50);

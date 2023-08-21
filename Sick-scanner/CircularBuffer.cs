@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace Sick_test
 {
@@ -10,12 +11,15 @@ namespace Sick_test
         public int _tail;
         public int _length;
         public int _buffersize;
+        private ManualResetEvent ReadEvent;
+
         public Object _lock = new object ();
 
         public CircularBuffer(int buffersize){
             _buffer = new T[buffersize];
             _buffersize = buffersize;
             _head = buffersize -1;
+            ReadEvent = new ManualResetEvent(false);
         }
         public bool IsEmpty{
             get{return _length == 0;}
@@ -27,11 +31,17 @@ namespace Sick_test
         public int MyLeanth{
             get { return _length;}
         }
-        public void Dequeue(){
+        public T Dequeue(){
+            ReadEvent.WaitOne(10000);
             lock(_lock){
                 if(IsEmpty)throw new InvalidOperationException("Queue exhaused");
+                T dequeved = _buffer[_tail];
                 _tail = NextPosition(_tail);
                 _length --;
+                if(_length==0){
+                    ReadEvent.Reset();
+                }
+                return dequeved;
             }
         }
         public T Dequeue1(){
@@ -56,6 +66,7 @@ namespace Sick_test
                     _tail = NextPosition(_tail);
                 else 
                     _length++;
+                ReadEvent.Set();
             }
         }
         ///<summary>Функция, выдающая первый элемент буфера

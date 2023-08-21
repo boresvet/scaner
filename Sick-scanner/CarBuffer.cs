@@ -6,12 +6,12 @@ namespace Sick_test
 {
     ///<summary>Буффер для хранения машинок</summary>  
     public class CarBuffer{
-
+        CircularBuffer<CarArraySize> _retCars;
         CarCircularBuffer _buffer;
         ///<summary>Размер и количество очередей берётся из конфига</summary>  
         public CarBuffer(config config)
         {
-            _buffer = new CarCircularBuffer(config.SortSettings.Buffers, config);
+            _buffer = new CarCircularBuffer(config.SortSettings.Buffers, _retCars, config);
         }
         ///<summary>Добавляет полученные машинки к уже имеющимся в буффере</summary>  
         public void UpdateCars(List<CarArraySize> input){
@@ -67,6 +67,9 @@ namespace Sick_test
 
             public CarArraySize GiveMyCar(DateTime time){
                 return _buffer.GiveMyCar(time);
+            }
+            public CarArraySize LastCar(){
+                return _retCars.Dequeue();
             }
     }
 }

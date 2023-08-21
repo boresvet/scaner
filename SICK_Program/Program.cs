@@ -99,6 +99,48 @@ namespace SickScanner
                 
             }
         }
+        async Task SendCar(WebSocket webSocket, returns returns)
+        {
+            var cts = new CancellationTokenSource();    
+
+            var recvBuffer = new byte[1024];
+            var recvArraySegment = new ArraySegment<byte>(recvBuffer, 0, recvBuffer.Length);
+            while (webSocket.State == WebSocketState.Open)
+            {
+                string json;
+                json = JsonSerializer.Serialize(returns.carbuffer.LastCar());
+                var buffer = Encoding.UTF8.GetBytes(json);
+                ///var tmp = await webSocket.ReceiveAsync(recvArraySegment, CancellationToken.None);
+                try
+                {
+                    var recvTask = webSocket.ReceiveAsync(recvArraySegment, cts.Token);
+                    var sendTask = webSocket.SendAsync(
+                        new ArraySegment<byte>(buffer, 0, buffer.Length),
+                        WebSocketMessageType.Text,
+                        true,
+                        cts.Token);
+                    
+                    var result = Task.WaitAny(new[] { recvTask, sendTask });
+                    if (result == 1)
+                    {
+                        await Task.Delay(500);
+                        continue;
+                    }
+                    var status = webSocket.CloseStatus;
+                    if (status.HasValue)
+                    {
+                        cts.Cancel();
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    cts.Cancel();
+                    return;
+                }
+                
+            }
+        }
         public void ReadConfig(){
             var ReadFile = File.ReadAllText("config.json");
             config = JsonSerializer.Deserialize<config>(ReadFile);
@@ -174,6 +216,27 @@ namespace SickScanner
                     {
                         using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                         await Echo(webSocket, webconfig, returns, Paused);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
+                }
+                else
+                {
+                    await next(context);
+                }
+
+            });
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/ws/CarSocket")
+                {
+                    if (context.WebSockets.IsWebSocketRequest)
+                    {
+                        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                        await SendCar(webSocket, returns);
                     }
                     else
                     {
