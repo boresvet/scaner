@@ -1,5 +1,7 @@
 using System;
 using System.Threading;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace Sick_test
 {
@@ -38,7 +40,7 @@ namespace Sick_test
                 T dequeved = _buffer[_tail];
                 _tail = NextPosition(_tail);
                 _length --;
-                if(_length==0){
+                if(IsEmpty){
                     ReadEvent.Reset();
                 }
                 return dequeved;
@@ -126,5 +128,55 @@ namespace Sick_test
             }
         }
 
+    }
+
+    public class ResizebleArray<T>{
+        private T[] objectsList;
+        private int counter;
+        private int maxObjects;
+
+        public ResizebleArray(int _maxObjects){
+            maxObjects = _maxObjects;
+            counter = 0;
+            objectsList = new T[maxObjects];
+        }
+
+        public int getCount()
+        {
+            return counter ;
+        }
+        public void Update(int index, T data)
+        {
+            if(index>counter){
+                counter = index;
+            }
+            if(index < maxObjects){
+                objectsList[index] = (data);
+            }else{
+                Console.WriteLine("Переполнение массива");
+            }
+        }
+        public T Read(int index){
+            return objectsList[index];
+        }
+        public void CopyTo(T[] NewArray){
+            if(NewArray.Length < counter){
+                NewArray = new T[counter];
+            }
+            for(int i = 0; i < counter; i++){
+                NewArray[i] = objectsList[i];
+            }
+        }
+        public void CopyTo(ResizebleArray<T> NewArray){
+            if(NewArray.maxObjects < counter){
+                NewArray = new ResizebleArray<T>(maxObjects);
+            }
+            for(int i = 0; i < counter; i++){
+                NewArray.objectsList[i] = objectsList[i];
+            }
+        }
+        public T[] Copy(int len){
+            return new ArraySegment<T>(objectsList, 0, len).ToArray();
+        }
     }
 }

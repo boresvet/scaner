@@ -242,7 +242,7 @@ namespace Sick_test
         }
         /// <summary> Получение высоты точки справа снизу от текущей </summary>
         private int rightdownpoint(SuperScan[] input){
-            if(CurrentPointY==(input.Length-1)){
+            if(CurrentPointX==(input[CurrentPointY].CarIslandLanes.Length-1)){
                 return 0;
             }
             if(CurrentPointY==0){
@@ -847,10 +847,10 @@ namespace Sick_test
             if(BorderPoint.CurrentPointX < leftborder){
                 leftborder = BorderPoint.CurrentPointX;
             }
-            if(BorderPoint.CurrentPointY > upborder){
+            if(BorderPoint.CurrentPointY >= upborder){
                 upborder = BorderPoint.CurrentPointY;
             }
-            if(BorderPoint.CurrentPointY < downborder){
+            if(BorderPoint.CurrentPointY <= downborder){
                 downborder = BorderPoint.CurrentPointY;
             }
         }
@@ -916,7 +916,7 @@ namespace Sick_test
             //Определение границ машинки на сканах
             leftindexborders = new int[upborder-downborder+1];
             rightindexborders = new int[upborder-downborder+1];
-
+            updateBorders(input);
             //Console.WriteLine("Пробежка по точкам 2");
             BorderPoint.NextPosition(input);
             updateBorders(input);

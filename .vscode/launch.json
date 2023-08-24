@@ -11,7 +11,7 @@
         "preLaunchTask": "build",
         "program": "${workspaceFolder}/SICK_Program/bin/Debug/net6.0/win-x64/Sick-test.dll",
         "args": [],
-        "cwd": "${workspaceFolder}/SICK_Program/bin/Debug/net6.0/win-x64",
+        "cwd": "${workspaceFolder}/SICK_Program",
         "stopAtEntry": false,
         "serverReadyAction": {
             "action": "openExternally",

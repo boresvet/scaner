@@ -272,7 +272,12 @@ namespace SickScanner
                 SaveConfigToFile();
                 return (new { message = "Ok" });
             });
-
+            app.MapGet("/www/ReadConfigToWebconfig", () =>//
+            {
+                webconfig.ReadConfig(webconfig, config);
+                SaveWebConfigToFile();
+                return (new { message = "Ok" });
+            });
             app.MapPost("/www/pause", (bool paused) =>//
             {
                 Paused = DateTime.Now;
