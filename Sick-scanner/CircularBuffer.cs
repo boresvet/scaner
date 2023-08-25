@@ -145,6 +145,10 @@ namespace Sick_test
         {
             return counter ;
         }
+        public void Null()
+        {
+            counter = 0;
+        }
         public void Update(int index, T data)
         {
             if(index>counter){

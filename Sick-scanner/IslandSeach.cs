@@ -14,9 +14,9 @@ namespace Sick_test
         ///<summary> Примитивный алгоритм поиска машинки </summary>
         public carRESULT search(islandborders input, SuperScan[] inputscans, config config){
             var ret = new carRESULT();
-            var lenthArray = new int[input.leftindexborders.Length];
+            var lenthArray = new int[input.leftindexborders.getCount()];
             for(int i = 0; i < lenthArray.Length; i++){
-                lenthArray[i] = input.rightindexborders[i] - input.leftindexborders[i];
+                lenthArray[i] = input.rightindexborders.Read(i) - input.leftindexborders.Read(i);
             }
             Array.Sort(lenthArray);//Отсортированный массив ширины машины
 
@@ -25,7 +25,7 @@ namespace Sick_test
             int index = 0;
             var HeightArray = new int[lenthArray.Sum()];
             for(int i = input.downborder; i < input.upborder; i++){
-                for(int j = input.leftindexborders[i - input.downborder]; j < input.rightindexborders[i - input.downborder]; j++){
+                for(int j = input.leftindexborders.Read(i - input.downborder); j < input.rightindexborders.Read(i - input.downborder); j++){
                     HeightArray[index] = inputscans[i].CarIslandLanes[j];
                     index++;
                 }
@@ -835,12 +835,12 @@ namespace Sick_test
         ///<summary> примитивные границы машинки </summary>
         public int leftborder,rightborder, upborder, downborder;
         ///<summary> массив левых границ машинки </summary>
-        public int[] leftindexborders;
+        public ResizebleArray<int> leftindexborders;
         ///<summary> массив правых границ машинки </summary>
-        public int[] rightindexborders;
+        public ResizebleArray<int> rightindexborders;
         
-        ///<summary> Раздвигает примитивные границы машинки по текущей точке </summary>
-        private void updatePrimitiveBorder(){
+        ///<summary> Записывает текущую точку в массивы границ машинки </summary>
+        private void updateBorders(SuperScan[] input){
             if(BorderPoint.CurrentPointX > rightborder){
                 rightborder = BorderPoint.CurrentPointX;
             }
@@ -849,38 +849,17 @@ namespace Sick_test
             }
             if(BorderPoint.CurrentPointY >= upborder){
                 upborder = BorderPoint.CurrentPointY;
+                leftindexborders.Update(BorderPoint.CurrentPointY-downborder, BorderPoint.CurrentPointX); 
+                rightindexborders.Update(BorderPoint.CurrentPointY-downborder, BorderPoint.CurrentPointX); 
             }
             if(BorderPoint.CurrentPointY <= downborder){
                 downborder = BorderPoint.CurrentPointY;
             }
-        }
-
-        ///<summary> Записывает текущую точку в массивы границ машинки </summary>
-        private void updateBorders(SuperScan[] input){
-                if(leftindexborders[BorderPoint.CurrentPointY - downborder]==0){
-                    leftindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                }
-                if(rightindexborders[BorderPoint.CurrentPointY - downborder]==0){
-                    rightindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                }
-
-                if(BorderPoint.ispointleft(input)){
-                if(leftindexborders[BorderPoint.CurrentPointY - downborder]==0){
-                    leftindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                }else{
-                    if(leftindexborders[BorderPoint.CurrentPointY - downborder] > BorderPoint.CurrentPointX){
-                        leftindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                    }
-                }
+            if(BorderPoint.CurrentPointX > rightindexborders.Read(BorderPoint.CurrentPointY-downborder)){
+                rightindexborders.Update(BorderPoint.CurrentPointY-downborder, BorderPoint.CurrentPointX); 
             }
-            if(BorderPoint.ispointright(input)){
-                if(rightindexborders[BorderPoint.CurrentPointY - downborder]==0){
-                    rightindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                }else{
-                    if(rightindexborders[BorderPoint.CurrentPointY - downborder] < BorderPoint.CurrentPointX){
-                        rightindexborders[BorderPoint.CurrentPointY - downborder] = BorderPoint.CurrentPointX;
-                    }
-                }
+            if(BorderPoint.CurrentPointX < leftindexborders.Read(BorderPoint.CurrentPointY-downborder)){
+                leftindexborders.Update(BorderPoint.CurrentPointY-downborder, BorderPoint.CurrentPointX); 
             }
         }
         ///<summary> При объявлении на автомате находятся граничные значения машины по времени/координатам </summary>
@@ -893,29 +872,14 @@ namespace Sick_test
             upborder = time; 
             downborder = time;
 
-            addPrimitiveBorders(input);
             addBorders(input);
         }
-        ///<summary> Нахождение примитивных границ машинки </summary>
-        private void addPrimitiveBorders(SuperScan[] input){
-            BorderPoint.GoToLeftBorder(input);
-            BorderPoint.NextPosition(input);
-            updatePrimitiveBorder();
-            //Console.WriteLine("Начальная пара точек");
-            while(BorderPoint.isitstartpoint()==false){
-                //Console.WriteLine("Следующая точка");
-                BorderPoint.NextPosition(input);
-                //Console.WriteLine("Установка границ");
-                updatePrimitiveBorder();
-            }
-            //Console.WriteLine("Пробежка по точкам закончена");
 
-        }
         ///<summary> Нахождение границ машинки </summary>
         private void addBorders(SuperScan[] input){
             //Определение границ машинки на сканах
-            leftindexborders = new int[upborder-downborder+1];
-            rightindexborders = new int[upborder-downborder+1];
+            leftindexborders = new ResizebleArray<int>(input.Length);
+            rightindexborders = new ResizebleArray<int>(input.Length);
             updateBorders(input);
             //Console.WriteLine("Пробежка по точкам 2");
             BorderPoint.NextPosition(input);
@@ -928,7 +892,7 @@ namespace Sick_test
         ///<summary> Удаление(заполнение землёй) машинки </summary>
         public void remoovecar(SuperScan[] input){
             for(int i = 0; i <= (upborder-downborder); i++){
-                for(int j = leftindexborders[i]; j <= rightindexborders[i]; j++){
+                for(int j = leftindexborders.Read(i); j <= rightindexborders.Read(i); j++){
                     input[i+downborder].CarIslandLanes[j] = 0;
                 }
             }
@@ -941,9 +905,9 @@ namespace Sick_test
             ret.leftborder = config.RoadSettings.LeftLimit + leftborder*config.RoadSettings.Step;
             ret.rightborder = config.RoadSettings.LeftLimit + rightborder*config.RoadSettings.Step;
             ret.starttime = input[starttime].Time;
-            ret.endtime = input[starttime + leftindexborders.Length-1].Time;
-            ret.leftindexborders = leftindexborders;
-            ret.rightindexborders = rightindexborders;
+            ret.endtime = input[starttime + leftindexborders.getCount()-1].Time;
+            leftindexborders.CopyTo(ret.leftindexborders = new int[upborder-downborder+1]);
+            rightindexborders.CopyTo(ret.rightindexborders = new int[upborder-downborder+1]);
             ret.Height = resulrtCar.Height;
             ret.Width = resulrtCar.Width;
             return ret;
