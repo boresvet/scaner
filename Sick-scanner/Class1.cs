@@ -158,7 +158,7 @@ public class SickScanners
                     logger.Info("Произведён поиск");
                     //Console.WriteLine("Произведён поиск");
                     //var cars = seach.CarsArray;
-                    //carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
+                    carbuffer.UpdateCars(seach.CarsArray); //Сохранение машинок в буффер с машинками
                     logger.Info("Сохранено");
                     //Console.WriteLine("Сохранено");
                     times.RemoveReadArray();

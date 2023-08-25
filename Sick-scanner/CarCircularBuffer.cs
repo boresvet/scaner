@@ -7,8 +7,10 @@ namespace Sick_test
         CircularBuffer<CarArraySize> retCars;
         config config;
         public CarCircularBuffer(int buffersize,  CircularBuffer<CarArraySize> _retCars, config _config):base(buffersize){
+            _buffersize = buffersize;
             config = _config;
             retCars = _retCars;
+            retCars = new CircularBuffer<CarArraySize>(buffersize);
         }
         private int NextPosition(int position){
             position+=1;
@@ -40,7 +42,9 @@ namespace Sick_test
             Array.Copy(input.leftindexborders, _input.leftindexborders, _input.leftindexborders.Length);
             _input.Width = input.Width;
             _input.Height = input.Height;
-            retCars.Enqueue(Dequeue1());
+            if(IsFull){
+                retCars.Enqueue(Dequeue1().Copy());
+            }
             Enqueue(_input);
         }
         public CarArraySize GiveCar(){

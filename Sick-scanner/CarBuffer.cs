@@ -11,7 +11,7 @@ namespace Sick_test
         ///<summary>Размер и количество очередей берётся из конфига</summary>  
         public CarBuffer(config config)
         {
-            _buffer = new CarCircularBuffer(config.SortSettings.Buffers, _retCars, config);
+            _buffer = new CarCircularBuffer(config.SortSettings.SavedCars, _retCars, config);
         }
         ///<summary>Добавляет полученные машинки к уже имеющимся в буффере</summary>  
         public void UpdateCars(List<CarArraySize> input){
