@@ -210,7 +210,7 @@ namespace SickScanner
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/ws")
+                if (context.Request.Path == "/www/ws")
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
