@@ -16,7 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 dotnetClean sdk: 'DotNet6'
-                dotnetPublish configuration: 'Release', properties: [PublishSingleFile: 'true'], runtime: 'linux-x64', sdk: 'DotNet6', selfContained: false
+                dotnetBuild configuration: 'Release', properties: [PublishSingleFile: 'true'], runtime: 'linux-x64', sdk: 'DotNet6', selfContained: false
             }
             post {
                 success {
