@@ -20,7 +20,7 @@ pipeline {
             }
             post {
                 success {
-                    tar archive: true, compress: true, dir: 'build/x64/', file: 'app.tar.gz', overwrite: true
+                    tar archive: true, compress: true, dir: 'build', file: 'app.tar.gz', overwrite: true
                 }
             }
         }
