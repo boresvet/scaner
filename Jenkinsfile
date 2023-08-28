@@ -16,11 +16,11 @@ pipeline {
         stage('Build') {
             steps {
                 dotnetClean sdk: 'DotNet6'
-                dotnetPublish configuration: 'Release', outputDirectory: "build", runtime: 'linux-x64', sdk: 'DotNet6'
+                dotnetPublish configuration: 'Release', properties: [PublishSingleFile: 'true', GenerateRuntimeConfigurationFiles : 'true' , IncludeNativeLibrariesForSelfExtract: 'true'], outputDirectory: "build", runtime: 'linux-x64', sdk: 'DotNet6', selfContained: true
             }
             post {
                 success {
-                    tar archive: true, compress: true, dir: 'Gabarit/bin/Release/net6.0/linux-x64/publish', file: 'app.tar.gz', overwrite: true
+                    tar archive: true, compress: true, dir: 'build/x64/', file: 'app.tar.gz', overwrite: true
                 }
             }
         }
