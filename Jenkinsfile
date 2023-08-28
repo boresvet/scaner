@@ -29,8 +29,8 @@ pipeline {
             steps {
                 withSonarQubeEnv('MainSonar') {
                     sh 'dotnet restore'
-                    sh ("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'overall-dimensions'""")
-                    sh "dotnet build GabaritWebConfig.sln"
+                    sh ("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'overal-dimensions-2'""")
+                    sh "dotnet build Sick-test.sln"
                     sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
                 }
             }
