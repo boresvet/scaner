@@ -16,7 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 dotnetClean sdk: 'DotNet6'
-                dotnetPublish configuration: 'Release', properties: [PublishSingleFile: 'true', GenerateRuntimeConfigurationFiles : 'true' , IncludeNativeLibrariesForSelfExtract: 'true'], outputDirectory: "build", runtime: 'linux-x64', sdk: 'DotNet6', selfContained: true
+                dotnetPublish project: 'SICK_Program', configuration: 'Release', properties: [PublishSingleFile: 'true', GenerateRuntimeConfigurationFiles : 'true' , IncludeNativeLibrariesForSelfExtract: 'true'], outputDirectory: "build", runtime: 'linux-x64', sdk: 'DotNet6', selfContained: true
             }
             post {
                 success {
