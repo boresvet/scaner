@@ -45,7 +45,7 @@ pipeline {
                             configName: "Test-81-160",
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'build/Sick-test',
+                                    sourceFiles: 'build/Sick-test,build/*.json,build/NLog.config,build/x64/*,build/wwwroot/*',
                                     removePrefix: 'build',
                                     remoteDirectory: 'GabaritApp'
                                 ),
