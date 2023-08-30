@@ -42,7 +42,7 @@ pipeline {
                     failOnError: false,
                     publishers: [
                         sshPublisherDesc(
-                            configName: "Test-81-42",
+                            configName: "Test-81-160",
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: 'build/Sick-test',
