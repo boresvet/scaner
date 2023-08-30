@@ -50,8 +50,8 @@ pipeline {
                                     remoteDirectory: 'GabaritApp'
                                 ),
                                 sshTransfer(execCommand: 'sudo systemctl stop gabarit'),
-                                sshTransfer(execCommand: 'rm -Rf /var/gabarit/Gabarit*'),
-                                sshTransfer(execCommand: 'cp GabaritApp/* /var/gabarit'),
+                                sshTransfer(execCommand: 'rm -Rf /var/gabarit/Sick-test'),
+                                sshTransfer(execCommand: 'cp -r GabaritApp/* /var/gabarit'),
                                 sshTransfer(execCommand: 'chmod a+x /var/gabarit/Sick-test'),
                                 sshTransfer(execCommand: 'rm -Rf GabaritApp'),
                                 sshTransfer(execCommand: 'sudo systemctl start gabarit')
