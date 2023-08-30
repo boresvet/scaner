@@ -45,8 +45,8 @@ pipeline {
                             configName: "Test-81-42",
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'Gabarit/bin/Release/net6.0/linux-x64/publish/**/*',
-                                    removePrefix: 'Gabarit/bin/Release/net6.0/linux-x64/publish',
+                                    sourceFiles: 'build/Sick-test',
+                                    removePrefix: 'build',
                                     remoteDirectory: 'GabaritApp'
                                 ),
                                 sshTransfer(execCommand: 'sudo systemctl stop gabarit'),
