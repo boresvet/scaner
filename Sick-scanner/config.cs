@@ -98,7 +98,7 @@
         ///<summary>горизонтальная координата</summary>
         public int HorisontalOffset { get; set; }
         ///<summary>угол отклонения от горизонтали</summary>
-        public int CorrectionAngle { get; set; }
+        public float CorrectionAngle { get; set; }
     }
     public class SortSettings{
         ///<summary>Минимальная ширина машины</summary>
