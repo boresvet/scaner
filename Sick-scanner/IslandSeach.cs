@@ -946,13 +946,13 @@ namespace Sick_test
             switch (method)
             {
                 case "primitive":
-                    logger.Error($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     SearchAlgoritm = new PrimitiveSearchAlgoritm();
                     break;
                 case "primitiveAutomatic":
-                    logger.Error($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     SearchAlgoritm = new PrimitiveSearchAlgoritm();

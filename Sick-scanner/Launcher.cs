@@ -196,13 +196,13 @@ public class SickScanners
             switch (method)
             {
                 case "primitive":
-                    logger.Error($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     pointsfilter = new PrimitiveFilter(config);
                     break;
                 case "primitiveAutomatic":
-                    logger.Error($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     pointsfilter = new AutomaticPrimitiveFilter(config);
@@ -262,6 +262,7 @@ public class SickScanners
                     }*/
 
                     //Проверка на ошибку в сканере
+                    try{
                     if (Inputs.IsScannerReady(i)) 
                     {
                         var res = Inputs.GetLastScan(i);
@@ -270,6 +271,11 @@ public class SickScanners
                             RoadScan.time = res.time;
                         }
                         ConcatScanInterface.Add(res.pointsArray);
+                    }
+                    }
+                    catch(Exception ex){
+
+                    logger.Error($"Упал сканер {config.Scanners[i].ID}, ошибка {ex}");
                     }
                 }
                 logger.Debug("Смешная нарезка точек в столбцы");
@@ -290,8 +296,8 @@ public class SickScanners
                 //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
                 logger.Debug($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
-            }catch{
-                logger.Error("Ошибка в потоке обработки");
+            }catch(Exception ex){
+                logger.Error($"Ошибка в потоке обработки {ex}");
                 //Console.WriteLine("Ошибка в потоке обработки");
             }
         }
@@ -392,50 +398,7 @@ public class SickScanners
             }
             return ret;
         }
-        private static void MainTask(config config, CircularBuffer<Scanint>[] MyConcurrentQueue, ManualResetEvent[] InputEvent, ManualResetEvent RoadEvent, ManualResetEvent[] ErrorEvent, ManualResetEvent ExitEvent)
-        {   
-            //Task.Delay(100000);
 
-            
-            var GroundScan = new Scan();
-            var ScansArray = new Scanint[MyConcurrentQueue.Length];
-            for(var i = 0; i<MyConcurrentQueue.Length; i++){
-                ScansArray[i] = new Scanint(286);
-            }
-            WaitHandle.WaitAll(InputEvent, 50);
-            var WorkScanners = new bool[MyConcurrentQueue.Length];
-            for(int i = 0; i<MyConcurrentQueue.Length; i++){
-                WorkScanners[i] = true;
-            }
-            //var timespan = New TimeSpan(5000, 5000, 5000);
-            //CircularBuffer<Scanint> MyCircularBuffer = new CircularBuffer<Scanint>(10000);
-            while (true){
-                
-                WaitHandle.WaitAll(InputEvent, 50);
-                //var Number = WaitHandle.WaitAny(new[] {InputEvent, ExitEvent});
-                //while(EmptyBuffer(MyConcurrentQueue));
-                if(WaitHandle.WaitAny(ErrorEvent, 0)!=0) {
-                    for(int i = 0; i<config.Scanners.Length; i++){
-                        if(ErrorEvent[i].WaitOne(0)){
-                            WorkScanners[i] = false;
-                        }
-                    }
-                }
-                if(WaitHandle.WaitAny(InputEvent, 0)!=0) {
-                    for(int i = 0; i<config.Scanners.Length; i++){
-                        var res = MyConcurrentQueue[i].ZeroPoint();
-                    }
-                }
-                //Console.WriteLine(ScansArray[2].time);
-                //MyCircularBuffer.Enqueue(qwer);
-                /*if(MyCircularBuffer.IsEmpty){
-                ground.InitGround(ground.RawScanConvertor(qwer.pointsArray));
-                }*/                    //Console.WriteLine(MyCircularBuffer.MyLeanth);
-                foreach (ManualResetEvent i in InputEvent){
-                    i.Reset();
-                }
-            }
-        }
 
         public static int[] AddLineIsland(int[] input, int startpoint, int endpoint){
 

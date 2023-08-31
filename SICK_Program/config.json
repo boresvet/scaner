@@ -1,1 +1,26 @@
-{"Test":false,"FilteredHeight":500,"Method":"primitive","SortSettings":{"MinWigdh":500,"MinLength":5,"Buffers":5,"BufferTimesLength":300,"SavedCars":100},"RoadSettings":{"UpLimit":7000,"DownLimit":-100,"LeftLimit":-1000,"RightLimit":11000,"Step":20,"Lanes":[{"ID":0,"Offset":-1400,"Width":1900,"Height":450},{"ID":1,"Offset":600,"Width":1900,"Height":430},{"ID":2,"Offset":2500,"Width":1900,"Height":425},{"ID":3,"Offset":4500,"Width":1900,"Height":420},{"ID":4,"Offset":6400,"Width":2000,"Height":415}],"Blinds":[{"ID":0,"Offset":8500,"Width":200,"Height":900},{"ID":1,"Offset":9400,"Width":150,"Height":900},{"ID":2,"Offset":-1650,"Width":100,"Height":1000}]},"Scanners":[{"ID":1,"Connection":{"ScannerAddres":"10.199.1.131","ScannerPort":2112},"Settings":{"Frequency":100,"StartAngle":-5,"EndAngle":185,"Resolution":0.5},"Transformations":{"Height":3950,"HorisontalOffset":4528,"CorrectionAngle":2}},{"ID":2,"Connection":{"ScannerAddres":"10.199.1.132","ScannerPort":2112},"Settings":{"Frequency":100,"StartAngle":-5,"EndAngle":185,"Resolution":0.5},"Transformations":{"Height":3900,"HorisontalOffset":6300,"CorrectionAngle":2}}]}
+{"Test":false,"FilteredHeight":500,"Method":"primitiveAutomatic","SortSettings":
+{"MinWigdh":500,"MinLength":5,"Buffers":5,"BufferTimesLength":300,"SavedCars":100},
+"RoadSettings":
+{"UpLimit":7000,"DownLimit":-100,"LeftLimit":-1000,"RightLimit":11000,"Step":20,"Lanes":
+[
+    {"ID":0,"Offset":-1400,"Width":1900,"Height":450},{"ID":1,"Offset":600,"Width":1900,"Height":430},
+    {"ID":2,"Offset":2500,"Width":1900,"Height":425},{"ID":3,"Offset":4500,"Width":1900,"Height":420},
+    {"ID":4,"Offset":6400,"Width":2000,"Height":415}
+],
+"Blinds":
+[
+    {"ID":0,"Offset":8500,"Width":200,"Height":900},
+    {"ID":1,"Offset":9400,"Width":150,"Height":900},
+    {"ID":2,"Offset":-1650,"Width":100,"Height":1000}
+]},
+"Scanners":
+[
+    {"ID":1,"Connection":{"ScannerAddres":"10.199.1.131","ScannerPort":2112},
+    "Settings":{"Frequency":100,"StartAngle":-5,"EndAngle":185,"Resolution":0.5},
+    "Transformations":{"Height":3950,"HorisontalOffset":4528,"CorrectionAngle":2}},
+
+    {"ID":2,"Connection":{"ScannerAddres":"10.199.1.132","ScannerPort":2112},
+    "Settings":{"Frequency":100,"StartAngle":-5,"EndAngle":185,"Resolution":0.5},
+    "Transformations":{"Height":3900,"HorisontalOffset":6300,"CorrectionAngle":2}}
+]
+}

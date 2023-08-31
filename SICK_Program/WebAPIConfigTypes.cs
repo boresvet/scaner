@@ -99,7 +99,7 @@ namespace SickScanner{
                 webconfig.scanners[i].settings.startAngle = new int();
                 webconfig.scanners[i].settings.resolution = new double();
                 webconfig.scanners[i].settings.frequency = new int();
-                webconfig.scanners[i].transformations = new Transformations();
+                webconfig.scanners[i].transformations = new Transformation();
                 webconfig.scanners[i].transformations.correctionAngle = new int();
                 webconfig.scanners[i].transformations.height = new int();
                 webconfig.scanners[i].transformations.horisontalOffset = new int();
@@ -223,7 +223,7 @@ namespace SickScanner{
             ret.settings.startAngle = webconfig.Settings.StartAngle;
             ret.settings.resolution = webconfig.Settings.Resolution;
             ret.settings.frequency = webconfig.Settings.Frequency;
-            ret.transformations = new Transformations();
+            ret.transformations = new Transformation();
             ret.transformations.correctionAngle = webconfig.Transformations.CorrectionAngle;
             ret.transformations.height = webconfig.Transformations.Height;
             ret.transformations.horisontalOffset = webconfig.Transformations.HorisontalOffset;
@@ -255,7 +255,7 @@ namespace SickScanner{
         public int id { get; set; }
         public Settings settings { get; set; }
         public Connection connection { get; set; }
-        public Transformations transformations { get; set; }
+        public Transformation transformations { get; set; }
     }
 
 
@@ -274,16 +274,16 @@ namespace SickScanner{
     }
 
 
-    public class Transformations {
+    public class Transformation {
         public int uid { get; set; }
         public int horisontalOffset { get; set; }
         public int height { get; set; }
         public int correctionAngle { get; set; }
         public bool Flip { get; set; }
 
-        public Transformations() { }
+        public Transformation() { }
 
-        public Transformations(Scanner scanner)
+        public Transformation(Scanner scanner)
         {
             uid = scanner.id;
             height = scanner.transformations.height;

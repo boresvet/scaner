@@ -10,6 +10,8 @@ using Sick_test;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace SickScanner
 {
@@ -146,7 +148,7 @@ namespace SickScanner
             config = JsonSerializer.Deserialize<config>(ReadFile);
         }
         public void SaveConfigToFile(){
-            var WriteFile = JsonSerializer.Serialize<config>(config);
+            var WriteFile = JsonSerializer.Serialize<config>(config, new JsonSerializerOptions{WriteIndented = true});
             File.WriteAllText("config.json", WriteFile);
         }
         public void ReadWebConfig(){
@@ -210,7 +212,7 @@ namespace SickScanner
 
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path == "/www/ws")
+                if (context.Request.Path == "/ws")
                 {
                     if (context.WebSockets.IsWebSocketRequest)
                     {
@@ -295,7 +297,7 @@ namespace SickScanner
                 }
                 return (new {isPaused = false, duration = 0});
             });
-            app.MapPost("/get_data/car", (DateTime time) =>
+            app.MapPost("/get_data/cars", (DateTime time) =>
             {
                 return returns.carbuffer.GiveMyCar(time);
             });
@@ -371,18 +373,23 @@ namespace SickScanner
                 }
                 return (bool)input;
             }
-
+            //server.AddSwaggerGen(options =>{options.CustomSchemaIds(Transformations => Transformations.ToString());});
             app.MapGet("/www/transforms", () =>//
             {
-                return webconfig.scanners.Select(x => new Transformations(x)).ToList();
+                if(webconfig.scanners == null){
+                    return (Transformation[])webconfig.scanners.Select(x => new Transformation(x)).ToArray();
+                }else{
+                    return new Transformation[0].ToArray();
+                }
+                return new Transformation[0].ToArray();
             });
-            app.MapPost("/www/transform", (Transformations transform) =>
+            app.MapPost("/www/transform", (Transformation transform) =>
             {
                 var scan = webconfig.scanners.FirstOrDefault(x => x.id.Equals(transform.uid));
                 if (scan != null){
                 
                 if(scan == null){
-                    scan.transformations = new Transformations
+                    scan.transformations = new Transformation
                     {
                         height = transform.height,
                         horisontalOffset = transform.horisontalOffset,
@@ -395,7 +402,7 @@ namespace SickScanner
                         scan.settings.startAngle = scan.settings.endAngle;
                         scan.settings.endAngle = i;
                     }
-                    scan.transformations = new Transformations
+                    scan.transformations = new Transformation
                     {
                         height = transform.height,
                         horisontalOffset = transform.horisontalOffset,
@@ -406,7 +413,7 @@ namespace SickScanner
                 }
                 SaveWebConfigToFile();
                 Pause(Paused);
-                return webconfig.scanners.Select(x => new Transformations(x)).ToList();
+                return webconfig.scanners.Select(x => new Transformation(x)).ToList();
             });
 
             app.MapGet("/www/connections", () =>//
