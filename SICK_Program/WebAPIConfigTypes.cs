@@ -278,7 +278,7 @@ namespace SickScanner{
         public int uid { get; set; }
         public int horisontalOffset { get; set; }
         public int height { get; set; }
-        public int correctionAngle { get; set; }
+        public float correctionAngle { get; set; }
         public bool Flip { get; set; }
 
         public Transformation() { }

@@ -16,11 +16,11 @@ pipeline {
         stage('Build') {
             steps {
                 dotnetClean sdk: 'DotNet6'
-                dotnetPublish configuration: 'Release', properties: [PublishSingleFile: 'true'], runtime: 'linux-x64', sdk: 'DotNet6', selfContained: false
+                dotnetPublish project: 'SICK_Program', configuration: 'Release', properties: [PublishSingleFile: 'true', GenerateRuntimeConfigurationFiles : 'true' , IncludeNativeLibrariesForSelfExtract: 'true'], outputDirectory: "build", runtime: 'linux-x64', sdk: 'DotNet6', selfContained: true
             }
             post {
                 success {
-                    tar archive: true, compress: true, dir: 'Gabarit/bin/Release/net6.0/linux-x64/publish', file: 'app.tar.gz', overwrite: true
+                    tar archive: true, compress: true, dir: 'build', file: 'app.tar.gz', overwrite: true
                 }
             }
         }
@@ -29,8 +29,8 @@ pipeline {
             steps {
                 withSonarQubeEnv('MainSonar') {
                     sh 'dotnet restore'
-                    sh ("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'overall-dimensions'""")
-                    sh "dotnet build GabaritWebConfig.sln"
+                    sh ("""dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll begin /k:'overal-dimensions-2'""")
+                    sh "dotnet build Sick-test.sln"
                     sh "dotnet ${MSBUILD_SQ_SCANNER_HOME}/SonarScanner.MSBuild.dll end"
                 }
             }
@@ -42,17 +42,17 @@ pipeline {
                     failOnError: false,
                     publishers: [
                         sshPublisherDesc(
-                            configName: "Test-81-42",
+                            configName: "Test-81-160",
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'Gabarit/bin/Release/net6.0/linux-x64/publish/**/*',
-                                    removePrefix: 'Gabarit/bin/Release/net6.0/linux-x64/publish',
+                                    sourceFiles: 'build/Sick-test',
+                                    removePrefix: 'build',
                                     remoteDirectory: 'GabaritApp'
                                 ),
                                 sshTransfer(execCommand: 'sudo systemctl stop gabarit'),
                                 sshTransfer(execCommand: 'rm -Rf /var/gabarit/Gabarit*'),
-                                sshTransfer(execCommand: 'cp GabaritApp/Gabarit* /var/gabarit'),
-                                sshTransfer(execCommand: 'chmod a+x /var/gabarit/Gabarit'),
+                                sshTransfer(execCommand: 'cp GabaritApp/* /var/gabarit'),
+                                sshTransfer(execCommand: 'chmod a+x /var/gabarit/Sick-test'),
                                 sshTransfer(execCommand: 'rm -Rf GabaritApp'),
                                 sshTransfer(execCommand: 'sudo systemctl start gabarit')
                             ],
