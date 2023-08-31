@@ -45,13 +45,13 @@ pipeline {
                             configName: "Test-81-160",
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'build/Sick-test',
+                                    sourceFiles: 'build/Sick-test,build/*.json,build/NLog.config,build/x64/*,build/wwwroot/*',
                                     removePrefix: 'build',
                                     remoteDirectory: 'GabaritApp'
                                 ),
                                 sshTransfer(execCommand: 'sudo systemctl stop gabarit'),
-                                sshTransfer(execCommand: 'rm -Rf /var/gabarit/Gabarit*'),
-                                sshTransfer(execCommand: 'cp GabaritApp/* /var/gabarit'),
+                                sshTransfer(execCommand: 'rm -Rf /var/gabarit/Sick-test'),
+                                sshTransfer(execCommand: 'cp -r GabaritApp/* /var/gabarit'),
                                 sshTransfer(execCommand: 'chmod a+x /var/gabarit/Sick-test'),
                                 sshTransfer(execCommand: 'rm -Rf GabaritApp'),
                                 sshTransfer(execCommand: 'sudo systemctl start gabarit')
