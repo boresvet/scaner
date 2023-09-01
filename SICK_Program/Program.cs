@@ -487,7 +487,15 @@ namespace SickScanner
                     },
                 };
             });
-
+            app.MapGet("/www/algoritms", () =>
+            {
+                return JsonSerializer.Deserialize<algoritmsnames>(File.ReadAllText("algoritmsnames.json"));
+            });
+            app.MapPost("/www/UseAlgoritm", (string Algoritm) =>
+            {
+                config.Method = Algoritm;
+                return Results.Ok(config.Method);
+            });
             app.MapGet("/www/limits/road", () =>
             {
                 return new
