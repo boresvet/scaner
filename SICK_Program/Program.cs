@@ -376,12 +376,12 @@ namespace SickScanner
             //server.AddSwaggerGen(options =>{options.CustomSchemaIds(Transformations => Transformations.ToString());});
             app.MapGet("/www/transforms", () =>//
             {
-                if(webconfig.scanners == null){
+                //if(webconfig.scanners == null){
                     return (Transformation[])webconfig.scanners.Select(x => new Transformation(x)).ToArray();
-                }else{
-                    return new Transformation[0].ToArray();
-                }
-                return new Transformation[0].ToArray();
+                //}else{
+                //    return new Transformation[0].ToArray();
+                //}
+                //return new Transformation[0].ToArray();
             });
             app.MapPost("/www/transform", (Transformation transform) =>
             {
