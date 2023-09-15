@@ -1,5 +1,5 @@
 {"Names":
 [
-    "primitive", "primitiveAutomatic", "nullalgoritm"
+    {"value":"primitive", "name":"Примитивный"}, {"value":"primitiveAutomatic", "name":"Простой автоматизированный"}, {"value":"nullalgoritm", "name":"Не существующий(тест)"}
 ]
 }

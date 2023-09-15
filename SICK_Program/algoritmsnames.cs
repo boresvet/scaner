@@ -1,9 +1,12 @@
 namespace SickScanner{
     public class algoritmsnames {
-        public string[] Names { get; set; }
+        public algoritmsname[] Names { get; set; }
     }
 
-
+    public class algoritmsname {
+        public string value { get; set; }
+        public string name { get; set; }
+    }
 
 
 
