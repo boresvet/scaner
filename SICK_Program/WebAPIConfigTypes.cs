@@ -408,4 +408,9 @@ namespace SickScanner{
         ///<summary>Количество машин, сохраняемых в буффере </summary>
         public int SavedCars { get; set; }
     }
+
+    public class AlgoritmSelectorType
+    {
+        public string? Algoritm { get; set; }
+    }
 }

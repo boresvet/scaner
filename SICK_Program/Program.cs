@@ -491,9 +491,9 @@ namespace SickScanner
             {
                 return JsonSerializer.Deserialize<algoritmsnames>(File.ReadAllText("algoritmsnames.json"));
             });
-            app.MapPost("/www/UseAlgoritm", (string Algoritm) =>
+            app.MapPost("/www/UseAlgoritm", (AlgoritmSelectorType Algoritm) =>
             {
-                config.Method = Algoritm;
+                config.Method = Algoritm.Algoritm;
                 return Results.Ok(config.Method);
             });
             app.MapGet("/www/limits/road", () =>
