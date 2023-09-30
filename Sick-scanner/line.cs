@@ -159,7 +159,7 @@ namespace Sick_test
         {
             PointXY ret;
             ret.X = secondline.StartPoint.X;
-            ret.Y = (firstline.Qx * (secondline.StartPoint.X - secondline.StartPoint.X)) / firstline.Qy + firstline.StartPoint.Y;
+            ret.Y = (firstline.Qx * (firstline.StartPoint.X - secondline.StartPoint.X)) / firstline.Qy + firstline.StartPoint.Y;
             return ret;
         }
 
@@ -167,7 +167,7 @@ namespace Sick_test
         {
             PointXY ret;
             ret.X = firstline.StartPoint.X;
-            ret.Y = (secondline.Qx * (firstline.StartPoint.X - firstline.StartPoint.X)) / secondline.Qy + secondline.StartPoint.Y;
+            ret.Y = (secondline.Qx * (secondline.StartPoint.X - firstline.StartPoint.X)) / secondline.Qy + secondline.StartPoint.Y;
             return ret;
         }
 
@@ -205,12 +205,12 @@ namespace Sick_test
                 //Когда только одна из линий - вертикальна
                 if(((firstline.Qxint == 0)&&(!firstline.integer))|((firstline.Qxint == 0)&&firstline.integer)){
                     ret.X = firstline.StartPointint.X;
-                    ret.Y = (secondline.Qxint*(firstline.StartPointint.X-firstline.StartPointint.X))/secondline.Qyint + secondline.StartPointint.Y;
+                    ret.Y = (secondline.Qxint*(secondline.StartPointint.X-firstline.StartPointint.X))/secondline.Qyint + secondline.StartPointint.Y;
                     return ret;
                 }
                 if(((secondline.Qxint == 0)&&(!secondline.integer))|((secondline.Qxint == 0)&&secondline.integer)){
                     ret.X = secondline.StartPointint.X;
-                    ret.Y = (firstline.Qxint*(secondline.StartPointint.X-secondline.StartPointint.X))/firstline.Qyint + firstline.StartPointint.Y;
+                    ret.Y = (firstline.Qxint*(firstline.StartPointint.X-secondline.StartPointint.X))/firstline.Qyint + firstline.StartPointint.Y;
                     return ret;
                 }
 
