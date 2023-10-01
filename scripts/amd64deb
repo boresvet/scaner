@@ -28,4 +28,11 @@ dpkg-deb --build ./SICK-DEB
 
 mv SICK-DEB.deb SICK-DEB-amd-64.deb
 
+cp -f SICK-DEB-amd-64.deb SICK-DEB/usr/sbin/SICK_Program
+cd SICK-DEB/usr/sbin
+zip -r SICK-DEB-amd-64.zip SICK_Program
+cd ../../../
+mv SICK-DEB/usr/sbin/SICK-DEB-amd-64.zip SICK-DEB-amd-64.zip
+rm -rf SICK-DEB
+
 exit 0

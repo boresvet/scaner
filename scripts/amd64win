@@ -13,4 +13,7 @@ mv SICK-WIN/publish SICK-WIN/SICK_Program
 
 cp -f NLog.config SICK-WIN/SICK_Program
 
+zip -r SICK-WIN.zip SICK-WIN/SICK_Program
+rm -rf SICK-WIN
+
 exit 0
