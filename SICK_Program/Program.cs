@@ -28,6 +28,7 @@ namespace SickScanner
         config config;
         ResponseFullConfig webconfig;
         WebScans RetScan;
+        int returncode;
         static void Main1(){
             var returns = new Sick_test.returns();
             var MainT = Task.Run(() => Sick_test.SickScanners.RunScanners(returns));
@@ -184,7 +185,7 @@ namespace SickScanner
             Paused = DateTime.Now;
             Paused.AddMinutes(-15);
 
-
+            returncode = 0;
             var builder = WebApplication.CreateBuilder();
             builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
@@ -475,6 +476,23 @@ namespace SickScanner
                 ConfigFile.Write(cfg);
                 return Results.Ok(webconfig.scanners.ToArray()) ;
             });*/
+            app.MapGet("/www/apply_new_settings", () =>//
+            {
+                returncode = 0;
+                Environment.Exit(returncode); 
+                returns.ExitEvent.Set();
+                return Results.Ok();
+            });
+            app.MapGet("/www/apply_settings", () =>//
+            {
+                returncode = 123;
+                returns.ExitEvent.Set();
+                returns.ExitThreadEventReturn.WaitOne();
+                Environment.Exit(returncode); 
+                return Results.Ok();
+            });
+
+
             app.MapGet("/www/limits/transform", () =>
             {
                 return new

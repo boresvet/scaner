@@ -1,7 +1,7 @@
 using System;
 using NLog;
 using System.Linq;
-
+using System.Threading;
 namespace Sick_test
 {
     public class returns
@@ -14,10 +14,26 @@ namespace Sick_test
         public CarBuffer carbuffer;
         public Logger logger;
         public config config;
+        public ManualResetEvent ExitEvent;
+        public ManualResetEvent ExitThreadEvent;
+
+        public ManualResetEvent ExitServerEvent;
+        public ManualResetEvent ExitMainEvent;
+
+        public ManualResetEvent ExitThreadEventReturn;
+        public ManualResetEvent ExitServerEventReturn;
+        public ManualResetEvent ExitMainEventReturn;
 
         public returns()
         {
             logger = LogManager.GetCurrentClassLogger();
+            ExitEvent = new ManualResetEvent(false);
+            ExitThreadEvent = new ManualResetEvent(false);
+            ExitServerEvent = new ManualResetEvent(false);
+            ExitMainEvent = new ManualResetEvent(false);
+            ExitThreadEventReturn = new ManualResetEvent(false);
+            ExitServerEventReturn = new ManualResetEvent(false);
+            ExitMainEventReturn = new ManualResetEvent(false);
         }
         ///<summary>Инициализирует класс, передавая ссылки на интерфейсы между потоками и буфферы</summary>  
         public void initreturns(AllInput _Inputs, TimeBuffer _times, CarBuffer _carbuffer, config _config){

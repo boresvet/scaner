@@ -86,22 +86,10 @@ public class SickScanners
 
         public static void RunScanners(returns returns){
 
-                /*var line1 = new line();
-                line1.createLine(new PointXYint(){X = 0, Y = 10}, new PointXYint(){X = 10, Y = 10});
-                var ray3 = new line();
-                ray3.createLine(new PointXY(){X = 0, Y = 0}, new PointXY(){X = 10, Y = 20});
-                Console.WriteLine(line1.DistancetopointSegment(new PointXY(){X = 0, Y = 0}, ray3, line1));
-                
-                Тесты для линий если усё пропало
-                */
-                // Read the stream as a string, and write the string to the console.
-
             //var InputEvent = new ManualResetEvent(false);
-            var ExitEvent = new ManualResetEvent(false);
             //var RoadEvent = new ManualResetEvent(false);
 
             var ReadFile = File.ReadAllText("config.json");
-            //Console.WriteLine(ReadFile);
             config config = JsonSerializer.Deserialize<config>(ReadFile);
             var Scaners = config.Scanners.ToArray();
             TimeBuffer times = new TimeBuffer(config.SortSettings.BufferTimesLength, returns.logger, config.SortSettings.Buffers);
@@ -110,29 +98,33 @@ public class SickScanners
             var Inputs = new AllInput(config);
             Task[] InputT;
             if(config.Test){
-                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), ExitEvent, y, returns.logger))).ToArray();
+                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => TestInputTask(config, Inputs.GetInputTheard(y), returns.ExitThreadEvent, y, returns.logger))).ToArray();
             }else{
-                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), ExitEvent, returns.logger))).ToArray();
+                InputT = Enumerable.Range(0, config.Scanners.Length).Select(y => Task.Run(() => InputTask(Inputs.GetInputTheard(y), returns.ExitThreadEvent, returns.logger))).ToArray();
             }
             //for(int y = 0; y<Scaners.Length; y++){
             //InputT[y] = Task.Run(() => InputTask(Scaners[y], MyConcurrentQueue[y], InputEvent[y], ErrorEvent[y], ExitEvent));
             //var InputT2 = Task.Run(() => InputTask(Scaners[1], MyConcurrentQueue[1], InputEvent[1], ErrorEvent[0], ExitEvent));
             //}
-            var MainT = Task.Run(() => TMainT(config, Inputs, times, ExitEvent, returns.logger));
+            var MainT = Task.Run(() => TMainT(config, Inputs, times, returns.ExitMainEvent, returns.logger));
             var carbuffer = new CarBuffer(config);
-            var ServerT = Task.Run(() => TServerT(times, config, carbuffer, ExitEvent, returns.logger));
+            var ServerT = Task.Run(() => TServerT(times, config, carbuffer, returns.ExitServerEvent, returns.logger));
             //var LaneT = Task.Run(() => TLaneT(config, LaneConcurrentQueue[0], RoadEvent, ExitEvent));
             returns.initreturns(Inputs, times, carbuffer, config);
-            Console.ReadLine();
-            ExitEvent.Set();
+            returns.ExitEvent.WaitOne();
+            returns.logger.Info("Начало остановки потоков");
+            returns.ExitServerEvent.Set();
+            ServerT.Wait();
+            returns.ExitServerEventReturn.Set();
+            returns.ExitMainEvent.Set();
+            MainT.Wait();
+            returns.ExitMainEventReturn.Set();
+            returns.ExitThreadEvent.Set();
+            Task.WaitAll(InputT);
+            returns.ExitThreadEventReturn.Set();
             Task.WaitAll(InputT.Concat(new [] {MainT, ServerT}).ToArray());
             returns.logger.Info("Завершено");
             return;
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"UpLimit: {config.RoadSettings.UpLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
-            //Console.WriteLine($"DownLimit: {config.RoadSettings.DownLimit}");
         }
 
         static void TServerT(TimeBuffer times, config config, CarBuffer carbuffer, ManualResetEvent ExitEvent, Logger logger){
