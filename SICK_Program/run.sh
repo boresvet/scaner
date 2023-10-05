@@ -6,6 +6,7 @@ do
 	then 
 		echo "Program exit, restart"
         sleep 3
+		exit
 	else
 		echo "Program failed, trying restart"
 		sleep 3
