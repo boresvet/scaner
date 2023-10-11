@@ -28,6 +28,8 @@
  */
 
 using System;
+using NLog;
+using System.Linq;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -62,6 +64,7 @@ namespace BSICK.Sensors.LMS1xx
 
         private bool needDump { get => writer != null; }
         public bool needEmu { get => reader != null; }
+        public Logger logger;
 
         #endregion
 
@@ -96,7 +99,11 @@ namespace BSICK.Sensors.LMS1xx
         /// <param name="dumpFileName">Filename for record data stream from sensor (for next emulation) or NULL</param>
         public LMS1XX(string ipAdress, int port, int receiveTimeout, int sendTimeout, string dumpFileName = null)
         {
+            logger = LogManager.GetCurrentClassLogger();
+            logger.Debug("Начало");
+
             this.clientSocket = new TcpClient() { ReceiveTimeout = receiveTimeout, SendTimeout = sendTimeout } ;
+            logger.Debug("Создан TCP клиент");
             this.IpAddress    = ipAdress;
             this.Port         = port;
             if (dumpFileName != null)
@@ -117,14 +124,19 @@ namespace BSICK.Sensors.LMS1xx
 
         public SocketConnectionResult Connect()
         {
+            logger.Debug("Проверка подключения сокета");
             if (needEmu)
                 return SocketConnectionResult.CONNECTED;
+            logger.Debug("Проверка статуса сокета");
 
             SocketConnectionResult status = (clientSocket.Connected) ? SocketConnectionResult.CONNECTED : SocketConnectionResult.DISCONNECTED;
             if (status == SocketConnectionResult.DISCONNECTED)
             {
+                logger.Debug("Сокет отвалился, ахтунг");
+
                 try
                 {
+                    logger.Debug("РЕЗНЯ");
                     clientSocket.Connect(this.IpAddress, this.Port);
                     status = SocketConnectionResult.CONNECTED;
                 }
@@ -217,6 +229,12 @@ namespace BSICK.Sensors.LMS1xx
         public string QueryStatus()
         {
             return Encoding.ASCII.GetString(ExecuteRaw(Cmd.QueryStatus));
+            //var responce =  ParseScanData(bytes);
+            //return "qwe";
+        }
+        public string mLMPsetscancfg(int freq, int sectors, double resolution, int startangle, int stopangle)
+        {
+            return Encoding.ASCII.GetString(ExecuteConfig(Cmd.mLMPsetscancfg(freq, sectors, resolution, startangle, stopangle)));
             //var responce =  ParseScanData(bytes);
             //return "qwe";
         }
@@ -328,7 +346,38 @@ namespace BSICK.Sensors.LMS1xx
                 return null;
             }
         }
+        public byte[] ExecuteConfig(byte[] command)
+        {
+            if (needEmu)
+            {
+                var size = reader.ReadInt32();
+                var data = reader.ReadBytes(size);
+                return data;
+            }
 
+            try
+            {
+                NetworkStream serverStream = clientSocket.GetStream();
+
+                serverStream.Write(command, 0, command.Length);
+                serverStream.Flush();
+
+                byte[] inStream = new byte[clientSocket.ReceiveBufferSize];
+                var count = serverStream.Read(inStream, 0, (int)clientSocket.ReceiveBufferSize);
+
+                var scan = inStream.AsSpan().Slice(0, count).ToArray();
+                if (needDump)
+                {
+                    writer.Write(scan.Length);
+                    writer.Write(scan);
+                }
+                return scan;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public async Task<byte[]> ExecuteRawAsync(byte[] streamCommand)
         {
             try
@@ -355,7 +404,8 @@ namespace BSICK.Sensors.LMS1xx
 
         public string SetAccessMode()
         {
-            
+            logger.Debug("Установка режима");
+
             //byte[] command = new byte[] { 0x02, 0x73, 0x41, 0x4E, 0x20, 0x53, 0x65, 0x74, 0x41, 0x63, 0x63, 0x65, 0x73, 0x73, 0x4D, 0x6F, 0x64, 0x65, 0x20, 0x31, 0x03 };
             return Encoding.ASCII.GetString(ExecuteRaw(Cmd.SetAccessMode));
             //return result;
@@ -581,6 +631,7 @@ namespace BSICK.Sensors.LMS1xx
                 {
 
                     var stream = clientSocket.GetStream();
+                    stream.ReadTimeout = 1000;
                     stream.Write(Cmd.ScanData, 0, Cmd.ScanData.Length);
                     stream.Flush();
                     data = LMDScandataResult.Parse(stream);
@@ -600,6 +651,7 @@ namespace BSICK.Sensors.LMS1xx
         {
             if (needEmu)
             {
+                logger.Debug("срочно нужен ЭМУ, но можно кота");
                 var size = reader.ReadInt32();
                 var bytes = reader.ReadBytes(size);
                 var data = LMDScandataResult.ParseContinious(bytes);
@@ -608,32 +660,49 @@ namespace BSICK.Sensors.LMS1xx
 
             if (clientSocket.Connected)
             {
+                logger.Debug("А сокет, оказывается, подключён, экая неожиданность");
                 LMDScandataResult data;
                 try
-                {                    
+                {            
+                    logger.Debug("Парсим данные");        
                     if (needDump)
                     {
+                    logger.Debug("Создание строки");        
                         var mirror = new MemoryStream();
+                    logger.Debug("Создание обработанной строки");        
                         var stream = new MirrorStream(clientSocket.GetStream(), mirror);
+                    logger.Debug("Парсим данные в строку");        
                         data = LMDScandataResult.ParseContinious(stream);
+                    logger.Debug("Преобразуем в строку байтов");        
                         var mirrorBytes = mirror.ToArray();
+                    logger.Debug("Выдаём длинну строки в байтах");        
                         writer.Write(mirrorBytes.Length);
+                    logger.Debug("Выдаём строку байтов");        
                         writer.Write(mirrorBytes);
                     }
                     else 
                     {
+                    logger.Debug("Создание строки 2");        
                         var stream = (Stream)clientSocket.GetStream();
+                    logger.Debug("Парсим всякие гадости");        
                         data = LMDScandataResult.ParseContinious(stream);
+                    logger.Debug("Распарсили?");        
                     }
+                    logger.Debug("Распарсили");        
+
                 }
                 catch (Exception ex)
                 {
+                    logger.Debug("Упс, ошибочка, парсилка пока не отросла");        
                     return new LMDScandataResult() { IsError = true, ErrorException = ex };
                 }
                 return data;
             }
             else
+            {
+                logger.Debug("Распарсили"); 
                 return new LMDScandataResult() { IsError = true, ErrorException = new Exception("Client socket not connected.") };
+            }
         }
 
         public async Task<LMDScandataResult> LMDScandataAsync()

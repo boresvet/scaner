@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using NLog;
 
 namespace BSICK.Sensors.LMS1xx
 {
@@ -20,6 +21,7 @@ namespace BSICK.Sensors.LMS1xx
 
         public static string ReadStringUntil(this Stream stream, char splitter, int count = 1000)
         {
+
             var sb = new StringBuilder();
             while (--count > 0)
             {
@@ -39,6 +41,7 @@ namespace BSICK.Sensors.LMS1xx
 
         public static int ReadIntAsHex(this Stream stream)
         {
+            var logger = LogManager.GetCurrentClassLogger();
             var txt = ReadWord(stream);
             return int.Parse(txt, System.Globalization.NumberStyles.HexNumber);
         }
@@ -109,7 +112,7 @@ namespace BSICK.Sensors.LMS1xx
     //    }
 
     //    public static string ReadWord(this BinaryReader reader)
-    //    {
+    //    {ReadListOfIntAsHex
     //        return ReadStringUntil(reader, ' ');
     //    }
 

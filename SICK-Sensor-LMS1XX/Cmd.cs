@@ -27,7 +27,11 @@
  * 
  */
 
+using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using System;
 
 namespace BSICK.Sensors.LMS1xx
 {
@@ -56,6 +60,7 @@ namespace BSICK.Sensors.LMS1xx
         public static readonly string StopContinuousString = "sEN LMDscandata 0";
         public static readonly string RunString = "sMN Run";
         public static readonly string QueryStatusString = "sRN STlms";
+        public static readonly string mLMPsetscancfgString = "sMN mLMPsetscancfg";
         public static readonly string StandByString = "sMN LMCstandby";
         public static readonly string RebootString = "sMN mSCreboot";
 
@@ -67,7 +72,26 @@ namespace BSICK.Sensors.LMS1xx
         public static readonly byte[] StopContinuous = StopContinuousString.GetCmdBytes();
         public static readonly byte[] Run = RunString.GetCmdBytes();
         public static readonly byte[] QueryStatus = QueryStatusString.GetCmdBytes();
+        //public static readonly byte[] mLMPsetscancfg = mLMPsetscancfgString.GetCmdBytes();
         public static readonly byte[] StandBy = StandByString.GetCmdBytes();
         public static readonly byte[] Reboot = RebootString.GetCmdBytes();
+        public static byte[] mLMPsetscancfg(int freq, int sectors, double resolution, int startangle, int stopangle){
+            string startsign;
+            if(startangle>=0){
+                startsign = "+";
+            }else{
+                startsign = "-";
+            }
+            string stopsign;
+            if(stopangle>=0){
+                stopsign = "+";
+            }else{
+                stopsign = "-";
+            }
+            var ret = new string(mLMPsetscancfgString+" +"+(freq*100).ToString()+" +"+sectors.ToString()+" +"+(resolution*10000).ToString()+" "+startsign+Math.Abs(startangle*10000)+" "+stopsign+Math.Abs(stopangle*10000));
+
+
+            return ret.GetCmdBytes();
+        }
     }
 }

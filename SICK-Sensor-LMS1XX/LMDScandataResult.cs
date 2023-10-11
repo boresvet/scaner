@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using NLog;
 
 namespace BSICK.Sensors.LMS1xx
 {
@@ -70,6 +71,10 @@ namespace BSICK.Sensors.LMS1xx
         public double? SizeOfSingleAngularStep;
         public int? AmountOfData;
         public List<int> DistancesData;
+
+
+        public Logger logger = LogManager.GetCurrentClassLogger();
+
 
         public static LMDScandataResult Parse(Stream br)
         {
@@ -141,9 +146,13 @@ namespace BSICK.Sensors.LMS1xx
         }
         public static LMDScandataResult ParseContinious(Stream stream)
         {
+            var logger = LogManager.GetCurrentClassLogger();
             //if (br.ReadByte() != StartMark)
             //    throw new LMSBadDataException("StartMark not found");
+            logger.Debug("Начинаем срать байтиками");        
+
             var result = new LMDScandataResult();
+            logger.Debug("Стари кастрации заголовка");        
             while (true)
             {
                 if (stream.ReadByte() != StartMark)
@@ -159,51 +168,84 @@ namespace BSICK.Sensors.LMS1xx
                 break;
 
             }
+            logger.Debug("Заголовок кастрирован");        
+
             //result.CommandType = br.ReadWord();
             //if (result.CommandType != "sRA")
             //{
             //    br.Flush();
             //    return result;
             //}
+            logger.Debug("Начало творения гадостей");        
             result.Command = stream.ReadWord();
+            logger.Debug("1");        
             result.VersionNumber = stream.ReadIntAsHex();
+            logger.Debug("2");        
             result.DeviceNumber = stream.ReadIntAsHex();
+            logger.Debug("3");        
             result.SerialNumber = (int)stream.ReadUIntAsHex();
+            logger.Debug("4");        
             result.DeviceStatus = $"{stream.ReadWord()}-{stream.ReadWord()}";
+            logger.Debug("5");        
             result.TelegramCounter = (int)stream.ReadUIntAsHex();  // todo uint
+            logger.Debug("6");        
             result.ScanCounter = (int)stream.ReadUIntAsHex();
+            logger.Debug("7");        
             result.TimeSinceStartup = stream.ReadUIntAsHex() /*/ 1000000*/;
+            logger.Debug("8");        
             result.TimeOfTransmission = stream.ReadUIntAsHex()/* / 1000000*/;
+            logger.Debug("9");        
             result.StatusOfDigitalInputs = $"{stream.ReadWord()}-{stream.ReadWord()}";
+            logger.Debug("10");        
             result.StatusOfDigitalOutputs = $"{stream.ReadWord()}-{stream.ReadWord()}";
+            logger.Debug("11");        
             result.Reserved = stream.ReadIntAsHex();
+            logger.Debug("12");        
             result.ScanFrequency = stream.ReadIntAsHex() / 100d;
+            logger.Debug("13");        
             result.MeasurementFrequency = stream.ReadIntAsHex() / 10d;
+            logger.Debug("14");        
             result.AmountOfEncoder = stream.ReadIntAsHex();
+            logger.Debug("15");        
             if (result.AmountOfEncoder > 0)
             {
                 result.EncoderPosition = stream.ReadIntAsHex();
                 result.EncoderSpeed = stream.ReadIntAsHex();
             }
+            logger.Debug("16");        
             result.AmountOf16BitChannels = stream.ReadIntAsHex();
+            logger.Debug("17");        
             result.Content = stream.ReadWord();
+            logger.Debug("18");        
             result.ScaleFactor = stream.ReadWord();
+            logger.Debug("19");        
             result.ScaleFactorOffset = stream.ReadWord();
+            logger.Debug("20");        
             result.StartAngle = stream.ReadIntAsHex() / 10000.0;
+            logger.Debug("21");        
             result.SizeOfSingleAngularStep = stream.ReadUIntAsHex() / 10000.0;
+            logger.Debug("22");        
             result.AmountOfData = stream.ReadIntAsHex();
 
+            logger.Debug("23");        
             result.DistancesData = stream.ReadListAsHex(result.AmountOfData ?? 0);
+            logger.Debug("23.1");        
 
             var AmountOf8BitData1 = stream.ReadIntAsHex();
+            logger.Debug("23.2");        
             var Position = stream.ReadIntAsHex();
+            logger.Debug("23.3");        
             var Comment = stream.ReadIntAsHex();
+            logger.Debug("23.4");        
             var Time = stream.ReadIntAsHex();
+            logger.Debug("23.5");        
             var EventInfo = stream.ReadIntAsHex();
             
+            logger.Debug("24");        
             while (stream.ReadByte() != EndMark);
             //br.Flush();
             result.IsError = false;
+            logger.Debug("Закончили");        
             return result;
         }
         public LMDScandataResult(byte[] rawData)
