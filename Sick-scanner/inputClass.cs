@@ -22,15 +22,15 @@ namespace Sick_test
             scaner = scanner;
             InputEvent = new ManualResetEvent(false);
             ErrorEvent = new ManualResetEvent(false);
-            MyConcurrentQueue = new CircularBuffer<Scanint>(1);
-            RawConcurrentQueue = new CircularBuffer<int[]>(1);
+            MyConcurrentQueue = new CircularBuffer<Scanint>(5);
+            RawConcurrentQueue = new CircularBuffer<int[]>(5);
         }
 
         public Scanint GetLastScan(){
-            return MyConcurrentQueue.ZeroPoint();
+            return MyConcurrentQueue.Dequeue1();
         }
         public void AddScan(Scanint scan){
-            MyConcurrentQueue.AddZeroPoint(scan);
+            MyConcurrentQueue.Enqueue(scan);
         }
 
 

@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using NLog;
+using System.Collections.Generic;
 
 namespace Sick_test;
 public class SickScanners
 {
 
-        public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
+        /*public static Scan AverrageCircularBuffer(CircularBuffer<Scan> MyCircularBuffer){
             var scan = new Scan(Step);
             //= MyCircularBuffer.ReadPosition();
             var ArrayPointsIndex = new int[Step];
@@ -39,7 +40,7 @@ public class SickScanners
             }
             //Console.WriteLine(ArrayPointsIndex[100]);
             return scan;
-        }
+        }*/
 
         public static int PointsHigth(double pointY){
             var result = new Int32();
@@ -184,28 +185,26 @@ public class SickScanners
             Inputs.WaitAnyData();
             Inputs.WaitAllData();
             Filter pointsfilter;
-            var method = config.Method;
-            switch (method)
+            switch (config.Method)
             {
                 case "primitive":
-                    logger.Info($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{config.Method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     pointsfilter = new PrimitiveFilter(config);
                     break;
                 case "primitiveAutomatic":
-                    logger.Info($"Установлен режим поиска '{method}'");
+                    logger.Info($"Установлен режим поиска '{config.Method}'");
 
                     //Console.WriteLine("Установлен режим поиска 'primitive'");
                     pointsfilter = new AutomaticPrimitiveFilter(config);
                     break;
                 default:
-                    logger.Error($"Ошибка режима поиска: режим '{method}' не известен. Установлен режим поиска 'primitive'");
+                    logger.Error($"Ошибка режима поиска: режим '{config.Method}' не известен. Установлен режим поиска 'primitive'");
                     //Console.WriteLine("Ошибка режима поиска: неизвестный режим. Установлен режим поиска 'primitive'");
                     pointsfilter = new PrimitiveFilter(config);
                     break;
             }
-            var ConcatScanInterface = new ScanConcat(config);
 
             //Создание массива столбцов, каждый столбец - содержит именно точки, которые в него попадают
             var roadColumnsCount = (int)((config.RoadSettings.RightLimit - config.RoadSettings.LeftLimit)/config.RoadSettings.Step);
@@ -216,11 +215,16 @@ public class SickScanners
 
             var Slicer = new ScanColumnArray(config);
 
+            var capacityscans = 1;
+            for(var i = 0; i < config.Scanners.Length; i++){
+                capacityscans+=(int)((config.Scanners[i].Settings.EndAngle-config.Scanners[i].Settings.StartAngle)/config.Scanners[i].Settings.Resolution);
+            }
             //Штука, куда складываются все точки дороги. 
             //Точки распределяются по массивам, как по вертикальным столбцам шириной в "config.RoadSettings.Step"
             //Это позволяет, вычислив машину в этих вот столбцах, использовать на них стандартный генератор островов. 
             //Соответственно, достаточно собрать генератор островов, и профит)
 
+            RoadScan = new Scanint(capacityscans);
 
             //var res = new Scanint(MyConcurrentQueue.);
             while(true)
@@ -243,8 +247,7 @@ public class SickScanners
 
                 //Проверка работоспособности сканеров(упал ли поток со сканерами)
                 Inputs.TestScanners();
-
-                RoadScan = new Scanint(0);
+                RoadScan.PointsArray().Clear();
                 for (int i = 0; i < config.Scanners.Length; i++)
                 {
                     /*if(InputEvent[i].WaitOne(0)){
@@ -258,11 +261,11 @@ public class SickScanners
                     if (Inputs.IsScannerReady(i)) 
                     {
                         var res = Inputs.GetLastScan(i);
-                        if (ConcatScanInterface.IsEmpty())
+                        if (RoadScan.PointsArray().Count == 0)
                         {
-                            RoadScan.time = res.time;
+                            RoadScan.WriteTime(res.Time());
                         }
-                        ConcatScanInterface.Add(res.pointsArray);
+                        RoadScan.UpdatePointsArray(res.PointsArray());
                     }
                     }
                     catch(Exception ex){
@@ -272,8 +275,7 @@ public class SickScanners
                 }
                 logger.Debug("Смешная нарезка точек в столбцы");
 
-                RoadScan.pointsArray = ConcatScanInterface.Dequeue();
-                Slicer.Add(RoadScan.pointsArray);//Смешная нарезка в столбцы
+                Slicer.Add(RoadScan.PointsArray().ToArray());//Смешная нарезка в столбцы
                 //SliceByColumns(config, RoadScan, pointsSortTable);
                 pointsSortTable = Slicer.Dequeue();
                 var CarArray = pointsfilter.CarPoints(pointsSortTable);//Дорисовка машины (недостающих столбцов)
@@ -284,8 +286,8 @@ public class SickScanners
                 }
                 RoadEvent.Set();*/
                 logger.Debug("Сохранение обработанных данных в буфер по времени");
-                times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.time));
-                //Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
+                times.AddSuperScan(new SuperScan(CarArray, pointsSortTable, RoadScan.Time()));
+                Console.WriteLine($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
                 logger.Debug($"Обработан скан дороги, всего {Array.FindAll(CarArray, point => (point != 0)).Length} столбцов с машинками");
             }
             }catch(Exception ex){
@@ -296,7 +298,7 @@ public class SickScanners
 
 
         //Нарезка данных в колонны
-        private static void SliceByColumns(config config, Scanint RoadScan, PointXYint[][] pointsSortTable)
+        /*private static void SliceByColumns(config config, Scanint RoadScan, PointXYint[][] pointsSortTable)
         {
             for (var i = 0; i < pointsSortTable.Length; i++)
             {
@@ -318,7 +320,7 @@ public class SickScanners
                 }
                 j++;
             }
-        }
+        }*/
 
 
 
@@ -364,7 +366,7 @@ public class SickScanners
 
             }
         }*/
-        public static Scanint[] LaneGen(Scanint Road, Lane[] inputLanes){
+        /*public static Scanint[] LaneGen(Scanint Road, Lane[] inputLanes){
             var retArray = new Scanint[inputLanes.Length];
             for(int j = 0; j < inputLanes.Length; j++){
                 retArray[j] = new Scanint(0);
@@ -381,7 +383,7 @@ public class SickScanners
                 retArray[j].time = Road.time;
             }
             return retArray;
-        }
+        }*/
 
         private static bool EmptyBuffer(CircularBuffer<Scanint>[] MyConcurrentQueue){
             var ret = true;
@@ -488,11 +490,15 @@ public class SickScanners
                     var contResult = lms.StartContinuous();
                     var res = lms.ScanContinious();
                     var Scan = new Scanint{
-                        pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))),
+                        pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))).ToList(),
                         time = DateTime.Now
                     };
                     var oldscannumber=0;
-
+                    var iarray = new Scanint{
+                        pointsArray = translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res))).ToList(),
+                        time = DateTime.Now
+                    };
+                    iarray.PointsArray().Clear();
                     logger.Debug($"Запись первого пришедшего скана {Inputs.id}");
 
                     while(true){
@@ -519,7 +525,7 @@ public class SickScanners
                         logger.Debug($"Запись времени получения скана со сканера {Inputs.id}");
                         Scan.time = DateTime.Now;
                         logger.Debug($"Обработка данных со сканера {Inputs.id}");
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(ConnectionResultDistanceDataint(res)), point => (point.X!=0)||(point.Y!=0)));
+                        translator.Translate(Conv.MakePoint(ConnectionResultDistanceDataint(res), iarray.PointsArray()).FindAll( point => (point.X!=0)||(point.Y!=0)), Scan.PointsArray());
                         logger.Debug($"Данные от сканера {Inputs.id} обработаны");
 
                         /*
@@ -570,17 +576,23 @@ public class SickScanners
                     
                     var res = lms.createscan();
                     var Scan = new Scanint{
-                        pointsArray = translator.Translate(Conv.MakePoint(res)),
+                        pointsArray = translator.Translate(Conv.MakePoint(res)).ToList(),
                         time = DateTime.Now
                     };
+                    var iarray = new Scanint{
+                        pointsArray = translator.Translate(Conv.MakePoint(res)).ToList(),
+                        time = DateTime.Now
+                    };
+                    iarray.PointsArray().Clear();
                     while(true){
-                        if (ExitEvent.WaitOne(10)) {
+                        if (ExitEvent.WaitOne(30)) {
                             return;
                         }
                         res = lms.createscan();
 
                         Scan.time = DateTime.Now;
-                        Scan.pointsArray = translator.Translate(Array.FindAll(Conv.MakePoint(res), point => (point.X!=0)&(point.Y!=0)));
+                        Scan.pointsArray.Clear();
+                        translator.Translate(Conv.MakePoint(res, iarray.PointsArray()).FindAll( point => (point.X!=0)||(point.Y!=0)), Scan.PointsArray());
                         /*
                         Эта штука конвертирует скан из радиальных координат в ХУ, 
                         потом удаляет все "нули" - точки, совпадающие со сканером 

@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Sick_test
 {
@@ -71,7 +74,7 @@ namespace Sick_test
         return result;
         }
         ///<summary>Перевод из радиальной в ХУ координаты
-        ///<param name = "rpos"></param>
+        ///<param name = "rpos">Массив расстояний от сканера</param>
         ///</summary> 
         public PointXYint[] MakePoint(int[] rpos){
             var result = new PointXYint[Step];
@@ -79,6 +82,17 @@ namespace Sick_test
                 result[i] = MakePointOne(rpos[i], i);
             }
         return result;
+        }
+        ///<summary>Перевод из радиальной в ХУ координаты
+        ///<param name = "rpos">Массив расстояний от сканера</param>
+        ///<param name = "pointsarray">Список точек, в который сохряняются точки при конвертации</param>
+        ///</summary> 
+        public List<PointXYint> MakePoint(int[] rpos, List<PointXYint> pointsarray){
+            pointsarray.Clear();
+            for (var i= 0; i<Step; i++){
+                pointsarray.Add(MakePointOne(rpos[i], i));
+            }
+            return pointsarray;
         }
     }
     ///<summary>Конвертор из радиальной системы координат в ХУ

@@ -79,7 +79,7 @@
         "Frequency": 100,
         "StartAngle": -5,
         "EndAngle": 185,
-        "Resolution": 0.5
+        "Resolution": 0.6667
       },
       "Transformations": {
         "Height": 3950,
@@ -97,7 +97,7 @@
         "Frequency": 100,
         "StartAngle": -5,
         "EndAngle": 185,
-        "Resolution": 0.5
+        "Resolution": 0.6667
       },
       "Transformations": {
         "Height": 3900,

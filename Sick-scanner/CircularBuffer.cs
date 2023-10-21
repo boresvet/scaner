@@ -8,7 +8,7 @@ namespace Sick_test
     ///<summary>Примитивнейший круговой буфер
     ///</summary>  
     public class CircularBuffer<T>{
-        protected T[] _buffer;
+        public T[] _buffer;
         protected int _head;
         protected int _tail;
         protected int _length;
@@ -178,9 +178,6 @@ namespace Sick_test
             for(int i = 0; i < counter; i++){
                 NewArray.objectsList[i] = objectsList[i];
             }
-        }
-        public T[] Copy(int len){
-            return new ArraySegment<T>(objectsList, 0, len).ToArray();
         }
     }
 

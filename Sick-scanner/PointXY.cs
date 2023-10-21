@@ -4,6 +4,13 @@ namespace Sick_test
     ///</summary>
     public struct PointXY{
         public double X,Y;
+        ///<summary>///Создаёт точку, с содержимым из старой точки
+        ///<param name = "input">Старая точка, которую нужно скопировать</param>
+        ///</summary>
+        public PointXY(PointXY input){
+            X = input.X;
+            Y = input.Y;
+        }
         ///<summary>///Возвращает копию массива точек
         ///<param name = "oldArray">Старый массив, который нужно скопировать</param>
         ///</summary>
@@ -33,6 +40,13 @@ namespace Sick_test
     public struct PointXYint{
         public int X { get; set; }
         public int Y { get; set; }
+        ///<summary>///Создаёт точку, с содержимым из старой точки
+        ///<param name = "input">Старая точка, которую нужно скопировать</param>
+        ///</summary>
+        public PointXYint(PointXYint input){
+            X = input.X;
+            Y = input.Y;
+        }
         ///<summary>///Возвращает копию массива точек
         ///<param name = "oldArray">Старый массив, который нужно скопировать</param>
         ///</summary>
