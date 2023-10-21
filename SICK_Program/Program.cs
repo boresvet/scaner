@@ -254,7 +254,7 @@ namespace SickScanner
 
             app.MapGet("www/lanes", () =>//
             {
-                for (int i = 0; i < config.RoadSettings.Lanes.Length; i++)
+                for (int i = 0; i < webconfig.roadSettings.lanes.Length; i++)
                     webconfig.roadSettings.lanes[i].id = i;
                 return webconfig.roadSettings.lanes;
             });

@@ -25,12 +25,18 @@ namespace Sick_test
             Array.Copy(pointsArray, newScan.pointsArray, pointsArray.Length);
             return newScan;
         }
+        public Scan copyToScan(){
+            var newScan = new Scan(pointsArray.Length);
+            newScan.time = time;
+            Array.Copy(pointsArray, newScan.pointsArray, pointsArray.Length);
+            return newScan;
+        }
     }
     ///<summary>///Описывает один скан, как массив точек и время, ему соответствующее
     ///</summary>
     public class Scanint{
-        public PointXYint[] pointsArray; 
-        public DateTime time;
+        protected PointXYint[] pointsArray; 
+        protected DateTime time;
         ///<summary>///Объявляет скан с массивом указанной длинны
         ///<param name = "count">Длина массива точек</param>
         ///</summary>    
@@ -40,6 +46,18 @@ namespace Sick_test
         ///<summary>///Объявляет пустой скан
         ///</summary>   
         public Scanint(){
+        }
+        public PointXYint[] PointsArray(){
+            return pointsArray;
+        }
+        public DateTime Time(){
+            return time;
+        }
+        public void WriteTime(DateTime _time){
+            time = _time;
+        }
+        public void WritePointsArray(PointXYint[] _pointsarray){
+            Array.Copy(_pointsarray, pointsArray, _pointsarray.Length);
         }
         ///<summary>///Возвращает копию скана
         ///</summary>   

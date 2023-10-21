@@ -8,14 +8,14 @@ namespace Sick_test
     ///<summary>Примитивнейший круговой буфер
     ///</summary>  
     public class CircularBuffer<T>{
-        public T[] _buffer;
-        public int _head;
-        public int _tail;
-        public int _length;
-        public int _buffersize;
-        private ManualResetEvent ReadEvent;
+        protected T[] _buffer;
+        protected int _head;
+        protected int _tail;
+        protected int _length;
+        protected int _buffersize;
+        protected ManualResetEvent ReadEvent;
 
-        public Object _lock = new object ();
+        protected Object _lock = new object ();
 
         public CircularBuffer(int buffersize){
             _buffer = new T[buffersize];
@@ -183,4 +183,7 @@ namespace Sick_test
             return new ArraySegment<T>(objectsList, 0, len).ToArray();
         }
     }
+
+
+
 }
