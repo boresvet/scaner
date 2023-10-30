@@ -1,16 +1,7 @@
-using Microsoft.Extensions.Options;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Sick_test;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace SickScanner
 {
