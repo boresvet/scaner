@@ -97,19 +97,13 @@ namespace Sick_test
         ///</summary>   
         public void WritePointsArray(List<PointXYint> _pointsarray){
             pointsArray.Clear();
-            _pointsarray.ForEach((item)=>
-            {
-                pointsArray.Add(new PointXYint(item));
-            });
+            pointsArray.AddRange(_pointsarray);
         }
         ///<summary>///Добавляет к текущему списку точки из переданного списка точек
         ///<param name = "_pointsarray">Список точек, который будет сохранён/param>
         ///</summary>   
         public void UpdatePointsArray(List<PointXYint> _pointsarray){
-            _pointsarray.ForEach((item)=>
-            {
-                pointsArray.Add(new PointXYint(item));
-            });
+            pointsArray.AddRange((_pointsarray));
         }
         ///<summary>///Возвращает копию скана
         ///</summary>   
